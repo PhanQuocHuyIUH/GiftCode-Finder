@@ -40,7 +40,7 @@ jobs:
       # Only the default branch publishes; runs elsewhere just test and scrape.
       PUBLISH: ${{ github.event_name == 'schedule' || github.ref_name == github.event.repository.default_branch }}
       GCF_WORKFLOW_FILE: scrape.yml
-      # Sources with `render: true` use the Chrome that ships with the runner.
+      # Sources with `render: true` (and Threads) use the Chrome that ships with the runner.
       GCF_BROWSER_CHANNEL: chrome
     outputs:
       pages: ${{ steps.pages.outputs.enabled }}
@@ -56,7 +56,7 @@ jobs:
       - name: Cài thư viện
         run: |
           pip install -r requirements-dev.txt
-          if grep -Eq '^\s*render:\s*true' config/sources.yaml || [ "${{ inputs.debug }}" = "true" ]; then
+          if grep -Eq '^\s*(render:\s*true|type:\s*threads)' config/sources.yaml || [ "${{ inputs.debug }}" = "true" ]; then
             pip install playwright
           fi
 
@@ -83,6 +83,8 @@ jobs:
         env:
           # Optional: Gzone session token, lets the zoneplay source read event codes.
           ZONEPLAY_ACCESS_TOKEN: ${{ secrets.ZONEPLAY_ACCESS_TOKEN }}
+          # Optional: token of your Discord bot, for `type: discord` sources.
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         run: python -m giftcode_finder run ${{ inputs.debug && '--debug' || '' }}
 
       - name: Lưu thay đổi vào repo

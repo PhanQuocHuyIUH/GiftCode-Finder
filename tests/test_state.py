@@ -204,3 +204,24 @@ def test_attach_events_skips_codes_tied_to_an_event_in_the_same_run():
     results = [ok("guide", "URBINO"), revealed]
     attach_events(results, {"games": {}}, game_name="Strinova")
     assert [c.title for c in revealed.hidden] == ["URBINO VIP"]
+
+
+def feed(source_id, *codes, game="g"):
+    return SourceResult(game, source_id, checked_at="", codes=list(codes), feed=True)
+
+
+def test_feed_keeps_codes_until_they_expire():
+    stream = Code("WAKINGMOON", expires_at="2026-10-23T02:30:00Z")
+    state, _ = update_state({"games": {}}, [feed("threads", stream), ok("site", "WUTHERINGGIFT")], T1)
+    # The post scrolled out of the feed: the code is still good.
+    state, _ = update_state(state, [feed("threads"), ok("site", "WUTHERINGGIFT")], T2)
+    assert codes(state)["WAKINGMOON"]["removed_at"] is None
+    assert codes(state)["WAKINGMOON"]["sources"] == ["threads"]
+    state, _ = update_state(state, [feed("threads"), ok("site", "WUTHERINGGIFT")], T3)
+    assert codes(state)["WAKINGMOON"]["removed_at"] == T3
+
+
+def test_feed_drops_codes_without_a_deadline_like_any_source():
+    state, _ = update_state({"games": {}}, [feed("threads", Code("AAA"))], T1)
+    state, _ = update_state(state, [feed("threads")], T2)
+    assert codes(state)["AAA"]["removed_at"] == T2

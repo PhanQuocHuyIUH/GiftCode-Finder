@@ -25,6 +25,7 @@ class SourceResult:
     codes: list[Code] | None = None  # None when the source could not be read
     error: str | None = None
     hidden: list[Code] = field(default_factory=list)  # listed, but the value is hidden
+    feed: bool = False  # the source only shows recent posts
 
     @property
     def ok(self) -> bool:
@@ -175,6 +176,17 @@ def merge_game(entries: list[dict], results: list[SourceResult], now: str) -> tu
                 add_source(entry, result.source_id)
                 for name in DETAIL_FIELDS:
                     entry[name] = getattr(item, name) or entry[name]
+            if result.feed:
+                # A post that scrolled out of the feed still vouches for its
+                # codes until they expire.
+                for old in entries:
+                    if (
+                        old["code"]
+                        and old["removed_at"] is None
+                        and result.source_id in old["sources"]
+                        and (old.get("expires_at") or "") > now
+                    ):
+                        add_source(entry_for(entry_key(old), old["code"]), result.source_id)
         else:
             # A failing source keeps vouching for what it listed last time,
             # so an outage never looks like every code expired.

@@ -6,6 +6,10 @@
 # Các loại nguồn (`type`):
 #   zoneplay  Trang Care của Gzone - url dạng https://zoneplay.vn/care/game/<id>
 #             (tuỳ chọn: token_env, reveal_types - xem README)
+#   threads   Trang Threads của nhà phát hành - url dạng https://www.threads.com/@<tên>
+#   discord   Kênh Discord, đọc bằng bot - url là link kênh (tuỳ chọn: token_env, limit)
+#             Hai loại này đọc bài đăng có code: code trong [ ], `...`, **...** hoặc
+#             đứng riêng một dòng, hạn dùng sau chữ "valid until", "expires", "hết hạn"...
 #   html      Lấy code bằng CSS selector:  item, code, attr, reward, expires
 #   regex     Lấy code bằng biểu thức chính quy:  pattern, on (text | html), flags
 #   json      Lấy code từ API JSON (hoặc JSON trong thẻ <script>):  items, code, reward, expires, script
@@ -46,6 +50,19 @@ games:
     # Code Wuthering Waves dùng chung mọi server. thegioididong.com chặn máy chủ
     # GitHub (kết nối bị treo) nên không dùng được làm nguồn ở đây.
     sources:
+      # Bài đăng chính thức của Kuro Games (cùng nội dung với X và Discord): 3 code mỗi
+      # buổi livestream cuối phiên bản, kèm giờ hết hạn chính xác. Chưa đăng nhập thì
+      # Threads chỉ cho xem vài bài mới nhất; code đã thấy được giữ đến lúc hết hạn.
+      - id: threads
+        name: Threads chính thức (@wutheringwaves)
+        type: threads
+        url: https://www.threads.com/@wutheringwaves
+      # (Tuỳ chọn) Kênh thông báo trên Discord chính thức, đọc bằng bot của bạn - xem
+      # README mục "Đọc kênh Discord chính thức", rồi bỏ dấu # ở 4 dòng dưới:
+      # - id: discord
+      #   name: Discord chính thức
+      #   type: discord
+      #   url: https://discord.com/channels/<id server của bạn>/<id kênh>
       - id: pcgamesn
         name: PCGamesN
         type: html

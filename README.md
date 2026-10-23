@@ -71,10 +71,16 @@ hiện cảnh báo, chứ không xoá sạch danh sách.
 
 ### Mỗi game lấy code từ đâu?
 
-**Wuthering Waves** (code dùng chung mọi server): bảng code còn hạn của
-[PCGamesN](https://www.pcgamesn.com/wuthering-waves/codes) và danh sách của
-[Pocket Tactics](https://www.pockettactics.com/wuthering-waves/codes) — hai nguồn dự phòng cho
-nhau. Bài của thegioididong.com không dùng được vì trang này chặn máy chủ GitHub.
+**Wuthering Waves** (code dùng chung mọi server):
+
+| Nguồn | Lấy được gì |
+|---|---|
+| [Threads chính thức @wutheringwaves](https://www.threads.com/@wutheringwaves) | Bài đăng code của Kuro Games (cùng nội dung bài trên X và Discord), gồm **3 code livestream** của buổi *Preview Special Broadcast* cuối mỗi phiên bản, kèm **giờ hết hạn chính xác** để trang web đếm ngược — code livestream thường chỉ dùng được khoảng 2 ngày. Khi chưa đăng nhập, Threads chỉ cho xem vài bài mới nhất, nên hệ thống quét mỗi giờ và giữ code đã thấy đến đúng lúc hết hạn |
+| [PCGamesN](https://www.pcgamesn.com/wuthering-waves/codes), [Pocket Tactics](https://www.pockettactics.com/wuthering-waves/codes) | Bảng code còn hạn (cả code dùng lâu dài như `WUTHERINGGIFT`) kèm phần thưởng; hai nguồn dự phòng cho nhau |
+| Discord chính thức (tuỳ chọn) | Đọc kênh thông báo bằng bot của bạn — xem [mục Discord](#tuỳ-chọn-đọc-kênh-discord-chính-thức) |
+
+Bài của thegioididong.com không dùng được vì trang này chặn máy chủ GitHub; X (Twitter) bắt đăng
+nhập nên cũng không đọc được.
 
 **Strinova:**
 
@@ -117,6 +123,34 @@ Lưu ý:
 - Khi token hết hạn, trang web hiện cảnh báo của nguồn Gzone Care; code đã lấy trước đó vẫn được
   giữ. Lặp lại bước 1–2 để cập nhật token.
 
+### (Tuỳ chọn) Đọc kênh Discord chính thức
+
+Bot không tự vào được server chính thức của game. Còn đọc Discord bằng tài khoản cá nhân
+(self-bot, token người dùng) thì **vi phạm điều khoản của Discord và có thể bị khoá tài khoản**,
+nên hệ thống không làm cách đó. Cách hợp lệ là dùng tính năng *Theo dõi* (Follow) của Discord:
+bài trong kênh thông báo chính thức tự được đăng lại sang một kênh trong server của bạn, rồi bot
+của bạn đọc kênh đó.
+
+1. **Tạo server riêng** (nếu chưa có): trong Discord bấm **+** → *Tạo của riêng tôi*, rồi tạo
+   một kênh chữ, ví dụ `#wuwa-code`.
+2. **Theo dõi kênh chính thức:** vào server Wuthering Waves chính thức, mở kênh thông báo nơi
+   Kuro đăng code. Bấm nút **Theo dõi** ở đầu kênh, chọn server và kênh `#wuwa-code` của bạn. Từ
+   đó, bài mới của kênh chính thức tự hiện trong kênh của bạn. (Kênh nào không có nút *Theo dõi*
+   thì không dùng được cách này.)
+3. **Tạo bot:** vào https://discord.com/developers/applications → *New Application* → mục
+   **Bot**: bấm *Reset Token* rồi sao chép token (chỉ hiện một lần); bật **Message Content
+   Intent** (mục *Privileged Gateway Intents*) rồi *Save Changes*.
+4. **Mời bot vào server của bạn:** mục **OAuth2 → URL Generator**, tích *bot*, chọn quyền
+   *View Channels* và *Read Message History*, mở link vừa tạo và chọn server của bạn.
+5. **Lưu token vào GitHub:** *Settings → Secrets and variables → Actions → New repository
+   secret*, đặt tên `DISCORD_BOT_TOKEN`, dán token.
+6. **Khai báo kênh:** trong Discord, chuột phải kênh `#wuwa-code` → *Sao chép liên kết kênh*
+   (dạng `https://discord.com/channels/<số>/<số>`). Trong [`config/sources.yaml`](config/sources.yaml),
+   bỏ dấu `#` ở 4 dòng nguồn `discord` của Wuthering Waves và thay `url` bằng link vừa chép.
+
+Bot chỉ đọc kênh trong server của bạn, không gửi gì. Nếu có lỗi (sai token, thiếu quyền, chưa bật
+Message Content Intent), trang web hiện cảnh báo kèm cách sửa ở dòng nguồn Discord.
+
 ## Thêm game hoặc trang nguồn
 
 Mọi thứ nằm trong [`config/sources.yaml`](config/sources.yaml).
@@ -147,6 +181,30 @@ Mọi thứ nằm trong [`config/sources.yaml`](config/sources.yaml).
         # attr: data-clipboard-text # lấy code từ thuộc tính thay vì chữ
         # render: true              # trang dựng bằng JavaScript -> dùng trình duyệt headless
 ```
+
+**Trang Threads của nhà phát hành** (đọc bài đăng có code và giờ hết hạn):
+
+```yaml
+      - id: threads
+        name: Threads chính thức
+        type: threads
+        url: https://www.threads.com/@<tên tài khoản>
+```
+
+**Kênh Discord** (cần bot, xem [mục Discord](#tuỳ-chọn-đọc-kênh-discord-chính-thức)):
+
+```yaml
+      - id: discord
+        name: Discord chính thức
+        type: discord
+        url: https://discord.com/channels/<id server>/<id kênh>
+        # token_env: DISCORD_BOT_TOKEN  # tên secret chứa token bot
+        # limit: 50                     # số tin nhắn gần nhất được đọc
+```
+
+Với hai loại này, code là chữ in hoa nằm trong `[ ]`, `` `...` ``, `**...**` hoặc đứng riêng một
+dòng của bài nói về code; hạn dùng là ngày giờ sau chữ *valid until*, *expires*, *hết hạn*...
+(hiểu cả múi giờ như `(PT)`, `UTC+8`). Bài đã quá hạn bị bỏ qua.
 
 **Trang bài viết, lấy bằng regex:**
 
@@ -193,5 +251,5 @@ python -m giftcode_finder run             # cập nhật data/, README và dựn
 python -m pytest                          # chạy test
 ```
 
-Mở `_site/index.html` để xem trang web. Nguồn có `render: true` (và `inspect --render`) cần thêm
-`pip install playwright && playwright install chromium`.
+Mở `_site/index.html` để xem trang web. Nguồn có `render: true`, nguồn Threads (và
+`inspect --render`) cần thêm `pip install playwright && playwright install chromium`.

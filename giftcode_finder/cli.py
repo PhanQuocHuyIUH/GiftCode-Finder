@@ -8,7 +8,7 @@ import sys
 import traceback
 
 from .config import ConfigError, Game, load_config
-from .extractors import extract
+from .extractors import FEEDS, extract
 from .fetch import Fetcher
 from .inspect import inspect_url
 from .publish import build_site, codes_markdown, site_data, update_readme, write_step_summary
@@ -84,7 +84,7 @@ def scrape(
     for game, sources in games:
         game_results = []
         for source in sources:
-            result = SourceResult(game.id, source.id, checked_at=now_iso())
+            result = SourceResult(game.id, source.id, checked_at=now_iso(), feed=source.type in FEEDS)
             try:
                 split_hidden(result, extract(source, fetcher), state)
             except Exception as exc:  # one broken site must not stop the others

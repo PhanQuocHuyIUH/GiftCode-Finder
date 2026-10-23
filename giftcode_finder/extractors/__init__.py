@@ -20,17 +20,22 @@ EXTRACTORS: dict[str, Extractor] = {}
 # Extractors that validate the response themselves, so an empty result means
 # the site really has nothing listed rather than a layout change.
 EMPTY_OK: set[str] = set()
+# Extractors that read a feed of recent posts: a code whose post scrolled out
+# of the feed is still good until it expires.
+FEEDS: set[str] = set()
 
 
 class ExtractError(Exception):
     pass
 
 
-def register(name: str, empty_ok: bool = False) -> Callable[[Extractor], Extractor]:
+def register(name: str, empty_ok: bool = False, feed: bool = False) -> Callable[[Extractor], Extractor]:
     def wrap(fn: Extractor) -> Extractor:
         EXTRACTORS[name] = fn
         if empty_ok:
             EMPTY_OK.add(name)
+        if feed:
+            FEEDS.add(name)
         return fn
 
     return wrap
@@ -84,4 +89,4 @@ def extract(source: Source, fetcher: Fetcher) -> list[Code]:
 
 
 # Register the bundled extractors.
-from . import generic, zoneplay  # noqa: E402,F401
+from . import generic, social, zoneplay  # noqa: E402,F401

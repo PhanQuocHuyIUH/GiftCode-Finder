@@ -54,6 +54,8 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
                 "old": [e for e in entries if e["removed_at"]],
             }
         )
+    # The game with the most recently found item comes first.
+    out_games.sort(key=lambda g: g["items"][0]["first_seen"] if g["items"] else "", reverse=True)
     return {
         "generated_at": generated_at,
         "updated_at": state.get("updated_at"),

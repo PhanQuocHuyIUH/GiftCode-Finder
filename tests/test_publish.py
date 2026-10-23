@@ -95,3 +95,13 @@ def test_build_site_versions_assets(tmp_path):
     (template / "app.js").write_text("two", encoding="utf-8")
     second = (build_site({}, template, tmp_path / "b") / "index.html").read_text(encoding="utf-8")
     assert "__GCF_VERSION__" not in first and first != second
+
+
+def test_game_with_the_newest_item_comes_first():
+    other = Game(id="h", name="Other", sources=[Source(id="a", name="A", type="html", url="https://a.test/")])
+    state = {"updated_at": None, "games": {
+        "g": [entry("OLDER", "2026-10-20T00:00:00Z")],
+        "h": [entry("NEWER", "2026-10-23T00:00:00Z")],
+    }}
+    data = site_data([GAME, other], state, RESULTS, "2026-10-23T06:00:00Z")
+    assert [g["id"] for g in data["games"]] == ["h", "g"]

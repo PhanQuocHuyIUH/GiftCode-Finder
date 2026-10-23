@@ -39,3 +39,27 @@ games:
         name: Gzone Care (zoneplay.vn)
         type: zoneplay
         url: https://zoneplay.vn/care/game/367
+
+  - id: wuthering-waves
+    name: Wuthering Waves
+    redeem_note: "Trong game (cần Union Level 2): Terminal (Esc) → Cài đặt → Other Settings → Redemption/Redeem → nhập code → Confirm. Quà gửi vào hộp thư."
+    # Code Wuthering Waves dùng chung mọi server. thegioididong.com chặn máy chủ
+    # GitHub (kết nối bị treo) nên không dùng được làm nguồn ở đây.
+    sources:
+      - id: pcgamesn
+        name: PCGamesN
+        type: html
+        url: https://www.pcgamesn.com/wuthering-waves/codes
+        # Bảng code còn hạn: mỗi dòng có nút copy mang sẵn mã.
+        item: "tr:has(.copy-code-button)"
+        code: ".copy-code-button"
+        attr: data-copy-code
+        reward: "td:nth-of-type(2)"
+      - id: pockettactics
+        name: Pocket Tactics
+        type: html
+        url: https://www.pockettactics.com/wuthering-waves/codes
+        # Danh sách code còn hạn (code in đậm); code hết hạn nằm trong đoạn văn riêng.
+        item: ".entry-content ul > li:has(> strong)"
+        code: "strong"
+        code_pattern: "[A-Z0-9]{4,30}"

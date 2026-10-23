@@ -121,3 +121,30 @@ def test_private_and_ended_events(monkeypatch):
 def test_no_events_is_not_an_error(monkeypatch):
     monkeypatch.delenv("ZONEPLAY_ACCESS_TOKEN", raising=False)
     assert extract(source("gzone"), RouteFetcher(events_route([]))) == []
+
+
+PCGAMESN = (FIXTURES / "pcgamesn_wuthering_waves.html").read_text(encoding="utf-8")
+POCKETTACTICS = (FIXTURES / "pockettactics_wuthering_waves.html").read_text(encoding="utf-8")
+
+
+def wuwa(source_id):
+    game = next(g for g in load_config("config/sources.yaml") if g.id == "wuthering-waves")
+    return next(s for s in game.sources if s.id == source_id)
+
+
+def test_pcgamesn_reads_only_the_active_code_table():
+    src = wuwa("pcgamesn")
+    items = extract(src, RouteFetcher({("GET", src.url): lambda _: (200, PCGAMESN)}))
+    assert [(c.code, c.reward) for c in items] == [
+        (
+            "WUTHERINGGIFT",
+            "50 Astrite, two Premium Resonance Potions, two Medium Revival Inhalers, "
+            "a Medium Energy Bag, and 10k Shell Credits",
+        )
+    ]
+
+
+def test_pockettactics_reads_only_the_active_code_list():
+    src = wuwa("pockettactics")
+    items = extract(src, RouteFetcher({("GET", src.url): lambda _: (200, POCKETTACTICS)}))
+    assert [c.code for c in items] == ["WUTHERINGGIFT"]

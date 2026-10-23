@@ -54,7 +54,14 @@ _Code thay đổi lần cuối: 23/10/2026 20:02 (giờ Việt Nam)._
 Nếu một trang nguồn bị lỗi (sập, đổi giao diện), code cũ của nguồn đó vẫn được giữ và trang web
 hiện cảnh báo, chứ không xoá sạch danh sách.
 
-### Strinova lấy code từ đâu?
+### Mỗi game lấy code từ đâu?
+
+**Wuthering Waves** (code dùng chung mọi server): bảng code còn hạn của
+[PCGamesN](https://www.pcgamesn.com/wuthering-waves/codes) và danh sách của
+[Pocket Tactics](https://www.pockettactics.com/wuthering-waves/codes) — hai nguồn dự phòng cho
+nhau. Bài của thegioididong.com không dùng được vì trang này chặn máy chủ GitHub.
+
+**Strinova:**
 
 | Nguồn | Lấy được gì |
 |---|---|

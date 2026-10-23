@@ -56,6 +56,7 @@ def _parser() -> argparse.ArgumentParser:
     ins.add_argument("--scan-js", action="store_true", help="tìm URL API trong các file JS của trang")
     ins.add_argument("--grep", action="append", default=[], metavar="CHỮ", help="in đoạn JS quanh chữ này (lặp lại được)")
     ins.add_argument("--grep-width", type=int, default=300, metavar="N", help="số ký tự in quanh mỗi chỗ --grep tìm thấy")
+    ins.add_argument("--grep-limit", type=int, default=8, metavar="N", help="số chỗ tối đa in cho mỗi --grep")
     ins.add_argument("--click", metavar="SELECTOR", help="bấm phần tử này sau khi tải (vd: 'text=Nhận'), ngụ ý --render")
     ins.add_argument("--text", type=int, default=0, metavar="N", help="in N dòng chữ hiển thị")
     ins.add_argument("--html", type=int, default=0, metavar="N", help="in N dòng HTML của <body>")
@@ -137,6 +138,7 @@ def cmd_inspect(args: argparse.Namespace) -> int:
                 scan_js=args.scan_js,
                 grep=args.grep,
                 grep_width=args.grep_width,
+                grep_limit=args.grep_limit,
                 click=args.click,
                 dump_text=args.text,
                 dump_html=args.html,

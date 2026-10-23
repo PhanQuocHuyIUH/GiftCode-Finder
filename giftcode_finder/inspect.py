@@ -142,6 +142,7 @@ def inspect_url(
     scan_js: bool = False,
     grep: list[str] = (),
     grep_width: int = 300,
+    grep_limit: int = 8,
     click: str | None = None,
     dump_text: int = 0,
     dump_html: int = 0,
@@ -203,7 +204,7 @@ def inspect_url(
             for path in paths[:150]:
                 print(f"     {path}")
             for needle in grep:
-                hits = _grep(js, needle, width=grep_width)
+                hits = _grep(js, needle, limit=grep_limit, width=grep_width)
                 print(f"  Tìm '{needle}': {len(hits)} chỗ")
                 for hit in hits:
                     print(f"     … {hit} …")

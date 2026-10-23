@@ -10,13 +10,43 @@ Mở link là có code, bấm vào code là sao chép.
 ## Code hiện có
 
 <!-- GIFTCODES:START -->
-### Strinova — 0 code
+### Strinova — 6 code
 
-_Chưa có code nào đang hoạt động._
+| Code | Sự kiện | Hạn dùng | Thấy lần đầu |
+|---|---|---|---|
+| `STRINOVA` | — | — | 23/10/2026 |
+| `P.U.S` | — | — | 23/10/2026 |
+| `THESCISSORS` | — | — | 23/10/2026 |
+| `URBINO` | — | — | 23/10/2026 |
+| `SUPERSTRING` | — | — | 23/10/2026 |
+| `STRINGIFY` | — | — | 23/10/2026 |
 
-Nguồn: [Gzone (zoneplay.vn)](https://zoneplay.vn/care/game/367)
+Sao chép tất cả:
 
-_Code thay đổi lần cuối: 23/10/2026 18:57 (giờ Việt Nam)._
+```text
+STRINOVA
+P.U.S
+THESCISSORS
+URBINO
+SUPERSTRING
+STRINGIFY
+```
+
+<details><summary>6 sự kiện cần đăng nhập để xem mã (bấm để nhận)</summary>
+
+- [STRINGIFY](https://zoneplay.vn/care/event/945/367) — hạn 23/04/2027
+- [SUPERSTRING](https://zoneplay.vn/care/event/944/367) — hạn 23/04/2027
+- [STRINOVA URBINO](https://zoneplay.vn/care/event/943/367) — hạn 23/04/2027
+- [THESCISSORS](https://zoneplay.vn/care/event/942/367) — hạn 23/04/2027
+- [Strinova PUS](https://zoneplay.vn/care/event/941/367) — hạn 23/04/2027
+- [Strinova VN](https://zoneplay.vn/care/event/940/367) — hạn 23/04/2027
+
+</details>
+
+Nguồn: [Strinova VN – Hướng dẫn nhập giftcode](https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn), [Gzone Care (zoneplay.vn)](https://zoneplay.vn/care/game/367)
+Cách nhập: Trong game: Cài Đặt (góc trên bên phải) → Mã Đổi Thưởng → nhập code → xác nhận. — https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn
+
+_Code thay đổi lần cuối: 23/10/2026 19:20 (giờ Việt Nam)._
 <!-- GIFTCODES:END -->
 
 ## Cách hoạt động

@@ -1,6 +1,79 @@
 {
-  "updated_at": "2026-10-23T11:57:56Z",
+  "updated_at": "2026-10-23T12:20:42Z",
   "games": {
-    "strinova": []
+    "strinova": [
+      {
+        "code": "STRINOVA",
+        "title": null,
+        "reward": null,
+        "expires": null,
+        "link": null,
+        "sources": [
+          "huong-dan"
+        ],
+        "first_seen": "2026-10-23T12:20:42Z",
+        "removed_at": null
+      },
+      {
+        "code": "P.U.S",
+        "title": null,
+        "reward": null,
+        "expires": null,
+        "link": null,
+        "sources": [
+          "huong-dan"
+        ],
+        "first_seen": "2026-10-23T12:20:42Z",
+        "removed_at": null
+      },
+      {
+        "code": "THESCISSORS",
+        "title": null,
+        "reward": null,
+        "expires": null,
+        "link": null,
+        "sources": [
+          "huong-dan"
+        ],
+        "first_seen": "2026-10-23T12:20:42Z",
+        "removed_at": null
+      },
+      {
+        "code": "URBINO",
+        "title": null,
+        "reward": null,
+        "expires": null,
+        "link": null,
+        "sources": [
+          "huong-dan"
+        ],
+        "first_seen": "2026-10-23T12:20:42Z",
+        "removed_at": null
+      },
+      {
+        "code": "SUPERSTRING",
+        "title": null,
+        "reward": null,
+        "expires": null,
+        "link": null,
+        "sources": [
+          "huong-dan"
+        ],
+        "first_seen": "2026-10-23T12:20:42Z",
+        "removed_at": null
+      },
+      {
+        "code": "STRINGIFY",
+        "title": null,
+        "reward": null,
+        "expires": null,
+        "link": null,
+        "sources": [
+          "huong-dan"
+        ],
+        "first_seen": "2026-10-23T12:20:42Z",
+        "removed_at": null
+      }
+    ]
   }
 }

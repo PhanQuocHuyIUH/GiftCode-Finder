@@ -55,7 +55,10 @@ _Code thay đổi lần cuối: 23/10/2026 19:20 (giờ Việt Nam)._
 2. Nó đọc [`config/sources.yaml`](config/sources.yaml), tải từng trang nguồn và lấy code ra.
    Một game có thể có nhiều nguồn, code trùng giữa các nguồn được gộp lại.
 3. Kết quả gộp với lịch sử trong [`data/codes.json`](data/codes.json): code mới được ghi ngày
-   phát hiện (hiện nhãn **MỚI** trong 3 ngày), code bị gỡ khỏi trang nguồn chuyển sang mục "code cũ".
+   phát hiện (hiện nhãn **MỚI** trong 3 ngày) và luôn nằm **trên cùng**; code bị gỡ khỏi trang nguồn
+   chuyển sang mục "code cũ". Code có hạn dùng thì trang web **đếm ngược** đến lúc hết hạn.
+   Sự kiện mà trang nguồn chỉ hiện mã khi đăng nhập (🔒) vẫn được báo trong danh sách, kèm nút
+   *Nhận code*; khi nguồn khác đăng mã của sự kiện đó, hai bên được ghép lại thành một dòng.
 4. Trang web được dựng lại và đăng lên GitHub Pages; bảng code ở README này cũng được cập nhật
    (chỉ commit khi danh sách code thay đổi).
 

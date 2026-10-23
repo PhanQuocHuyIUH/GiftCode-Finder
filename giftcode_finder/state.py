@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .codes import Code
+from .codes import DETAIL_FIELDS, Code, code_key
 
 MAX_REMOVED_PER_GAME = 50
 
@@ -60,12 +60,65 @@ def split_hidden(result: SourceResult, items: list[Code], state: dict) -> None:
     a source that keeps listing the same event keeps its code, even when the
     value can no longer be fetched (for example after a login expired).
     """
-    known = {e["link"]: e["code"] for e in state["games"].get(result.game_id, []) if e.get("link")}
+    known = {e["link"]: e["code"] for e in state["games"].get(result.game_id, []) if e.get("link") and e["code"]}
     for item in items:
         if item.code is None and item.link in known:
             item.code = known[item.link]
     result.codes = [i for i in items if i.code is not None]
     result.hidden = [i for i in items if i.code is None]
+
+
+def attach_events(results: list[SourceResult], state: dict, game_name: str = "") -> None:
+    """Give hidden events the codes other sources publish for them.
+
+    Gzone lists "STRINOVA URBINO" without its code while the guide lists
+    "URBINO": an event takes a known code that appears as a word of its
+    title. Each code belongs to one event; older events choose first, and a
+    word equal to the game name is the last resort, so a new "Strinova ..."
+    event is not mistaken for the existing STRINOVA code.
+    """
+    if not results:
+        return
+    entries = state["games"].get(results[0].game_id, [])
+    linked = {e["code"] for e in entries if e["code"] and e.get("link")}
+    linked |= {i.code for r in results if r.ok for i in r.codes if i.link}
+    pool = [e["code"] for e in entries if e["code"] and not e["removed_at"]]
+    pool += [i.code for r in results if r.ok for i in r.codes if not i.link]
+    available = {code_key(c): c for c in pool if c not in linked and len(code_key(c)) >= 3}
+    game = code_key(game_name)
+
+    events = [(r, i) for r in results if r.ok for i in r.hidden if i.title]
+    # Oldest first; sources list newest first, so ties fall back to reverse order.
+    order = sorted(range(len(events)), key=lambda n: (events[n][1].since or "", -n))
+    choices = {}
+    for n in order:
+        title = events[n][1].title
+        words = {code_key(w) for w in title.split()} | {code_key(title)}
+        keys = [k for k in available if k in words]
+        choices[n] = sorted(keys, key=lambda k: (k != code_key(title), k == game))
+
+    owner: dict[str, int] = {}
+
+    def assign(n: int, seen: set) -> bool:
+        for key in choices[n]:
+            if key not in seen:
+                seen.add(key)
+                if key not in owner or assign(owner[key], seen):
+                    owner[key] = n
+                    return True
+        return False
+
+    for n in order:
+        assign(n, set())
+    for key, n in owner.items():
+        result, item = events[n]
+        item.code = available[key]
+        result.hidden.remove(item)
+        result.codes.append(item)
+
+
+def entry_key(entry: dict) -> str:
+    return entry["code"] or f"link:{entry.get('link')}"
 
 
 def update_state(state: dict, results: list[SourceResult], now: str) -> tuple[dict, dict[str, list[dict]]]:
@@ -90,23 +143,26 @@ def update_state(state: dict, results: list[SourceResult], now: str) -> tuple[di
 
 
 def merge_game(entries: list[dict], results: list[SourceResult], now: str) -> tuple[list[dict], list[dict]]:
-    previous = {e["code"]: e for e in entries}
+    """Merge one game's results into its entries.
+
+    An entry is a code, or - with ``code`` None - an event whose code is
+    hidden, keyed by its link. When an event's code becomes known the code
+    entry takes over the event's first-seen time.
+    """
+    previous = {entry_key(e): e for e in entries}
     active: dict[str, dict] = {}
 
-    def entry_for(code: str) -> dict:
-        if code not in active:
-            old = previous.get(code, {})
-            active[code] = {
+    def entry_for(key: str, code: str | None) -> dict:
+        if key not in active:
+            old = previous.get(key, {})
+            active[key] = {
                 "code": code,
-                "title": old.get("title"),
-                "reward": old.get("reward"),
-                "expires": old.get("expires"),
-                "link": old.get("link"),
+                **{name: old.get(name) for name in DETAIL_FIELDS},
                 "sources": [],
                 "first_seen": old.get("first_seen", now),
                 "removed_at": None,
             }
-        return active[code]
+        return active[key]
 
     def add_source(entry: dict, source_id: str) -> None:
         if source_id not in entry["sources"]:
@@ -114,23 +170,32 @@ def merge_game(entries: list[dict], results: list[SourceResult], now: str) -> tu
 
     for result in results:
         if result.ok:
-            for item in result.codes:
-                entry = entry_for(item.code)
+            for item in result.codes + result.hidden:
+                entry = entry_for(item.code or f"link:{item.link}", item.code)
                 add_source(entry, result.source_id)
-                for name in ("title", "reward", "expires", "link"):
+                for name in DETAIL_FIELDS:
                     entry[name] = getattr(item, name) or entry[name]
         else:
-            # A failing source keeps vouching for the codes it listed last time,
+            # A failing source keeps vouching for what it listed last time,
             # so an outage never looks like every code expired.
             for old in entries:
                 if old["removed_at"] is None and result.source_id in old["sources"]:
-                    add_source(entry_for(old["code"]), result.source_id)
+                    add_source(entry_for(entry_key(old), old["code"]), result.source_id)
 
+    # Hidden events whose code is now known fold into that code's entry.
+    by_link = {e["link"]: e for e in active.values() if e["code"] and e.get("link")}
+    for event in [e for e in entries if not e["code"]] + [e for e in active.values() if not e["code"]]:
+        code_entry = by_link.get(event.get("link"))
+        if code_entry:
+            code_entry["first_seen"] = min(code_entry["first_seen"], event["first_seen"])
+            active.pop(entry_key(event), None)
+
+    # Codes no longer listed move to the history; events just disappear.
     removed = []
     for old in entries:
-        if old["code"] not in active:
+        if old["code"] and entry_key(old) not in active:
             removed.append(old if old["removed_at"] else {**old, "removed_at": now})
     removed.sort(key=lambda e: e["removed_at"], reverse=True)
 
-    new = [e for code, e in active.items() if code not in previous]
+    new = [e for e in active.values() if e["first_seen"] == now]
     return list(active.values()) + removed[:MAX_REMOVED_PER_GAME], new

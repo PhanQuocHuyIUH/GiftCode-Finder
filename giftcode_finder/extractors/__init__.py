@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from ..codes import Code, clean_code, compile_pattern, dedupe, is_code
+from ..codes import Code, clean_code, compile_pattern, dedupe, is_code, parse_vn_time
 from ..config import Source
 from ..fetch import Fetcher, Page
 
@@ -60,6 +60,8 @@ def finalize(source: Source, codes: list[Code]) -> list[Code]:
     exclude = {str(word).upper() for word in source.get("exclude", [])}
     valid, hidden = [], []
     for item in codes:
+        if item.expires and not item.expires_at:
+            item.expires_at = parse_vn_time(item.expires)
         if item.code is None:
             if item.link or item.title:
                 hidden.append(item)

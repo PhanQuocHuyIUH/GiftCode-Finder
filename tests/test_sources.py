@@ -65,6 +65,9 @@ def test_care_page_without_token_lists_events_to_claim(monkeypatch):
     first = items[0]
     assert first.link == "https://zoneplay.vn/care/event/945/367"
     assert first.expires == "23/04/2027"
+    # Gzone times are Vietnam time (UTC+7).
+    assert first.expires_at == "2027-04-23T04:45:00Z"
+    assert first.since == "2026-10-21T04:45:00Z"
     assert first.reward == "Mừng Game Ra Mắt Thành Công"
 
 

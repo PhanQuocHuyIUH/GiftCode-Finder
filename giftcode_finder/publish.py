@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -9,12 +10,13 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from .config import Game
-from .state import SourceResult
+from .state import SourceResult, entry_key
 
 VN_TZ = timezone(timedelta(hours=7))
 README_START = "<!-- GIFTCODES:START -->"
 README_END = "<!-- GIFTCODES:END -->"
 DATA_PLACEHOLDER = "__GCF_DATA__"
+VERSION_PLACEHOLDER = "__GCF_VERSION__"
 
 
 def site_data(games: list[Game], state: dict, results: list[SourceResult], generated_at: str) -> dict:
@@ -24,7 +26,7 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
     workflow = os.environ.get("GCF_WORKFLOW_FILE", "scrape.yml")
     out_games = []
     for game in games:
-        sources, hidden = [], []
+        sources = []
         for source in game.sources:
             result = status.get((game.id, source.id))
             sources.append(
@@ -39,16 +41,7 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
                     "checked_at": result.checked_at if result else None,
                 }
             )
-            for item in result.hidden if result else []:
-                hidden.append(
-                    {
-                        "title": item.title,
-                        "reward": item.reward,
-                        "expires": item.expires,
-                        "link": item.link,
-                        "source": source.id,
-                    }
-                )
+        entries = state["games"].get(game.id, [])
         out_games.append(
             {
                 "id": game.id,
@@ -56,8 +49,9 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
                 "redeem_url": game.redeem_url,
                 "redeem_note": game.redeem_note,
                 "sources": sources,
-                "codes": state["games"].get(game.id, []),
-                "hidden": hidden,
+                # Codes and events whose code needs a login, newest first.
+                "items": newest_first([e for e in entries if not e["removed_at"]]),
+                "old": [e for e in entries if e["removed_at"]],
             }
         )
     return {
@@ -67,6 +61,11 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
         "workflow_url": f"{server}/{repo}/actions/workflows/{workflow}" if repo else None,
         "games": out_games,
     }
+
+
+def newest_first(entries: list[dict]) -> list[dict]:
+    # Ties (found in the same run) go by when the source started offering them.
+    return sorted(entries, key=lambda e: (e["first_seen"], e.get("since") or ""), reverse=True)
 
 
 def build_site(data: dict, template_dir: str | Path, out_dir: str | Path) -> Path:
@@ -79,7 +78,13 @@ def build_site(data: dict, template_dir: str | Path, out_dir: str | Path) -> Pat
     index = out_dir / "index.html"
     # "</" would let the data close the <script> tag it is embedded in.
     embedded = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
-    index.write_text(index.read_text(encoding="utf-8").replace(DATA_PLACEHOLDER, embedded), encoding="utf-8")
+    # Browsers cache app.js/style.css; a content hash makes them refetch on change.
+    digest = hashlib.sha1()
+    for asset in sorted(template_dir.iterdir()):
+        if asset.name != "index.html" and asset.is_file():
+            digest.update(asset.read_bytes())
+    html = index.read_text(encoding="utf-8").replace(VERSION_PLACEHOLDER, digest.hexdigest()[:10])
+    index.write_text(html.replace(DATA_PLACEHOLDER, embedded), encoding="utf-8")
     return out_dir
 
 
@@ -98,33 +103,33 @@ def codes_markdown(data: dict, new_by_game: dict[str, list[dict]] | None = None)
     new_by_game = new_by_game or {}
     lines = []
     for game in data["games"]:
-        active = [c for c in game["codes"] if not c["removed_at"]]
-        new_codes = {c["code"] for c in new_by_game.get(game["id"], [])}
-        lines.append(f"### {game['name']} — {len(active)} code")
-        lines.append("")
-        if active:
-            lines.append("| Code | Sự kiện | Hạn dùng | Thấy lần đầu |")
+        items = game["items"]
+        codes = [e["code"] for e in items if e["code"]]
+        locked = len(items) - len(codes)
+        new_keys = {entry_key(e) for e in new_by_game.get(game["id"], [])}
+        heading = f"### {game['name']} — {len(codes)} code"
+        lines += [heading + (f", {locked} sự kiện cần đăng nhập" if locked else ""), ""]
+        if items:
+            lines.append("| Code | Sự kiện | Hết hạn | Thấy lần đầu |")
             lines.append("|---|---|---|---|")
-            for c in active:
-                badge = " 🆕" if c["code"] in new_codes else ""
-                event = " — ".join(x for x in (c.get("title"), c.get("reward")) if x and x != c["code"])
-                if c.get("link"):
-                    event = f"[{_cell(event or 'Xem')}]({c['link']})"
-                lines.append(
-                    f"| `{c['code']}`{badge} | {_cell(event)} | {_cell(c['expires'])} "
-                    f"| {vn_time(c['first_seen'], with_time=False)} |"
-                )
-            lines += ["", "Sao chép tất cả:", "", "```text", *[c["code"] for c in active], "```"]
+            for e in items:
+                badge = " 🆕" if entry_key(e) in new_keys else ""
+                event = _cell(" — ".join(x for x in (e.get("title"), e.get("reward")) if x and x != e["code"]))
+                if e["code"]:
+                    code = f"`{e['code']}`"
+                    if e.get("link"):
+                        event = f"[{event if event != '—' else 'Xem'}]({e['link']})"
+                else:
+                    code = f"🔒 [Nhận code]({e['link']})"
+                expires = vn_time(e["expires_at"]) if e.get("expires_at") else _cell(e.get("expires"))
+                lines.append(f"| {code}{badge} | {event} | {expires} | {vn_time(e['first_seen'], with_time=False)} |")
+            if locked:
+                lines += ["", "🔒 = trang nguồn chỉ hiện mã khi đã đăng nhập, bấm *Nhận code* để lấy."]
+            if codes:
+                lines += ["", "Sao chép tất cả:", "", "```text", *codes, "```"]
         else:
             lines.append("_Chưa có code nào đang hoạt động._")
         lines.append("")
-        if game.get("hidden"):
-            count = len(game["hidden"])
-            lines += [f"<details><summary>{count} sự kiện cần đăng nhập để xem mã (bấm để nhận)</summary>", ""]
-            for h in game["hidden"]:
-                expires = f" — hạn {h['expires']}" if h.get("expires") else ""
-                lines.append(f"- [{_cell(h['title'] or h['link'])}]({h['link']}){expires}")
-            lines += ["", "</details>", ""]
         source_links = ", ".join(f"[{s['name']}]({s['url']})" for s in game["sources"])
         lines.append(f"Nguồn: {source_links}")
         if game.get("redeem_note") or game.get("redeem_url"):
@@ -155,7 +160,7 @@ def status_markdown(data: dict) -> str:
     for game in data["games"]:
         for s in game["sources"]:
             if s["ok"]:
-                state = f"✅ {s['count']} code" + (f", {s['hidden']} sự kiện ẩn mã" if s["hidden"] else "")
+                state = f"✅ {s['count']} code" + (f", {s['hidden']} sự kiện cần đăng nhập" if s["hidden"] else "")
             else:
                 state = f"❌ {_cell(s['error'])}"
             lines.append(f"| {game['name']} | [{s['name']}]({s['url']}) | {state} |")
@@ -167,6 +172,6 @@ def write_step_summary(data: dict, new_by_game: dict[str, list[dict]]) -> None:
     if not path:
         return
     total_new = sum(len(v) for v in new_by_game.values())
-    head = f"## 🎁 Giftcode — {total_new} code mới\n\n" if total_new else "## 🎁 Giftcode\n\n"
+    head = f"## 🎁 Giftcode — {total_new} mục mới\n\n" if total_new else "## 🎁 Giftcode\n\n"
     with open(path, "a", encoding="utf-8") as fh:
         fh.write(head + status_markdown(data) + "\n" + codes_markdown(data, new_by_game))

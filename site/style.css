@@ -11,6 +11,8 @@
   --ok: #2b8a3e;
   --bad: #c92a2a;
   --done: #8a919e;
+  --warn: #d9480f;
+  --latest-bg: #fff4e6;
   --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
   color-scheme: light;
 }
@@ -29,6 +31,8 @@
     --ok: #51cf66;
     --bad: #ff6b6b;
     --done: #6b7280;
+    --warn: #ff922b;
+    --latest-bg: #2b2116;
     --shadow: none;
     color-scheme: dark;
   }
@@ -50,6 +54,14 @@ a { color: var(--accent); }
 .top { padding: 28px 0 12px; }
 .top h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.01em; }
 .meta { margin: 4px 0 0; color: var(--muted); font-size: .92rem; }
+.latest {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--latest-bg);
+  font-size: .95rem;
+}
+.latest-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .03em; }
 
 .search {
   width: 100%;
@@ -118,7 +130,12 @@ a { color: var(--accent); }
   letter-spacing: .03em;
   overflow-wrap: anywhere;
 }
-.code-info { display: block; margin-top: 2px; color: var(--muted); font-size: .84rem; }
+.code-info, .code-meta { display: block; margin-top: 2px; color: var(--muted); font-size: .84rem; }
+.expiry[data-level="soon"] { color: var(--warn); }
+.expiry[data-level="urgent"] { color: var(--bad); font-weight: 600; font-variant-numeric: tabular-nums; }
+.expiry[data-level="expired"] { color: var(--done); text-decoration: line-through; }
+.code.locked { background: transparent; border-style: dashed; text-decoration: none; }
+.locked-title { display: block; color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
 .code-action { color: var(--accent); font-weight: 600; font-size: .9rem; white-space: nowrap; }
 
 .badge {
@@ -140,9 +157,7 @@ a { color: var(--accent); }
 .old summary { cursor: pointer; }
 .old .code { background: transparent; cursor: default; }
 .old .code-value { color: var(--done); text-decoration: line-through; }
-.old .claim { cursor: pointer; text-decoration: none; }
-.claim-title { display: block; color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
-.hint { margin: 8px 0 0; font-size: .86rem; }
+
 
 .empty { color: var(--muted); text-align: center; padding: 24px 0; }
 .none { margin: 14px 0 0; color: var(--muted); }

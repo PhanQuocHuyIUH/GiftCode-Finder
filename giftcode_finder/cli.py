@@ -12,7 +12,7 @@ from .extractors import extract
 from .fetch import Fetcher
 from .inspect import inspect_url
 from .publish import build_site, codes_markdown, site_data, update_readme, write_step_summary
-from .state import SourceResult, load_state, now_iso, save_state, split_hidden, update_state
+from .state import SourceResult, attach_events, load_state, now_iso, save_state, split_hidden, update_state
 
 IN_CI = os.environ.get("GITHUB_ACTIONS") == "true"
 
@@ -82,6 +82,7 @@ def scrape(
 ) -> list[SourceResult]:
     results = []
     for game, sources in games:
+        game_results = []
         for source in sources:
             result = SourceResult(game.id, source.id, checked_at=now_iso())
             try:
@@ -90,8 +91,11 @@ def scrape(
                 result.error = str(exc) or type(exc).__name__
                 if debug:
                     traceback.print_exc()
+            game_results.append(result)
+        attach_events(game_results, state, game.name)
+        for source, result in zip(sources, game_results):
             _report(game, source, result)
-            results.append(result)
+        results += game_results
     return results
 
 
@@ -102,7 +106,7 @@ def _report(game: Game, source, result: SourceResult) -> None:
         print(f"✓ {label}: {len(result.codes)} code{listed}")
         if result.hidden:
             titles = ", ".join(c.title or c.link for c in result.hidden)
-            print(f"  {len(result.hidden)} sự kiện chưa xem được mã: {titles}")
+            print(f"  {len(result.hidden)} sự kiện cần đăng nhập mới xem được mã: {titles}")
     else:
         print(f"✗ {label}: {result.error}")
         if IN_CI:
@@ -123,11 +127,13 @@ def cmd_run(args: argparse.Namespace) -> int:
         build_site(data, args.site_template, args.site_dir)
         update_readme(args.readme, codes_markdown(data))
         write_step_summary(data, new_by_game)
-        new_count = sum(len(v) for v in new_by_game.values())
-        print(f"{new_count} code mới; trang web đã tạo ở {args.site_dir}/")
+        new = [e for entries in new_by_game.values() for e in entries]
+        new_codes = sum(1 for e in new if e["code"])
+        new_events = len(new) - new_codes
+        print(f"{new_codes} code mới, {new_events} sự kiện mới cần đăng nhập; trang web ở {args.site_dir}/")
         if out := os.environ.get("GITHUB_OUTPUT"):
             with open(out, "a", encoding="utf-8") as fh:
-                fh.write(f"new_codes={new_count}\nfailed_sources={len(failed)}\n")
+                fh.write(f"new_codes={new_codes}\nnew_events={new_events}\nfailed_sources={len(failed)}\n")
 
     return 1 if args.strict and failed else 0
 

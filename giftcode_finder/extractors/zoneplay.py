@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 
 from bs4 import BeautifulSoup
 
-from ..codes import Code, clean_text
+from ..codes import Code, clean_text, parse_vn_time
 from ..config import Source
 from ..fetch import Fetcher, Page
 from . import ExtractError, register
@@ -57,6 +57,8 @@ def extract_zoneplay(source: Source, fetcher: Fetcher) -> list[Code]:
             title=clean_text(event.get("name") or ""),
             reward=_plain(event.get("description")),
             expires=_vn_date(event.get("to_date")),
+            expires_at=parse_vn_time(event.get("to_date")),
+            since=parse_vn_time(event.get("from_date")),
             link=EVENT_URL.format(event=event["id"], game=game_id),
         )
         if token and event.get("type") in reveal:

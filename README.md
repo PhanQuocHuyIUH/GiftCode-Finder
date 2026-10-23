@@ -22,7 +22,7 @@ Sao chép tất cả:
 WUTHERINGGIFT
 ```
 
-Nguồn: [PCGamesN](https://www.pcgamesn.com/wuthering-waves/codes), [Pocket Tactics](https://www.pockettactics.com/wuthering-waves/codes)
+Nguồn: [Threads chính thức (@wutheringwaves)](https://www.threads.com/@wutheringwaves), [PCGamesN](https://www.pcgamesn.com/wuthering-waves/codes), [Pocket Tactics](https://www.pockettactics.com/wuthering-waves/codes)
 Cách nhập: Trong game (cần Union Level 2): Terminal (Esc) → Cài đặt → Other Settings → Redemption/Redeem → nhập code → Confirm. Quà gửi vào hộp thư.
 
 ### Strinova — 6 code

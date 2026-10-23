@@ -116,14 +116,16 @@ class Fetcher:
             ) from exc
 
         timeout_ms = int(self.timeout * 1000)
-        seen = []
+        finished = []
         try:
             with sync_playwright() as p:
                 browser = p.chromium.launch(**_launch_options())
                 try:
                     page = browser.new_page(user_agent=USER_AGENT, locale="vi-VN")
-                    # Playwright tags handlers with attributes, so no bound builtins.
-                    page.on("response", lambda response: seen.append(response))
+                    # Only finished requests: reading the body of a streaming
+                    # response would block. (Playwright tags handlers with
+                    # attributes, so the handler cannot be a bound builtin.)
+                    page.on("requestfinished", lambda request: finished.append(request))
                     nav = page.goto(url, wait_until="networkidle", timeout=timeout_ms)
                     if wait_for:
                         page.wait_for_selector(wait_for, timeout=timeout_ms)
@@ -134,7 +136,7 @@ class Fetcher:
                         page.locator(click).first.click(timeout=timeout_ms)
                         page.wait_for_timeout(max(wait_ms, 3000))
                         html = page.content()
-                    captured = [c for c in map(_capture, seen) if c is not None]
+                    captured = [c for c in map(_capture, finished) if c is not None]
                     return Page(
                         page.url,
                         nav.status if nav else 0,
@@ -159,15 +161,17 @@ def _launch_options() -> dict:
     return options
 
 
-def _capture(response) -> CapturedResponse | None:
+def _capture(request) -> CapturedResponse | None:
+    response = request.response()
+    if response is None:
+        return None
     content_type = response.headers.get("content-type", "")
-    if response.request.resource_type not in ("xhr", "fetch") and "json" not in content_type:
+    if request.resource_type not in ("xhr", "fetch") and "json" not in content_type:
         return None
     try:
         body = response.text()
     except Exception:  # body evicted or response was a redirect
         body = ""
-    request = response.request
     return CapturedResponse(
         response.url, response.status, content_type, body, request.method, request.post_data
     )

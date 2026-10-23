@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-23T13:02:36Z",
+  "updated_at": "2026-10-23T13:23:08Z",
   "games": {
     "strinova": [
       {
@@ -90,6 +90,23 @@
           "gzone"
         ],
         "first_seen": "2026-10-23T12:20:42Z",
+        "removed_at": null
+      }
+    ],
+    "wuthering-waves": [
+      {
+        "code": "WUTHERINGGIFT",
+        "title": null,
+        "reward": "50 Astrite, two Premium Resonance Potions, two Medium Revival Inhalers, a Medium Energy Bag, and 10k Shell Credits",
+        "expires": null,
+        "expires_at": null,
+        "since": null,
+        "link": null,
+        "sources": [
+          "pcgamesn",
+          "pockettactics"
+        ],
+        "first_seen": "2026-10-23T13:23:08Z",
         "removed_at": null
       }
     ]

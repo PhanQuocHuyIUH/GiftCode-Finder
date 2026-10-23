@@ -10,6 +10,21 @@ Mở link là có code, bấm vào code là sao chép.
 ## Code hiện có
 
 <!-- GIFTCODES:START -->
+### Wuthering Waves — 1 code
+
+| Code | Sự kiện | Hết hạn | Thấy lần đầu |
+|---|---|---|---|
+| `WUTHERINGGIFT` | 50 Astrite, two Premium Resonance Potions, two Medium Revival Inhalers, a Medium Energy Bag, and 10k Shell Credits | — | 23/10/2026 |
+
+Sao chép tất cả:
+
+```text
+WUTHERINGGIFT
+```
+
+Nguồn: [PCGamesN](https://www.pcgamesn.com/wuthering-waves/codes), [Pocket Tactics](https://www.pockettactics.com/wuthering-waves/codes)
+Cách nhập: Trong game (cần Union Level 2): Terminal (Esc) → Cài đặt → Other Settings → Redemption/Redeem → nhập code → Confirm. Quà gửi vào hộp thư.
+
 ### Strinova — 6 code
 
 | Code | Sự kiện | Hết hạn | Thấy lần đầu |
@@ -35,7 +50,7 @@ STRINOVA
 Nguồn: [Strinova VN – Hướng dẫn nhập giftcode](https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn), [Gzone Care (zoneplay.vn)](https://zoneplay.vn/care/game/367)
 Cách nhập: Trong game: Cài Đặt (góc trên bên phải) → Mã Đổi Thưởng → nhập code → xác nhận. — https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn
 
-_Code thay đổi lần cuối: 23/10/2026 20:02 (giờ Việt Nam)._
+_Code thay đổi lần cuối: 23/10/2026 20:23 (giờ Việt Nam)._
 <!-- GIFTCODES:END -->
 
 ## Cách hoạt động

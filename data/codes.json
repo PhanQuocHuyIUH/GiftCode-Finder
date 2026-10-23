@@ -1,75 +1,93 @@
 {
-  "updated_at": "2026-10-23T12:20:42Z",
+  "updated_at": "2026-10-23T13:02:36Z",
   "games": {
     "strinova": [
       {
         "code": "STRINOVA",
-        "title": null,
-        "reward": null,
-        "expires": null,
-        "link": null,
+        "title": "Strinova VN",
+        "reward": "Mừng Game Ra Mứt Thành Công",
+        "expires": "23/04/2027",
+        "expires_at": "2027-04-23T04:32:00Z",
+        "since": "2026-10-20T04:32:00Z",
+        "link": "https://zoneplay.vn/care/event/940/367",
         "sources": [
-          "huong-dan"
+          "huong-dan",
+          "gzone"
         ],
         "first_seen": "2026-10-23T12:20:42Z",
         "removed_at": null
       },
       {
         "code": "P.U.S",
-        "title": null,
-        "reward": null,
-        "expires": null,
-        "link": null,
+        "title": "Strinova PUS",
+        "reward": "Mừng Game Ra Mắt Thành Công",
+        "expires": "23/04/2027",
+        "expires_at": "2027-04-23T04:33:00Z",
+        "since": "2026-10-21T04:33:00Z",
+        "link": "https://zoneplay.vn/care/event/941/367",
         "sources": [
-          "huong-dan"
+          "huong-dan",
+          "gzone"
         ],
         "first_seen": "2026-10-23T12:20:42Z",
         "removed_at": null
       },
       {
         "code": "THESCISSORS",
-        "title": null,
-        "reward": null,
-        "expires": null,
-        "link": null,
+        "title": "THESCISSORS",
+        "reward": "Mừng Game Ra Mắt Thành Công",
+        "expires": "23/04/2027",
+        "expires_at": "2027-04-23T04:34:00Z",
+        "since": "2026-10-21T04:34:00Z",
+        "link": "https://zoneplay.vn/care/event/942/367",
         "sources": [
-          "huong-dan"
+          "huong-dan",
+          "gzone"
         ],
         "first_seen": "2026-10-23T12:20:42Z",
         "removed_at": null
       },
       {
         "code": "URBINO",
-        "title": null,
-        "reward": null,
-        "expires": null,
-        "link": null,
+        "title": "STRINOVA URBINO",
+        "reward": "Mừng Game Ra Mắt Thành Công",
+        "expires": "23/04/2027",
+        "expires_at": "2027-04-23T04:44:00Z",
+        "since": "2026-10-20T04:44:00Z",
+        "link": "https://zoneplay.vn/care/event/943/367",
         "sources": [
-          "huong-dan"
+          "huong-dan",
+          "gzone"
         ],
         "first_seen": "2026-10-23T12:20:42Z",
         "removed_at": null
       },
       {
         "code": "SUPERSTRING",
-        "title": null,
-        "reward": null,
-        "expires": null,
-        "link": null,
+        "title": "SUPERSTRING",
+        "reward": "Mừng Game Ra Mắt Thành Công",
+        "expires": "23/04/2027",
+        "expires_at": "2027-04-23T04:45:00Z",
+        "since": "2026-10-21T04:45:00Z",
+        "link": "https://zoneplay.vn/care/event/944/367",
         "sources": [
-          "huong-dan"
+          "huong-dan",
+          "gzone"
         ],
         "first_seen": "2026-10-23T12:20:42Z",
         "removed_at": null
       },
       {
         "code": "STRINGIFY",
-        "title": null,
-        "reward": null,
-        "expires": null,
-        "link": null,
+        "title": "STRINGIFY",
+        "reward": "Mừng Game Ra Mắt Thành Công",
+        "expires": "23/04/2027",
+        "expires_at": "2027-04-23T04:45:00Z",
+        "since": "2026-10-21T04:45:00Z",
+        "link": "https://zoneplay.vn/care/event/945/367",
         "sources": [
-          "huong-dan"
+          "huong-dan",
+          "gzone"
         ],
         "first_seen": "2026-10-23T12:20:42Z",
         "removed_at": null

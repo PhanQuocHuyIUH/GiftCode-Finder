@@ -48,6 +48,7 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
                 "name": game.name,
                 "redeem_url": game.redeem_url,
                 "redeem_note": game.redeem_note,
+                "colors": game.colors,
                 "sources": sources,
                 # Codes and events whose code needs a login, newest first.
                 "items": newest_first([e for e in entries if not e["removed_at"]]),

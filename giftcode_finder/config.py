@@ -9,6 +9,7 @@ from pathlib import Path
 import yaml
 
 _ID = re.compile(r"[a-z0-9][a-z0-9_-]*")
+_COLOR = re.compile(r"#(?:[0-9a-fA-F]{3}){1,2}")
 
 
 class ConfigError(Exception):
@@ -34,6 +35,7 @@ class Game:
     sources: list[Source]
     redeem_url: str | None = None
     redeem_note: str | None = None
+    colors: list[str] | None = None  # theme of the game's card on the web page
 
 
 def load_config(path: str | Path) -> list[Game]:
@@ -65,6 +67,7 @@ def _game(entry: dict, index: int) -> Game:
         sources=sources,
         redeem_url=entry.get("redeem_url"),
         redeem_note=entry.get("redeem_note"),
+        colors=_colors(entry.get("colors"), where),
     )
 
 
@@ -92,6 +95,14 @@ def _source(entry: dict, game_where: str, index: int) -> Source:
         url=str(url),
         options=options,
     )
+
+
+def _colors(value, where: str) -> list[str] | None:
+    if value is None:
+        return None
+    if not isinstance(value, list) or not value or not all(isinstance(c, str) and _COLOR.fullmatch(c) for c in value):
+        raise ConfigError(f"{where}: 'colors' phải là danh sách mã màu dạng \"#rrggbb\" (đang là {value!r})")
+    return value
 
 
 def _require_id(entry: dict, where: str) -> str:

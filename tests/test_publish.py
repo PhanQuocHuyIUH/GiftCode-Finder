@@ -105,3 +105,9 @@ def test_game_with_the_newest_item_comes_first():
     }}
     data = site_data([GAME, other], state, RESULTS, "2026-10-23T06:00:00Z")
     assert [g["id"] for g in data["games"]] == ["h", "g"]
+
+
+def test_game_colors_reach_the_page():
+    themed = Game(id="g", name="Game", sources=GAME.sources, colors=["#14c8b4", "#3a5bff"])
+    assert site_data([themed], STATE, RESULTS, "2026-10-23T06:00:00Z")["games"][0]["colors"] == ["#14c8b4", "#3a5bff"]
+    assert site_data([GAME], STATE, RESULTS, "2026-10-23T06:00:00Z")["games"][0]["colors"] is None

@@ -5,6 +5,12 @@ Mở link là có code, bấm vào code là sao chép.
 
 **👉 Xem code: https://phanquochuyiuh.github.io/GiftCode-Finder/**
 
+Trang chủ là nơi chọn game: một hộp quà 3D (kéo để xoay, chạm để mở và lấy các code mới nhất),
+dải *Sắp hết hạn* cho code livestream, và mỗi game là một thẻ 3D nghiêng theo chuột. Mỗi game có
+link riêng để lưu ra màn hình chính điện thoại:
+[Wuthering Waves](https://phanquochuyiuh.github.io/GiftCode-Finder/#/wuthering-waves) ·
+[Strinova](https://phanquochuyiuh.github.io/GiftCode-Finder/#/strinova) (dạng `…/#/<id game>`).
+
 (Bảng bên dưới cũng tự cập nhật, dùng được ngay cả khi chưa bật trang web.)
 
 ## Code hiện có
@@ -160,6 +166,7 @@ Mọi thứ nằm trong [`config/sources.yaml`](config/sources.yaml).
 ```yaml
   - id: ten-game
     name: Tên Game
+    colors: ["#ff4f9a", "#7c4dff", "#ffd166"]  # màu thẻ game trên web (tuỳ chọn)
     sources:
       - id: gzone
         name: Gzone Care (zoneplay.vn)

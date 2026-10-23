@@ -4,22 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GiftCode Finder</title>
-  <meta name="description" content="Giftcode game mới nhất, tự động cập nhật.">
+  <meta name="description" content="Giftcode game mới nhất, tự động cập nhật mỗi giờ. Chọn game, bấm là sao chép.">
+  <meta property="og:title" content="GiftCode Finder">
+  <meta property="og:description" content="Giftcode game mới nhất, tự động cập nhật mỗi giờ.">
+  <meta name="theme-color" content="#06070d" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f4f5fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@700&family=Unbounded:wght@700;800&display=swap">
   <link rel="stylesheet" href="style.css?v=__GCF_VERSION__">
 </head>
 <body>
-  <header class="top">
-    <div class="wrap">
-      <h1>🎁 GiftCode Finder</h1>
-      <p class="meta" id="meta">Đang tải…</p>
+  <div class="bg" aria-hidden="true">
+    <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="stars"></i><i class="noise"></i>
+  </div>
+
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <a class="brand" href="#/" aria-label="GiftCode Finder - trang chủ">
+        <span class="brand-mark" aria-hidden="true">🎁</span>
+        <span>GiftCode<b>Finder</b></span>
+      </a>
+      <p class="topmeta" id="meta">Đang tải…</p>
     </div>
   </header>
 
-  <main class="wrap">
-    <input id="search" class="search" type="search" placeholder="Tìm game hoặc code…" autocomplete="off" hidden>
-    <div id="games"></div>
-    <p id="empty" class="empty" hidden>Không có game nào khớp.</p>
+  <main class="wrap" id="view">
+    <noscript><p class="empty">Trang cần JavaScript để hiện code. Bảng code cũng có trong README của repo.</p></noscript>
   </main>
 
   <footer class="wrap foot" id="foot"></footer>
@@ -27,6 +39,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script id="gcf-data" type="application/json">__GCF_DATA__</script>
+  <script src="fx.js?v=__GCF_VERSION__"></script>
   <script src="app.js?v=__GCF_VERSION__"></script>
 </body>
 </html>

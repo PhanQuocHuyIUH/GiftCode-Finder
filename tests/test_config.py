@@ -48,3 +48,16 @@ games:
 def test_invalid_configs(tmp_path, body, message):
     with pytest.raises(ConfigError, match=message):
         load_config(write(tmp_path, body))
+
+
+def test_game_colors(tmp_path):
+    body = """
+games:
+  - id: g
+    colors: ["#ff4f9a", "#7c4dff"]
+    sources:
+      - {id: s, type: html, url: 'https://x.test', code: .c}
+"""
+    assert load_config(write(tmp_path, body))[0].colors == ["#ff4f9a", "#7c4dff"]
+    with pytest.raises(ConfigError, match="colors"):
+        load_config(write(tmp_path, body.replace('"#7c4dff"', '"red; background: url(x)"')))

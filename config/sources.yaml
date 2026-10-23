@@ -14,6 +14,9 @@
 #   regex     Lấy code bằng biểu thức chính quy:  pattern, on (text | html), flags
 #   json      Lấy code từ API JSON (hoặc JSON trong thẻ <script>):  items, code, reward, expires, script
 #
+# Tuỳ chọn của game: redeem_url, redeem_note (cách nhập code), colors (2-3 màu
+# "#rrggbb" cho thẻ game trên trang web; bỏ trống thì tự chọn màu).
+#
 # Tuỳ chọn chung cho mọi nguồn:
 #   render: true        tải trang bằng trình duyệt headless (trang dựng bằng JavaScript)
 #   wait_for: <css>     (khi render) chờ phần tử này xuất hiện
@@ -28,6 +31,7 @@
 games:
   - id: strinova
     name: Strinova
+    colors: ["#ff4f9a", "#7c4dff", "#ffd166"]
     redeem_url: https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn
     redeem_note: "Trong game: Cài Đặt (góc trên bên phải) → Mã Đổi Thưởng → nhập code → xác nhận."
     sources:
@@ -46,6 +50,7 @@ games:
 
   - id: wuthering-waves
     name: Wuthering Waves
+    colors: ["#14c8b4", "#3a5bff", "#f5c76b"]
     redeem_note: "Trong game (cần Union Level 2): Terminal (Esc) → Cài đặt → Other Settings → Redemption/Redeem → nhập code → Confirm. Quà gửi vào hộp thư."
     # Code Wuthering Waves dùng chung mọi server. thegioididong.com chặn máy chủ
     # GitHub (kết nối bị treo) nên không dùng được làm nguồn ở đây.

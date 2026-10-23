@@ -1,0 +1,32 @@
+# Danh sách game và các trang lấy giftcode.
+#
+# Thêm game: thêm một mục vào `games`.
+# Thêm trang cho game: thêm một mục vào `sources` của game đó.
+#
+# Các loại nguồn (`type`):
+#   zoneplay  Cổng Gzone - chỉ cần url dạng https://zoneplay.vn/care/game/<id>
+#   html      Lấy code bằng CSS selector:  item, code, attr, reward, expires
+#   regex     Lấy code bằng biểu thức chính quy:  pattern, on (text | html), flags
+#   json      Lấy code từ API JSON (hoặc JSON trong thẻ <script>):  items, code, reward, expires, script
+#
+# Tuỳ chọn chung cho mọi nguồn:
+#   render: true        tải trang bằng trình duyệt headless (trang dựng bằng JavaScript)
+#   wait_for: <css>     (khi render) chờ phần tử này xuất hiện
+#   headers / params / method / data / json   tuỳ chỉnh request HTTP
+#   exclude: [...]      bỏ qua các chữ không phải code
+#   code_pattern: <re>  regex kiểm tra một code hợp lệ
+#   allow_empty: true   cho phép nguồn không có code nào mà không báo lỗi
+#
+# Mẹo: `python -m giftcode_finder inspect <url>` in ra các giá trị giống giftcode
+# kèm CSS selector để điền vào đây.
+
+games:
+  - id: strinova
+    name: Strinova
+    # redeem_url: <link trang nhập code>    (hiện trên web, tuỳ chọn)
+    # redeem_note: <hướng dẫn nhập code>    (hiện trên web, tuỳ chọn)
+    sources:
+      - id: gzone
+        name: Gzone (zoneplay.vn)
+        type: zoneplay
+        url: https://zoneplay.vn/care/game/367

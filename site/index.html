@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GiftCode Finder</title>
+  <meta name="description" content="Giftcode game mới nhất, tự động cập nhật.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>🎁 GiftCode Finder</h1>
+      <p class="meta" id="meta">Đang tải…</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <input id="search" class="search" type="search" placeholder="Tìm game hoặc code…" autocomplete="off" hidden>
+    <div id="games"></div>
+    <p id="empty" class="empty" hidden>Không có game nào khớp.</p>
+  </main>
+
+  <footer class="wrap foot" id="foot"></footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script id="gcf-data" type="application/json">__GCF_DATA__</script>
+  <script src="app.js"></script>
+</body>
+</html>

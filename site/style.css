@@ -152,7 +152,12 @@ a { color: var(--accent); }
   left: 50%;
   bottom: 24px;
   transform: translate(-50%, 20px);
+  max-width: calc(100% - 32px);
   padding: 10px 16px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border-radius: 10px;
   background: var(--text);
   color: var(--bg);

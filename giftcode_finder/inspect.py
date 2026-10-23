@@ -24,6 +24,9 @@ _ANY_TOKEN = re.compile(r"(?=.*[A-Za-z])[A-Za-z0-9](?:[A-Za-z0-9._-]{0,48}[A-Za-
 _QUOTED = re.compile(r"""["']([^"']{3,50})["']""")
 _URL = re.compile(r"""(?:https?:)?//[^\s"'`<>\\)]+|["'`](/[^"'`\s<>]*api[^"'`\s<>]*)["'`]""")
 _ENDPOINT_HINT = re.compile(r"gift|code|reward|qua|api", re.I)
+# Quoted path fragments in JS bundles, e.g. "/event/list-event-of-game/".
+_JS_PATH = re.compile(r"""["'`](/?[a-z][a-z0-9_-]*(?:/[a-z0-9_-]+)+/?)["'`]""", re.I)
+_JS_PATH_HINT = re.compile(r"gift|code|event|receive|reward|care|nhan", re.I)
 _SKIP_TAGS = ["script", "style", "noscript", "svg", "template", "head"]
 
 
@@ -102,6 +105,21 @@ def _api_urls(text: str, base: str) -> list[str]:
     return sorted(set(found))
 
 
+def _js_paths(js: str) -> list[str]:
+    paths = {m.group(1) for m in _JS_PATH.finditer(js)}
+    return sorted(p for p in paths if _JS_PATH_HINT.search(p))
+
+
+def _grep(js: str, needle: str, limit: int = 8, width: int = 300) -> list[str]:
+    hits = []
+    for match in re.finditer(re.escape(needle), js, re.I):
+        start = max(match.start() - width, 0)
+        hits.append(clean_text(js[start : match.end() + width]))
+        if len(hits) >= limit:
+            break
+    return hits
+
+
 def _site_of(url: str) -> str:
     return ".".join((urlparse(url).hostname or "").split(".")[-2:])
 
@@ -122,12 +140,15 @@ def inspect_url(
     *,
     render: bool = False,
     scan_js: bool = False,
+    grep: list[str] = (),
+    click: str | None = None,
     dump_text: int = 0,
     dump_html: int = 0,
     fetcher: Fetcher | None = None,
 ) -> None:
     fetcher = fetcher or Fetcher()
-    page = fetcher.render(url) if render else fetcher.fetch(url)
+    render = render or bool(click)
+    page = fetcher.render(url, click=click) if render else fetcher.fetch(url)
     soup = BeautifulSoup(page.text, "html.parser")
 
     _section(f"Trang {'(render)' if render else '(HTTP)'}")
@@ -161,9 +182,9 @@ def inspect_url(
     for api in _api_urls(page.text, page.url) or ["(không có)"]:
         print(f"  {api}")
 
-    if scan_js:
+    site = _site_of(page.url)
+    if scan_js or grep:
         _section("URL có dạng API trong file JS")
-        site = _site_of(page.url)
         for src in srcs:
             if _site_of(src) != site:
                 continue
@@ -176,19 +197,40 @@ def inspect_url(
             print(f"  {src} ({len(js)} ký tự): {len(apis)} URL")
             for api in apis[:80]:
                 print(f"     {api}")
+            paths = _js_paths(js)
+            print(f"  Đường dẫn API tương đối ({len(paths)}):")
+            for path in paths[:150]:
+                print(f"     {path}")
+            for needle in grep:
+                hits = _grep(js, needle)
+                print(f"  Tìm '{needle}': {len(hits)} chỗ")
+                for hit in hits:
+                    print(f"     … {hit} …")
 
     if page.responses:
         _section("Response XHR/fetch khi render")
         for res in page.responses:
-            print(f"  {res.status} {res.content_type[:40]:<40} {len(res.body):>7}  {res.url}")
+            print(f"  {res.status} {res.method:<5} {res.content_type[:30]:<30} {len(res.body):>7}  {res.url}")
         for res in page.responses:
-            if re.search(r"code|gift", res.body, re.I):
-                print(f"\n--- {res.url}")
-                try:
-                    body = json.dumps(json.loads(res.body), ensure_ascii=False)
-                except ValueError:
-                    body = res.body
-                print(body[:3000])
+            if _site_of(res.url) != site and not re.search(r"code|gift", res.body, re.I):
+                continue
+            if not res.body and not res.request_body:
+                continue
+            print(f"\n--- {res.method} {res.url}")
+            if res.request_body:
+                print(f"    gửi: {res.request_body[:1000]}")
+            try:
+                body = json.dumps(json.loads(res.body), ensure_ascii=False)
+            except ValueError:
+                body = res.body
+            print(body[:6000])
+
+    if page.before_click is not None:
+        _section(f"Chữ mới xuất hiện sau khi bấm {click!r}")
+        before = set(_visible_lines(BeautifulSoup(page.before_click, "html.parser")))
+        added = [line for line in _visible_lines(BeautifulSoup(page.text, "html.parser")) if line not in before]
+        for line in added[:200] or ["(không có gì thay đổi)"]:
+            print(f"  {line}")
 
     if dump_text:
         _section(f"Chữ hiển thị (tối đa {dump_text} dòng)")

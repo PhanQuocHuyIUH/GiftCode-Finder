@@ -27,6 +27,8 @@ class CapturedResponse:
     status: int
     content_type: str
     body: str
+    method: str = "GET"
+    request_body: str | None = None
 
 
 @dataclass
@@ -36,6 +38,7 @@ class Page:
     content_type: str
     text: str
     responses: list[CapturedResponse] = field(default_factory=list)
+    before_click: str | None = None  # DOM before ``render(click=...)`` clicked
 
 
 class Fetcher:
@@ -95,11 +98,14 @@ class Fetcher:
         *,
         wait_for: str | None = None,
         wait_ms: int = 0,
+        click: str | None = None,
     ) -> Page:
         """Load ``url`` in headless Chromium and return the rendered DOM.
 
         JSON/XHR responses made by the page are captured too, which is how
-        single-page apps usually receive their giftcode lists.
+        single-page apps usually receive their giftcode lists. ``click`` is a
+        Playwright selector (CSS or ``text=...``) to click once loaded, for
+        codes hidden behind a reveal button.
         """
         try:
             from playwright.sync_api import Error as PlaywrightError
@@ -123,10 +129,19 @@ class Fetcher:
                         page.wait_for_selector(wait_for, timeout=timeout_ms)
                     if wait_ms:
                         page.wait_for_timeout(wait_ms)
-                    html = page.content()
+                    html = before = page.content()
+                    if click:
+                        page.locator(click).first.click(timeout=timeout_ms)
+                        page.wait_for_timeout(max(wait_ms, 3000))
+                        html = page.content()
                     captured = [c for c in map(_capture, seen) if c is not None]
                     return Page(
-                        page.url, nav.status if nav else 0, "text/html", html, captured
+                        page.url,
+                        nav.status if nav else 0,
+                        "text/html",
+                        html,
+                        captured,
+                        before_click=before if click else None,
                     )
                 finally:
                     browser.close()
@@ -152,4 +167,7 @@ def _capture(response) -> CapturedResponse | None:
         body = response.text()
     except Exception:  # body evicted or response was a redirect
         body = ""
-    return CapturedResponse(response.url, response.status, content_type, body)
+    request = response.request
+    return CapturedResponse(
+        response.url, response.status, content_type, body, request.method, request.post_data
+    )

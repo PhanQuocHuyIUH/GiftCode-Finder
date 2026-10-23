@@ -62,7 +62,8 @@ def update_state(state: dict, results: list[SourceResult], now: str) -> tuple[di
     for game_id in dict.fromkeys(r.game_id for r in results):
         game_results = [r for r in results if r.game_id == game_id]
         entries, new = merge_game(games.get(game_id, []), game_results, now)
-        games[game_id] = entries
+        if entries or game_id in games:
+            games[game_id] = entries
         if new:
             new_by_game[game_id] = new
     changed = games != (state.get("games") or {})

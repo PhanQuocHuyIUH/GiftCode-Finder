@@ -10,6 +10,10 @@ on:
         description: "Chẩn đoán: in cấu trúc các trang nguồn ra log (dùng khi một nguồn bị lỗi)"
         type: boolean
         default: false
+      inspect_args:
+        description: "Chẩn đoán: tham số thêm cho lệnh inspect, vd: --click 'text=\"Nhận\"' --grep giftcode"
+        type: string
+        default: ""
   push:
     paths:
       - "config/**"
@@ -59,15 +63,20 @@ jobs:
       - name: Kiểm thử
         run: python -m pytest -q
 
+      # xargs splits the quoted arguments without handing them to a shell.
       - name: Chẩn đoán trang nguồn (HTTP)
         if: inputs.debug
         continue-on-error: true
-        run: python -m giftcode_finder inspect --scan-js --text 200 --html 400
+        env:
+          INSPECT_ARGS: ${{ inputs.inspect_args }}
+        run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --scan-js --text 200 --html 400
 
       - name: Chẩn đoán trang nguồn (trình duyệt)
         if: inputs.debug
         continue-on-error: true
-        run: python -m giftcode_finder inspect --render --text 200
+        env:
+          INSPECT_ARGS: ${{ inputs.inspect_args }}
+        run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --render --text 200
 
       - name: Lấy giftcode
         id: scrape

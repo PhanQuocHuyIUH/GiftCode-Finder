@@ -54,6 +54,8 @@ def _parser() -> argparse.ArgumentParser:
     ins.add_argument("--config", default="config/sources.yaml")
     ins.add_argument("--render", action="store_true", help="tải bằng trình duyệt headless (trang dùng JavaScript)")
     ins.add_argument("--scan-js", action="store_true", help="tìm URL API trong các file JS của trang")
+    ins.add_argument("--grep", action="append", default=[], metavar="CHỮ", help="in đoạn JS quanh chữ này (lặp lại được)")
+    ins.add_argument("--click", metavar="SELECTOR", help="bấm phần tử này sau khi tải (vd: 'text=Nhận'), ngụ ý --render")
     ins.add_argument("--text", type=int, default=0, metavar="N", help="in N dòng chữ hiển thị")
     ins.add_argument("--html", type=int, default=0, metavar="N", help="in N dòng HTML của <body>")
     ins.set_defaults(func=cmd_inspect)
@@ -132,6 +134,8 @@ def cmd_inspect(args: argparse.Namespace) -> int:
                 url,
                 render=args.render,
                 scan_js=args.scan_js,
+                grep=args.grep,
+                click=args.click,
                 dump_text=args.text,
                 dump_html=args.html,
                 fetcher=fetcher,

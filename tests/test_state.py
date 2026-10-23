@@ -87,3 +87,9 @@ def test_other_games_untouched():
     state, _ = update_state(state, [ok("a", "CCC", game="x")], T2)
     assert [e["code"] for e in state["games"]["y"]] == ["BBB"]
     assert codes(state, "y")["BBB"]["removed_at"] is None
+
+
+def test_failing_source_without_history_records_nothing():
+    state, new = update_state({"updated_at": None, "games": {}}, [failed("a")], T1)
+    assert state == {"updated_at": None, "games": {}}
+    assert new == {}

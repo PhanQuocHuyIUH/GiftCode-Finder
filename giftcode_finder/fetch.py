@@ -133,7 +133,7 @@ class Fetcher:
                         page.wait_for_timeout(wait_ms)
                     html = before = page.content()
                     if click:
-                        page.locator(click).first.click(timeout=timeout_ms)
+                        _click(page, click)
                         page.wait_for_timeout(max(wait_ms, 3000))
                         html = page.content()
                     captured = [c for c in map(_capture, finished) if c is not None]
@@ -149,6 +149,18 @@ class Fetcher:
                     browser.close()
         except PlaywrightError as exc:
             raise FetchError(f"Trình duyệt không tải được {url}: {exc}") from exc
+
+
+def _click(page, selector: str) -> None:
+    from playwright.sync_api import TimeoutError as PlaywrightTimeout
+
+    target = page.locator(selector).first
+    page.keyboard.press("Escape")  # close promo pop-ups that cover the page
+    try:
+        target.click(timeout=5000)
+    except PlaywrightTimeout:
+        # Still covered by an overlay: fire the click on the element itself.
+        target.dispatch_event("click")
 
 
 def _launch_options() -> dict:

@@ -10,7 +10,13 @@ Mở link là có code, bấm vào code là sao chép.
 ## Code hiện có
 
 <!-- GIFTCODES:START -->
-_Chưa quét lần nào._
+### Strinova — 0 code
+
+_Chưa có code nào đang hoạt động._
+
+Nguồn: [Gzone (zoneplay.vn)](https://zoneplay.vn/care/game/367)
+
+_Code thay đổi lần cuối: 23/10/2026 18:57 (giờ Việt Nam)._
 <!-- GIFTCODES:END -->
 
 ## Cách hoạt động

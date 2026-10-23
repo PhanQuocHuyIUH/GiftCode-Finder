@@ -1,14 +1,15 @@
 "use strict";
 
-// Visual effects: 3D tilt cards, the 3D gift box, confetti, page transitions.
-// Nothing here knows about giftcodes; app.js hands it elements and data.
+// Visual effects: card tilt, the 3D gift box, confetti, page transitions.
+// Built to stay light on phones: the box spins with a CSS animation (paused
+// off screen) and JavaScript only runs while someone drags it.
 const FX = (() => {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
   const clamp = (value, low, high) => Math.min(Math.max(value, low), high);
 
-  // Lean `card` toward the pointer. CSS reads --tx/--ty (-1..1, unitless) for
-  // the rotation and shadow, and --mx/--my for the glare position.
+  // Lean `card` toward a mouse pointer. CSS reads --tx/--ty (-1..1) for the
+  // rotation and --mx/--my for the highlight.
   function tilt(card) {
     if (!finePointer.matches) return;
     let frame = 0;
@@ -27,101 +28,87 @@ const FX = (() => {
     card.addEventListener("pointermove", (event) => {
       if (reduced.matches) return;
       point = { x: event.clientX, y: event.clientY };
-      card.classList.add("is-tilting");
       if (!frame) frame = requestAnimationFrame(apply);
     });
-    const reset = () => {
+    card.addEventListener("pointerleave", () => {
       point = null;
-      card.classList.remove("is-tilting");
-      for (const [name, value] of [["--tx", "0"], ["--ty", "0"], ["--mx", "50%"], ["--my", "50%"]]) {
-        card.style.setProperty(name, value);
-      }
-    };
-    card.addEventListener("pointerleave", reset);
-    card.addEventListener("blur", reset);
+      for (const name of ["--tx", "--ty"]) card.style.removeProperty(name);
+    });
   }
 
-  // A CSS gift box in `scene` (built by app.js): drag its .box-area to spin
-  // it, click it (or Enter on .box-hit) to open it and let its .chip elements
-  // out. Wide scenes hang the chips in two columns beside the box, narrow ones
-  // line them up under it.
+  // The gift box built by app.js: drag .gift-area to turn it, click it (or
+  // Enter on .box-hit) to open it and let the .chip elements out.
   function giftBox(scene) {
-    const area = scene.querySelector(".box-area");
-    const box = scene.querySelector(".box");
+    const area = scene.querySelector(".gift-area");
+    const turn = scene.querySelector(".box-turn");
     const toggle = scene.querySelector(".box-hit");
     const chips = [...scene.querySelectorAll(".chip")];
-    const rest = -18; // the tilt the box settles back to
+    const rest = -16; // the tilt the box settles back to
     let rx = rest;
-    let ry = 32;
-    let spin = 0; // degrees per ms, left over from a flick
+    let ry = 0;
+    let speed = 0; // degrees per ms left over from a flick
     let drag = null;
-    let last = performance.now();
+    let frame = 0;
 
-    function layoutChips() {
-      const reach = box.offsetWidth * 0.78 + 24; // clear of the box, whichever way it faces
-      const widest = Math.max(0, ...chips.map((chip) => chip.offsetWidth));
-      const orbit = area.clientWidth / 2 >= reach + widest + 8;
-      scene.classList.toggle("chips-orbit", orbit);
-      scene.classList.toggle("chips-flow", !orbit);
-      chips.forEach((chip, i) => chip.style.setProperty("--d", `${i * 70}ms`));
-      if (!orbit) return;
-      [chips.filter((_, i) => i % 2 === 0), chips.filter((_, i) => i % 2 === 1)].forEach((column, side) => {
-        const sign = side === 0 ? -1 : 1;
-        column.forEach((chip, row) => {
-          const y = (row - (column.length - 1) / 2) * (chip.offsetHeight + 18) - 30;
-          chip.style.setProperty("--x", `${sign * (reach + chip.offsetWidth / 2)}px`);
-          chip.style.setProperty("--y", `${y}px`);
-          chip.style.setProperty("--r", `${sign * (row - 1) * 2.5}deg`);
-        });
-      });
-    }
+    const apply = () => {
+      turn.style.setProperty("--rx", `${rx.toFixed(2)}deg`);
+      turn.style.setProperty("--ry", `${ry.toFixed(2)}deg`);
+    };
 
     function setOpen(open) {
       scene.classList.toggle("is-open", open);
       toggle.setAttribute("aria-expanded", String(open));
-      for (const chip of chips) chip.tabIndex = open ? 0 : -1;
+      chips.forEach((chip, i) => {
+        chip.tabIndex = open ? 0 : -1;
+        chip.style.setProperty("--d", `${120 + i * 45}ms`);
+      });
       if (open) {
-        layoutChips();
-        const rect = box.getBoundingClientRect();
-        burst(rect.left + rect.width / 2, rect.top, undefined, 34);
+        const box = area.getBoundingClientRect();
+        burst(box.left + box.width / 2, box.top + box.height * 0.4);
       }
     }
 
-    function frame(now) {
-      if (!scene.isConnected) return; // the view changed: stop animating
-      const dt = Math.min(now - last, 48);
-      last = now;
-      if (!drag) {
-        const idle = reduced.matches ? 0 : 0.012;
-        ry += (idle + spin) * dt;
-        spin *= Math.pow(0.996, dt);
-        rx += (rest - rx) * Math.min(dt * 0.003, 1);
-      }
-      box.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
-      requestAnimationFrame(frame);
+    // After a flick: coast to a stop, then the CSS idle spin carries on.
+    function coast() {
+      let last = performance.now();
+      const step = (now) => {
+        const dt = Math.min(now - last, 48);
+        last = now;
+        ry += speed * dt;
+        speed *= Math.pow(0.994, dt);
+        rx += (rest - rx) * Math.min(dt * 0.004, 1);
+        apply();
+        frame = Math.abs(speed) > 0.005 || Math.abs(rx - rest) > 0.2 ? requestAnimationFrame(step) : 0;
+      };
+      frame = requestAnimationFrame(step);
     }
 
     area.addEventListener("pointerdown", (event) => {
       if (event.button > 0) return;
+      cancelAnimationFrame(frame);
       drag = { x: event.clientX, y: event.clientY, t: event.timeStamp, moved: 0 };
-      spin = 0;
+      speed = 0;
       area.setPointerCapture(event.pointerId);
     });
     area.addEventListener("pointermove", (event) => {
       if (!drag) return;
       const dx = event.clientX - drag.x;
       const dy = event.clientY - drag.y;
-      const dt = Math.max(event.timeStamp - drag.t, 1);
-      ry += dx * 0.45;
-      rx = clamp(rx - dy * 0.35, -70, 30);
-      spin = (dx * 0.45) / dt;
-      drag = { x: event.clientX, y: event.clientY, t: event.timeStamp, moved: drag.moved + Math.abs(dx) + Math.abs(dy) };
+      const moved = drag.moved + Math.abs(dx) + Math.abs(dy);
+      if (moved > 6) scene.classList.add("is-dragging");
+      ry += dx * 0.5;
+      rx = clamp(rx - dy * 0.4, -60, 20);
+      speed = (dx * 0.5) / Math.max(event.timeStamp - drag.t, 1);
+      drag = { x: event.clientX, y: event.clientY, t: event.timeStamp, moved };
+      apply();
     });
     const release = (event) => {
       if (!drag) return;
-      const tap = drag.moved < 6;
+      const tap = drag.moved <= 6;
       drag = null;
-      if (event.type === "pointerup" && tap) setOpen(!scene.classList.contains("is-open"));
+      scene.classList.remove("is-dragging");
+      if (tap && event.type === "pointerup") setOpen(!scene.classList.contains("is-open"));
+      else if (!reduced.matches) coast();
     };
     area.addEventListener("pointerup", release);
     area.addEventListener("pointercancel", release);
@@ -130,22 +117,18 @@ const FX = (() => {
       event.preventDefault();
       setOpen(!scene.classList.contains("is-open"));
     });
-    const relayout = () => {
-      if (!scene.isConnected) window.removeEventListener("resize", relayout);
-      else layoutChips();
-    };
-    window.addEventListener("resize", relayout);
 
+    // No spinning while the box is scrolled out of view.
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([entry]) => scene.classList.toggle("is-away", !entry.isIntersecting)).observe(area);
+    }
     for (const chip of chips) chip.tabIndex = -1;
-    layoutChips();
-    requestAnimationFrame(frame);
-    return { open: () => setOpen(true) };
   }
 
-  const CONFETTI = ["#ff5ea8", "#a78bfa", "#22d3ee", "#fbbf24", "#34d399"];
+  const CONFETTI = ["#ff6fae", "#a594ff", "#38d9f0", "#ffc24b", "#4ade80"];
 
-  // Confetti from a point on screen (client coordinates).
-  function burst(x, y, colors = CONFETTI, count = 22) {
+  // A short confetti pop at a point on screen (client coordinates).
+  function burst(x, y, colors = CONFETTI, count = finePointer.matches ? 20 : 12) {
     if (reduced.matches || !Element.prototype.animate) return;
     const layer = document.createElement("div");
     layer.className = "burst";
@@ -155,25 +138,23 @@ const FX = (() => {
     for (let i = 0; i < count; i++) {
       const bit = document.createElement("i");
       bit.style.background = colors[i % colors.length];
-      if (i % 3 === 0) bit.style.borderRadius = "50%";
       layer.append(bit);
       const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
-      const distance = 50 + Math.random() * 80;
+      const distance = 40 + Math.random() * 60;
       const dx = Math.cos(angle) * distance;
       const dy = Math.sin(angle) * distance;
       bit.animate(
         [
-          { transform: "translate(-50%, -50%) rotate(0deg) scale(1)", opacity: 1 },
-          { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${Math.random() * 360}deg)`, opacity: 1, offset: 0.55 },
-          { transform: `translate(calc(-50% + ${dx * 1.15}px), calc(-50% + ${dy + 60}px)) rotate(${Math.random() * 720}deg) scale(.5)`, opacity: 0 },
+          { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
+          { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 40}px)) rotate(${Math.random() * 540}deg) scale(.6)`, opacity: 0 },
         ],
-        { duration: 900 + Math.random() * 500, easing: "cubic-bezier(.15,.7,.3,1)", fill: "forwards" },
+        { duration: 700 + Math.random() * 300, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" },
       );
     }
-    setTimeout(() => layer.remove(), 1600);
+    setTimeout(() => layer.remove(), 1100);
   }
 
-  // Swap views with a shared-element morph where the browser supports it.
+  // Swap views with a cross-fade where the browser supports it.
   function transition(update) {
     if (!document.startViewTransition || reduced.matches) {
       update();
@@ -182,20 +163,5 @@ const FX = (() => {
     document.startViewTransition(update);
   }
 
-  // The background drifts a little with the pointer.
-  function parallax() {
-    if (!finePointer.matches) return;
-    let frame = 0;
-    window.addEventListener("pointermove", (event) => {
-      if (reduced.matches || frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        const root = document.documentElement.style;
-        root.setProperty("--px", ((event.clientX / window.innerWidth) * 2 - 1).toFixed(3));
-        root.setProperty("--py", ((event.clientY / window.innerHeight) * 2 - 1).toFixed(3));
-      });
-    });
-  }
-
-  return { tilt, giftBox, burst, transition, parallax, reduced };
+  return { tilt, giftBox, burst, transition, reduced };
 })();

@@ -140,6 +140,9 @@ a { color: var(--accent); }
 .old summary { cursor: pointer; }
 .old .code { background: transparent; cursor: default; }
 .old .code-value { color: var(--done); text-decoration: line-through; }
+.old .claim { cursor: pointer; text-decoration: none; }
+.claim-title { display: block; color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
+.hint { margin: 8px 0 0; font-size: .86rem; }
 
 .empty { color: var(--muted); text-align: center; padding: 24px 0; }
 .none { margin: 14px 0 0; color: var(--muted); }

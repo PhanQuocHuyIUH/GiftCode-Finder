@@ -8,7 +8,7 @@ something actually happened.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -24,6 +24,7 @@ class SourceResult:
     checked_at: str
     codes: list[Code] | None = None  # None when the source could not be read
     error: str | None = None
+    hidden: list[Code] = field(default_factory=list)  # listed, but the value is hidden
 
     @property
     def ok(self) -> bool:
@@ -50,6 +51,21 @@ def save_state(path: str | Path, state: dict) -> bool:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
     return True
+
+
+def split_hidden(result: SourceResult, items: list[Code], state: dict) -> None:
+    """Store ``items`` on ``result``, separating codes from hidden ones.
+
+    A hidden item whose link was seen before with a code gets that code back:
+    a source that keeps listing the same event keeps its code, even when the
+    value can no longer be fetched (for example after a login expired).
+    """
+    known = {e["link"]: e["code"] for e in state["games"].get(result.game_id, []) if e.get("link")}
+    for item in items:
+        if item.code is None and item.link in known:
+            item.code = known[item.link]
+    result.codes = [i for i in items if i.code is not None]
+    result.hidden = [i for i in items if i.code is None]
 
 
 def update_state(state: dict, results: list[SourceResult], now: str) -> tuple[dict, dict[str, list[dict]]]:
@@ -82,8 +98,10 @@ def merge_game(entries: list[dict], results: list[SourceResult], now: str) -> tu
             old = previous.get(code, {})
             active[code] = {
                 "code": code,
+                "title": old.get("title"),
                 "reward": old.get("reward"),
                 "expires": old.get("expires"),
+                "link": old.get("link"),
                 "sources": [],
                 "first_seen": old.get("first_seen", now),
                 "removed_at": None,
@@ -99,8 +117,8 @@ def merge_game(entries: list[dict], results: list[SourceResult], now: str) -> tu
             for item in result.codes:
                 entry = entry_for(item.code)
                 add_source(entry, result.source_id)
-                entry["reward"] = item.reward or entry["reward"]
-                entry["expires"] = item.expires or entry["expires"]
+                for name in ("title", "reward", "expires", "link"):
+                    entry[name] = getattr(item, name) or entry[name]
         else:
             # A failing source keeps vouching for the codes it listed last time,
             # so an outage never looks like every code expired.

@@ -17,15 +17,20 @@ from ..fetch import Fetcher, Page
 
 Extractor = Callable[[Source, Fetcher], list[Code]]
 EXTRACTORS: dict[str, Extractor] = {}
+# Extractors that validate the response themselves, so an empty result means
+# the site really has nothing listed rather than a layout change.
+EMPTY_OK: set[str] = set()
 
 
 class ExtractError(Exception):
     pass
 
 
-def register(name: str) -> Callable[[Extractor], Extractor]:
+def register(name: str, empty_ok: bool = False) -> Callable[[Extractor], Extractor]:
     def wrap(fn: Extractor) -> Extractor:
         EXTRACTORS[name] = fn
+        if empty_ok:
+            EMPTY_OK.add(name)
         return fn
 
     return wrap
@@ -46,20 +51,29 @@ def load_page(source: Source, fetcher: Fetcher, url: str | None = None) -> Page:
 
 
 def finalize(source: Source, codes: list[Code]) -> list[Code]:
-    """Clean, validate and de-duplicate extracted codes."""
+    """Clean, validate and de-duplicate extracted codes.
+
+    Items without a code value (hidden by the site) are kept after the real
+    codes as long as they say where to claim them.
+    """
     pattern = compile_pattern(source.get("code_pattern"))
     exclude = {str(word).upper() for word in source.get("exclude", [])}
-    valid = []
+    valid, hidden = [], []
     for item in codes:
+        if item.code is None:
+            if item.link or item.title:
+                hidden.append(item)
+            continue
         item.code = clean_code(item.code)
         if is_code(item.code, pattern, exclude):
             valid.append(item)
-    return dedupe(valid)
+    return dedupe(valid) + hidden
 
 
 def extract(source: Source, fetcher: Fetcher) -> list[Code]:
+    """Run the source's extractor; hidden items come last with ``code=None``."""
     codes = finalize(source, EXTRACTORS[source.type](source, fetcher))
-    if not codes and not source.get("allow_empty"):
+    if not codes and not source.get("allow_empty", source.type in EMPTY_OK):
         raise ExtractError(
             "Không tìm thấy code nào - có thể trang đã đổi cấu trúc "
             "(đặt allow_empty: true nếu trang thật sự không còn code)"

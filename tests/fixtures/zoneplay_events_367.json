@@ -1,0 +1,149 @@
+{
+ "data": [
+  {
+   "id": 945,
+   "name": "STRINGIFY",
+   "description": "<p>Mừng Game Ra Mắt Thành Công</p>",
+   "type": 2,
+   "game_id": "367",
+   "from_date": "2026-10-21 11:45:00",
+   "to_date": "2027-04-23 11:45:00",
+   "recharge_milestone": null,
+   "giftcodes_count": 1,
+   "giftcodes_rw_count": 0,
+   "game": {
+    "id": 367,
+    "app_key": "df053f7601394f2817b7e1a0a4e8e1ef",
+    "name": "Strinova VN",
+    "icon_game": "https://cdn-media.gzone.tech/media/content/gc02/20261019-165228-4a05f577.png"
+   },
+   "giftcodes": [
+    {
+     "event_id": 945,
+     "user_id": null
+    }
+   ]
+  },
+  {
+   "id": 944,
+   "name": "SUPERSTRING",
+   "description": "<p>Mừng Game Ra Mắt Thành Công</p>",
+   "type": 2,
+   "game_id": "367",
+   "from_date": "2026-10-21 11:45:00",
+   "to_date": "2027-04-23 11:45:00",
+   "recharge_milestone": null,
+   "giftcodes_count": 1,
+   "giftcodes_rw_count": 0,
+   "game": {
+    "id": 367,
+    "app_key": "df053f7601394f2817b7e1a0a4e8e1ef",
+    "name": "Strinova VN",
+    "icon_game": "https://cdn-media.gzone.tech/media/content/gc02/20261019-165228-4a05f577.png"
+   },
+   "giftcodes": [
+    {
+     "event_id": 944,
+     "user_id": null
+    }
+   ]
+  },
+  {
+   "id": 943,
+   "name": "STRINOVA URBINO",
+   "description": "Mừng Game Ra Mắt Thành Công",
+   "type": 2,
+   "game_id": "367",
+   "from_date": "2026-10-20 11:44:00",
+   "to_date": "2027-04-23 11:44:00",
+   "recharge_milestone": null,
+   "giftcodes_count": 1,
+   "giftcodes_rw_count": 0,
+   "game": {
+    "id": 367,
+    "app_key": "df053f7601394f2817b7e1a0a4e8e1ef",
+    "name": "Strinova VN",
+    "icon_game": "https://cdn-media.gzone.tech/media/content/gc02/20261019-165228-4a05f577.png"
+   },
+   "giftcodes": [
+    {
+     "event_id": 943,
+     "user_id": null
+    }
+   ]
+  },
+  {
+   "id": 942,
+   "name": "THESCISSORS",
+   "description": "<p>Mừng Game Ra Mắt Thành Công</p>",
+   "type": 2,
+   "game_id": "367",
+   "from_date": "2026-10-21 11:34:00",
+   "to_date": "2027-04-23 11:34:00",
+   "recharge_milestone": null,
+   "giftcodes_count": 1,
+   "giftcodes_rw_count": 0,
+   "game": {
+    "id": 367,
+    "app_key": "df053f7601394f2817b7e1a0a4e8e1ef",
+    "name": "Strinova VN",
+    "icon_game": "https://cdn-media.gzone.tech/media/content/gc02/20261019-165228-4a05f577.png"
+   },
+   "giftcodes": [
+    {
+     "event_id": 942,
+     "user_id": null
+    }
+   ]
+  },
+  {
+   "id": 941,
+   "name": "Strinova PUS",
+   "description": "<p>Mừng Game Ra Mắt Thành Công</p>",
+   "type": 2,
+   "game_id": "367",
+   "from_date": "2026-10-21 11:33:00",
+   "to_date": "2027-04-23 11:33:00",
+   "recharge_milestone": null,
+   "giftcodes_count": 1,
+   "giftcodes_rw_count": 0,
+   "game": {
+    "id": 367,
+    "app_key": "df053f7601394f2817b7e1a0a4e8e1ef",
+    "name": "Strinova VN",
+    "icon_game": "https://cdn-media.gzone.tech/media/content/gc02/20261019-165228-4a05f577.png"
+   },
+   "giftcodes": [
+    {
+     "event_id": 941,
+     "user_id": null
+    }
+   ]
+  },
+  {
+   "id": 940,
+   "name": "Strinova VN",
+   "description": "<p>Mừng Game Ra Mứt Thành Công</p>",
+   "type": 2,
+   "game_id": "367",
+   "from_date": "2026-10-20 11:32:00",
+   "to_date": "2027-04-23 11:32:00",
+   "recharge_milestone": null,
+   "giftcodes_count": 1,
+   "giftcodes_rw_count": 0,
+   "game": {
+    "id": 367,
+    "app_key": "df053f7601394f2817b7e1a0a4e8e1ef",
+    "name": "Strinova VN",
+    "icon_game": "https://cdn-media.gzone.tech/media/content/gc02/20261019-165228-4a05f577.png"
+   },
+   "giftcodes": [
+    {
+     "event_id": 940,
+     "user_id": null
+    }
+   ]
+  }
+ ],
+ "message": "get list events of game success"
+}

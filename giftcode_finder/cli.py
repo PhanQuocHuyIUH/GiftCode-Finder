@@ -12,7 +12,7 @@ from .extractors import extract
 from .fetch import Fetcher
 from .inspect import inspect_url
 from .publish import build_site, codes_markdown, site_data, update_readme, write_step_summary
-from .state import SourceResult, load_state, now_iso, save_state, update_state
+from .state import SourceResult, load_state, now_iso, save_state, split_hidden, update_state
 
 IN_CI = os.environ.get("GITHUB_ACTIONS") == "true"
 
@@ -77,13 +77,15 @@ def _selected(games: list[Game], only: list[str] | None) -> list[tuple[Game, lis
     return picked
 
 
-def scrape(games: list[tuple[Game, list]], fetcher: Fetcher, debug: bool = False) -> list[SourceResult]:
+def scrape(
+    games: list[tuple[Game, list]], fetcher: Fetcher, state: dict, debug: bool = False
+) -> list[SourceResult]:
     results = []
     for game, sources in games:
         for source in sources:
             result = SourceResult(game.id, source.id, checked_at=now_iso())
             try:
-                result.codes = extract(source, fetcher)
+                split_hidden(result, extract(source, fetcher), state)
             except Exception as exc:  # one broken site must not stop the others
                 result.error = str(exc) or type(exc).__name__
                 if debug:
@@ -96,7 +98,11 @@ def scrape(games: list[tuple[Game, list]], fetcher: Fetcher, debug: bool = False
 def _report(game: Game, source, result: SourceResult) -> None:
     label = f"{game.id}/{source.id}"
     if result.ok:
-        print(f"✓ {label}: {len(result.codes)} code - {', '.join(c.code for c in result.codes)}")
+        listed = f" - {', '.join(c.code for c in result.codes)}" if result.codes else ""
+        print(f"✓ {label}: {len(result.codes)} code{listed}")
+        if result.hidden:
+            titles = ", ".join(c.title or c.link for c in result.hidden)
+            print(f"  {len(result.hidden)} sự kiện chưa xem được mã: {titles}")
     else:
         print(f"✗ {label}: {result.error}")
         if IN_CI:
@@ -105,12 +111,13 @@ def _report(game: Game, source, result: SourceResult) -> None:
 
 def cmd_run(args: argparse.Namespace) -> int:
     games = load_config(args.config)
-    results = scrape(_selected(games, args.only), Fetcher(), debug=args.debug)
+    state = load_state(args.state)
+    results = scrape(_selected(games, args.only), Fetcher(), state, debug=args.debug)
     failed = [r for r in results if not r.ok]
 
     if not args.dry_run:
         now = now_iso()
-        state, new_by_game = update_state(load_state(args.state), results, now)
+        state, new_by_game = update_state(state, results, now)
         save_state(args.state, state)
         data = site_data(games, state, results, now)
         build_site(data, args.site_template, args.site_dir)

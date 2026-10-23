@@ -80,6 +80,9 @@ jobs:
 
       - name: Lấy giftcode
         id: scrape
+        env:
+          # Optional: Gzone session token, lets the zoneplay source read event codes.
+          ZONEPLAY_ACCESS_TOKEN: ${{ secrets.ZONEPLAY_ACCESS_TOKEN }}
         run: python -m giftcode_finder run ${{ inputs.debug && '--debug' || '' }}
 
       - name: Lưu thay đổi vào repo

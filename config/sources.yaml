@@ -4,7 +4,8 @@
 # Thêm trang cho game: thêm một mục vào `sources` của game đó.
 #
 # Các loại nguồn (`type`):
-#   zoneplay  Cổng Gzone - chỉ cần url dạng https://zoneplay.vn/care/game/<id>
+#   zoneplay  Trang Care của Gzone - url dạng https://zoneplay.vn/care/game/<id>
+#             (tuỳ chọn: token_env, reveal_types - xem README)
 #   html      Lấy code bằng CSS selector:  item, code, attr, reward, expires
 #   regex     Lấy code bằng biểu thức chính quy:  pattern, on (text | html), flags
 #   json      Lấy code từ API JSON (hoặc JSON trong thẻ <script>):  items, code, reward, expires, script
@@ -23,10 +24,18 @@
 games:
   - id: strinova
     name: Strinova
-    # redeem_url: <link trang nhập code>    (hiện trên web, tuỳ chọn)
-    # redeem_note: <hướng dẫn nhập code>    (hiện trên web, tuỳ chọn)
+    redeem_url: https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn
+    redeem_note: "Trong game: Cài Đặt (góc trên bên phải) → Mã Đổi Thưởng → nhập code → xác nhận."
     sources:
+      # Bài hướng dẫn chính thức của Gzone: liệt kê code công khai.
+      - id: huong-dan
+        name: Strinova VN – Hướng dẫn nhập giftcode
+        type: html
+        url: https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn
+        code: "#article .nart__body li"
+      # Trang Care của Gzone: danh sách sự kiện giftcode. Gzone chỉ hiện mã khi đã
+      # đăng nhập; thêm secret ZONEPLAY_ACCESS_TOKEN để tự lấy mã (xem README).
       - id: gzone
-        name: Gzone (zoneplay.vn)
+        name: Gzone Care (zoneplay.vn)
         type: zoneplay
         url: https://zoneplay.vn/care/game/367

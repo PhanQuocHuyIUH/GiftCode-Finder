@@ -24,7 +24,7 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
     workflow = os.environ.get("GCF_WORKFLOW_FILE", "scrape.yml")
     out_games = []
     for game in games:
-        sources = []
+        sources, hidden = [], []
         for source in game.sources:
             result = status.get((game.id, source.id))
             sources.append(
@@ -34,10 +34,21 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
                     "url": source.url,
                     "ok": result.ok if result else None,
                     "count": len(result.codes) if result and result.ok else None,
+                    "hidden": len(result.hidden) if result else 0,
                     "error": result.error if result else None,
                     "checked_at": result.checked_at if result else None,
                 }
             )
+            for item in result.hidden if result else []:
+                hidden.append(
+                    {
+                        "title": item.title,
+                        "reward": item.reward,
+                        "expires": item.expires,
+                        "link": item.link,
+                        "source": source.id,
+                    }
+                )
         out_games.append(
             {
                 "id": game.id,
@@ -46,6 +57,7 @@ def site_data(games: list[Game], state: dict, results: list[SourceResult], gener
                 "redeem_note": game.redeem_note,
                 "sources": sources,
                 "codes": state["games"].get(game.id, []),
+                "hidden": hidden,
             }
         )
     return {
@@ -91,18 +103,28 @@ def codes_markdown(data: dict, new_by_game: dict[str, list[dict]] | None = None)
         lines.append(f"### {game['name']} — {len(active)} code")
         lines.append("")
         if active:
-            lines.append("| Code | Phần thưởng | Hạn dùng | Thấy lần đầu |")
+            lines.append("| Code | Sự kiện | Hạn dùng | Thấy lần đầu |")
             lines.append("|---|---|---|---|")
             for c in active:
                 badge = " 🆕" if c["code"] in new_codes else ""
+                event = " — ".join(x for x in (c.get("title"), c.get("reward")) if x and x != c["code"])
+                if c.get("link"):
+                    event = f"[{_cell(event or 'Xem')}]({c['link']})"
                 lines.append(
-                    f"| `{c['code']}`{badge} | {_cell(c['reward'])} | {_cell(c['expires'])} "
+                    f"| `{c['code']}`{badge} | {_cell(event)} | {_cell(c['expires'])} "
                     f"| {vn_time(c['first_seen'], with_time=False)} |"
                 )
             lines += ["", "Sao chép tất cả:", "", "```text", *[c["code"] for c in active], "```"]
         else:
             lines.append("_Chưa có code nào đang hoạt động._")
         lines.append("")
+        if game.get("hidden"):
+            count = len(game["hidden"])
+            lines += [f"<details><summary>{count} sự kiện cần đăng nhập để xem mã (bấm để nhận)</summary>", ""]
+            for h in game["hidden"]:
+                expires = f" — hạn {h['expires']}" if h.get("expires") else ""
+                lines.append(f"- [{_cell(h['title'] or h['link'])}]({h['link']}){expires}")
+            lines += ["", "</details>", ""]
         source_links = ", ".join(f"[{s['name']}]({s['url']})" for s in game["sources"])
         lines.append(f"Nguồn: {source_links}")
         if game.get("redeem_note") or game.get("redeem_url"):
@@ -132,7 +154,10 @@ def status_markdown(data: dict) -> str:
     lines = ["| Game | Nguồn | Trạng thái |", "|---|---|---|"]
     for game in data["games"]:
         for s in game["sources"]:
-            state = f"✅ {s['count']} code" if s["ok"] else f"❌ {_cell(s['error'])}"
+            if s["ok"]:
+                state = f"✅ {s['count']} code" + (f", {s['hidden']} sự kiện ẩn mã" if s["hidden"] else "")
+            else:
+                state = f"❌ {_cell(s['error'])}"
             lines.append(f"| {game['name']} | [{s['name']}]({s['url']}) | {state} |")
     return "\n".join(lines) + "\n"
 

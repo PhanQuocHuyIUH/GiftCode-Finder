@@ -70,7 +70,9 @@ class Fetcher:
         params: dict | None = None,
         data: dict | str | None = None,
         json: dict | list | None = None,
+        check: bool = True,
     ) -> Page:
+        """GET/POST ``url``; ``check=False`` returns 4xx/5xx pages instead of raising."""
         try:
             resp = self.session.request(
                 method,
@@ -88,7 +90,7 @@ class Fetcher:
         # mangles Vietnamese text; nearly every site here serves UTF-8.
         if "charset" not in content_type.lower():
             resp.encoding = "utf-8"
-        if resp.status_code >= 400:
+        if check and resp.status_code >= 400:
             raise FetchError(f"{url} trả về HTTP {resp.status_code}")
         return Page(resp.url, resp.status_code, content_type, resp.text)
 
@@ -109,6 +111,7 @@ class Fetcher:
         """
         try:
             from playwright.sync_api import Error as PlaywrightError
+            from playwright.sync_api import TimeoutError as PlaywrightTimeout
             from playwright.sync_api import sync_playwright
         except ImportError as exc:
             raise FetchError(
@@ -126,7 +129,11 @@ class Fetcher:
                     # response would block. (Playwright tags handlers with
                     # attributes, so the handler cannot be a bound builtin.)
                     page.on("requestfinished", lambda request: finished.append(request))
-                    nav = page.goto(url, wait_until="networkidle", timeout=timeout_ms)
+                    nav = page.goto(url, wait_until="load", timeout=timeout_ms)
+                    try:
+                        page.wait_for_load_state("networkidle", timeout=min(timeout_ms, 15000))
+                    except PlaywrightTimeout:
+                        pass  # pages with videos or live analytics never go idle
                     if wait_for:
                         page.wait_for_selector(wait_for, timeout=timeout_ms)
                     if wait_ms:

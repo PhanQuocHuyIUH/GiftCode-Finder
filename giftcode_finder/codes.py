@@ -9,15 +9,19 @@ from dataclasses import dataclass
 # Codes are letters/digits, optionally joined by . _ - (e.g. "P.U.S").
 DEFAULT_CODE_PATTERN = r"[A-Za-z0-9](?:[A-Za-z0-9._-]{0,48}[A-Za-z0-9])?"
 
-_INVISIBLE = dict.fromkeys(map(ord, "​‌‍⁠﻿­"), None)
+_INVISIBLE = dict.fromkeys(map(ord, "\u200b\u200c\u200d\u2060\ufeff\u00ad"), None)
 _EDGE_JUNK = " \t\r\n\"'`“”‘’«»:;,()[]{}<>|"
 
 
 @dataclass
 class Code:
-    code: str
+    # None when the source lists a giftcode but hides its value (for example
+    # behind a login); such items are shown with ``link`` to claim them.
+    code: str | None
     reward: str | None = None
     expires: str | None = None
+    title: str | None = None  # event/post the code belongs to
+    link: str | None = None  # page where the code is claimed
 
 
 def clean_text(value: object) -> str:
@@ -49,6 +53,6 @@ def dedupe(codes: list[Code]) -> list[Code]:
         if existing is None:
             by_code[item.code] = item
             continue
-        existing.reward = existing.reward or item.reward
-        existing.expires = existing.expires or item.expires
+        for name in ("reward", "expires", "title", "link"):
+            setattr(existing, name, getattr(existing, name) or getattr(item, name))
     return list(by_code.values())

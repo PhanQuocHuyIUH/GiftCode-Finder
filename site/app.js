@@ -90,8 +90,9 @@ function codeRow(game, code) {
   const key = codeKey(game, code);
   const isNew = Date.now() - new Date(code.first_seen) < NEW_FOR_MS;
   const info = [
-    code.reward && `🎁 ${code.reward}`,
-    code.expires && `⏳ ${code.expires}`,
+    code.title !== code.code && code.title,
+    code.reward,
+    code.expires && `HSD ${code.expires}`,
     `thấy từ ${dayFmt.format(new Date(code.first_seen))}`,
   ].filter(Boolean).join(" · ");
   const action = el("span", { class: "code-action" }, copied.has(key) ? "✓ Đã chép" : "Sao chép");
@@ -138,22 +139,44 @@ function oldRow(code) {
   );
 }
 
+// A giftcode the source lists without showing its value: link to claim it.
+function hiddenRow(item) {
+  const info = [item.reward, item.expires && `HSD ${item.expires}`].filter(Boolean).join(" · ");
+  return el(
+    "li",
+    {},
+    el(
+      "a",
+      { class: "code claim", href: item.link, target: "_blank", rel: "noopener" },
+      el(
+        "span",
+        { class: "code-main" },
+        el("span", { class: "claim-title" }, item.title || item.link),
+        info && el("span", { class: "code-info" }, info),
+      ),
+      el("span", { class: "code-action" }, "Nhận code ↗"),
+    ),
+  );
+}
+
 function sourceLine(source) {
   const link = el("a", { href: source.url, target: "_blank", rel: "noopener" }, source.name);
   if (source.ok === null) return el("li", {}, link, " · chưa quét");
   if (!source.ok) return el("li", {}, el("span", { class: "bad" }, "⚠ "), link, ` lỗi: ${source.error}`);
+  const hidden = source.hidden ? ` · ${source.hidden} sự kiện ẩn mã` : "";
   return el(
     "li",
     {},
     el("span", { class: "ok" }, "✓ "),
     link,
-    ` · ${source.count} code · kiểm tra ${ago(source.checked_at)}`,
+    ` · ${source.count} code${hidden} · kiểm tra ${ago(source.checked_at)}`,
   );
 }
 
 function gameCard(game) {
   const active = game.codes.filter((c) => !c.removed_at);
   const old = game.codes.filter((c) => c.removed_at);
+  const hidden = game.hidden || [];
   const copyAll = active.length > 1 && el(
     "button",
     {
@@ -168,9 +191,8 @@ function gameCard(game) {
   const redeem = (game.redeem_note || game.redeem_url) && el(
     "p",
     { class: "redeem" },
-    "Cách nhập: ",
-    game.redeem_note || "",
-    game.redeem_url && el("a", { href: game.redeem_url, target: "_blank", rel: "noopener" }, game.redeem_note ? " (mở trang)" : "mở trang nhập code"),
+    game.redeem_note && `Cách nhập: ${game.redeem_note} `,
+    game.redeem_url && el("a", { href: game.redeem_url, target: "_blank", rel: "noopener" }, "Xem hướng dẫn"),
   );
   return el(
     "section",
@@ -186,6 +208,13 @@ function gameCard(game) {
     active.length
       ? el("ul", { class: "codes" }, active.map((c) => codeRow(game, c)))
       : el("p", { class: "none" }, "Chưa có code nào đang hoạt động."),
+    hidden.length > 0 && el(
+      "details",
+      { class: "old", open: active.length === 0 },
+      el("summary", {}, `Sự kiện giftcode cần đăng nhập để xem mã (${hidden.length})`),
+      el("p", { class: "hint" }, "Trang nguồn chỉ hiện mã khi đã đăng nhập. Bấm vào sự kiện để mở trang nhận code."),
+      el("ul", { class: "codes" }, hidden.map(hiddenRow)),
+    ),
     old.length > 0 && el(
       "details",
       { class: "old" },

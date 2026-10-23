@@ -1,5 +1,5 @@
 from giftcode_finder.codes import Code
-from giftcode_finder.state import SourceResult, update_state
+from giftcode_finder.state import SourceResult, split_hidden, update_state
 
 T1, T2, T3 = "2026-10-23T01:00:00Z", "2026-10-23T02:00:00Z", "2026-10-23T03:00:00Z"
 
@@ -21,8 +21,10 @@ def test_first_run_marks_everything_new():
     assert [e["code"] for e in new["g"]] == ["AAA", "BBB"]
     assert codes(state)["AAA"] == {
         "code": "AAA",
+        "title": None,
         "reward": None,
         "expires": None,
+        "link": None,
         "sources": ["a"],
         "first_seen": T1,
         "removed_at": None,
@@ -93,3 +95,18 @@ def test_failing_source_without_history_records_nothing():
     state, new = update_state({"updated_at": None, "games": {}}, [failed("a")], T1)
     assert state == {"updated_at": None, "games": {}}
     assert new == {}
+
+
+def test_split_hidden_restores_codes_learned_from_the_same_link():
+    state, _ = update_state(
+        {"games": {}},
+        [SourceResult("g", "a", checked_at="", codes=[Code("P.U.S", title="Strinova PUS", link="https://x/941")])],
+        T1,
+    )
+    result = SourceResult("g", "a", checked_at="")
+    split_hidden(result, [Code(None, title="Strinova PUS", link="https://x/941"), Code(None, link="https://x/942")], state)
+    assert [(c.code, c.link) for c in result.codes] == [("P.U.S", "https://x/941")]
+    assert [c.link for c in result.hidden] == ["https://x/942"]
+    state, new = update_state(state, [result], T2)
+    assert new == {}
+    assert codes(state)["P.U.S"]["removed_at"] is None

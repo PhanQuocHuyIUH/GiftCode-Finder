@@ -47,6 +47,7 @@ class Fetcher:
         self.session = requests.Session()
         retry = Retry(
             total=3,
+            connect=1,  # a host that drops connections will not answer a 3rd try either
             backoff_factor=2,
             status_forcelist=(429, 500, 502, 503, 504),
             allowed_methods=None,
@@ -81,7 +82,7 @@ class Fetcher:
                 params=params,
                 data=data,
                 json=json,
-                timeout=self.timeout,
+                timeout=(min(10.0, self.timeout), self.timeout),  # (connect, read)
             )
         except requests.RequestException as exc:
             raise FetchError(f"Không kết nối được {url}: {exc}") from exc

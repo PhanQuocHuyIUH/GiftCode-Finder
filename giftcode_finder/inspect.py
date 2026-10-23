@@ -208,6 +208,13 @@ def inspect_url(
                 print(f"  Tìm '{needle}': {len(hits)} chỗ")
                 for hit in hits:
                     print(f"     … {hit} …")
+        # Server-rendered apps often ship their data as JSON in inline scripts.
+        inline_js = "\n".join(s.get_text() for s in inline)
+        for needle in grep:
+            hits = _grep(inline_js, needle, limit=grep_limit, width=grep_width)
+            print(f"  Script inline - tìm '{needle}': {len(hits)} chỗ")
+            for hit in hits:
+                print(f"     … {hit} …")
 
     if page.responses:
         _section("Response XHR/fetch khi render")

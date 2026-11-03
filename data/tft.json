@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-03T04:47:17Z",
+ "updated_at": "2026-11-03T04:49:54Z",
  "patches": [
   {
    "version": "18.5",
@@ -1293,7 +1293,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "18.4",
@@ -2860,7 +2860,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "18.3",
@@ -2874,9 +2874,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/17042336893e75631329d42c705ca8b7dc649e2f-2400x1350.png",
    "description": "18.3 is a smaller patch with sharper changes to Champs/Traits and broader buffs to combat Augments",
    "counts": {
-    "buff": 32,
+    "buff": 33,
     "nerf": 42,
-    "adjust": 11,
+    "adjust": 10,
     "new": 0,
     "removed": 2,
     "fix": 39
@@ -3244,7 +3244,7 @@
        "stat": "Sát Thương Kỹ Năng",
        "before": "400/600/950",
        "after": "425/630/1.020",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 3"
       },
@@ -4052,7 +4052,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "18.2",
@@ -4066,9 +4066,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/8d2f666b31bda4686e774e6a38b5f0b63a60c648-2400x1350.jpg",
    "description": "It’s the first main patch of Enchanted Wilds and we’ve got a patch full of buffs and cost reductions for Wisps.",
    "counts": {
-    "buff": 108,
-    "nerf": 53,
-    "adjust": 17,
+    "buff": 116,
+    "nerf": 51,
+    "adjust": 14,
     "new": 0,
     "removed": 5,
     "fix": 25
@@ -4460,7 +4460,7 @@
        "stat": "Sát Thương Kỹ Năng",
        "before": "385/580/925/1.530 SMCK",
        "after": "415/625/1.000/1.700 SMCK",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 1"
       },
@@ -4479,7 +4479,7 @@
        "stat": "Sát Thương Kỹ Năng",
        "before": "250/375/565/955 SMPT",
        "after": "260/390/615/1.045 SMPT",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 2"
       },
@@ -5177,8 +5177,16 @@
        "subject": "Giữ Vững Hàng Ngũ",
        "stat": "SMPT nhận được",
        "before": "9%",
-       "after": "10, SMCK nhận được: 8% ⇒ 9",
-       "dir": "adjust",
+       "after": "10",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "SMCK nhận được",
+       "before": "8%",
+       "after": "9",
+       "dir": "buff",
        "kind": "augments"
       },
       {
@@ -5317,7 +5325,16 @@
        "subject": "Tinh Linh Giao Tranh",
        "stat": "Bốc Cháy - Giá",
        "before": "5v",
-       "after": "3v, Sát thương theo Máu tối đa: 15% ⇒ 12%",
+       "after": "3v",
+       "dir": "buff",
+       "kind": "mechanics",
+       "group": "TINH LINH"
+      },
+      {
+       "subject": "Tinh Linh Giao Tranh",
+       "stat": "Sát thương theo Máu tối đa",
+       "before": "15%",
+       "after": "12%",
        "dir": "nerf",
        "kind": "mechanics",
        "group": "TINH LINH"
@@ -5569,8 +5586,17 @@
        "subject": "Tinh Linh Kinh Tế",
        "stat": "Móc Túi: Giá",
        "before": "3v",
-       "after": "2v, Tỉ Lệ Vàng: 15% ⇒ 20%",
-       "dir": "nerf",
+       "after": "2v",
+       "dir": "buff",
+       "kind": "mechanics",
+       "group": "TINH LINH"
+      },
+      {
+       "subject": "Tinh Linh Kinh Tế",
+       "stat": "Tỉ Lệ Vàng",
+       "before": "15%",
+       "after": "20%",
+       "dir": "buff",
        "kind": "mechanics",
        "group": "TINH LINH"
       },
@@ -5714,7 +5740,7 @@
        "stat": "Sát Thương Nhảy",
        "before": "600% SMCK",
        "after": "1.000% SMCK",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "4 vàng 3 sao"
       },
@@ -6007,7 +6033,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "18.1",
@@ -6022,8 +6048,8 @@
    "description": "Khám phá mùa mới: Đại Ngàn Kỳ Bí với các tộc/hệ Quái Rừng, Thần Rừng, một chú Yeti cùng cơ chế mới mang tên Tinh Linh!",
    "counts": {
     "buff": 19,
-    "nerf": 32,
-    "adjust": 114,
+    "nerf": 33,
+    "adjust": 113,
     "new": 0,
     "removed": 1,
     "fix": 40
@@ -6166,7 +6192,7 @@
        "stat": "Sát Thương Kỹ Năng",
        "before": "440/660/1.050 SMPT",
        "after": "400/600/950 SMPT",
-       "dir": "adjust",
+       "dir": "nerf",
        "kind": "champions",
        "date": "Ngày 31/08 và 01/09"
       },
@@ -7528,7 +7554,7 @@
        "text": "Vận Mệnh Vàng +"
       },
       {
-       "subject": "Vận Mệnh Kim Cương",
+       "subject": null,
        "stat": null,
        "before": null,
        "after": null,
@@ -8117,7 +8143,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.9",
@@ -8131,9 +8157,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4459865c383b7ee85c7c142e3f38a83f3224b4a8-3067x1726.png",
    "description": "Đây là bản cập nhật cuối cùng dành riêng cho Thần Không Gian trước khi Đại Ngàn Kỳ Bí chính thức ra mắt. Sẽ có kha khá bất ngờ khi các tướng có thêm lối xây dựng mới hoặc gia nhập đội hình trong bản cập nhật này!",
    "counts": {
-    "buff": 10,
+    "buff": 11,
     "nerf": 13,
-    "adjust": 11,
+    "adjust": 10,
     "new": 0,
     "removed": 1,
     "fix": 0
@@ -8453,7 +8479,7 @@
        "stat": "Sát Thương Kỹ Năng",
        "before": "120/180/300 SMCK",
        "after": "400/600/1.000 SMCK",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 3"
       },
@@ -8499,7 +8525,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.8",
@@ -8513,8 +8539,8 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/21bed11e091d97e21f0ccad8bd5a1eb503c742e3-3067x1726.png",
    "description": "Choncc’s Lore & Legends (Set 16) becomes Choncc’s Classic Treasure and set 17 gets light changes!",
    "counts": {
-    "buff": 13,
-    "nerf": 11,
+    "buff": 17,
+    "nerf": 13,
     "adjust": 11,
     "new": 0,
     "removed": 1,
@@ -8646,7 +8672,15 @@
        "subject": "Tuyệt Diệt",
        "stat": "SMPT",
        "before": "30%",
-       "after": "25%, Hồi Năng Lượng: 5 ⇒ 4",
+       "after": "25%",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Hồi Năng Lượng",
+       "before": "5",
+       "after": "4",
        "dir": "nerf",
        "kind": "traits"
       },
@@ -8654,7 +8688,15 @@
        "subject": "Giáp Hàn Băng",
        "stat": "Thời Gian Choáng",
        "before": "2 giây",
-       "after": "1,5 giây, Giá Trị Lá Chắn: 25% ⇒ 20%",
+       "after": "1,5 giây",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Giá Trị Lá Chắn",
+       "before": "25%",
+       "after": "20%",
        "dir": "buff",
        "kind": "traits"
       },
@@ -8662,7 +8704,15 @@
        "subject": "Sư Tử Đọa Đày",
        "stat": "Giáp + Kháng Phép",
        "before": "30",
-       "after": "25, Đánh Cắp Chống Chịu: 4 ⇒ 3",
+       "after": "25",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Đánh Cắp Chống Chịu",
+       "before": "4",
+       "after": "3",
        "dir": "nerf",
        "kind": "traits"
       },
@@ -8722,8 +8772,16 @@
        "subject": "Bảo Tồn Sinh Chất",
        "stat": "Máu Cơ Bản",
        "before": "550",
-       "after": "650, Tăng Hồi Máu: 22% ⇒ 30%",
-       "dir": "nerf",
+       "after": "650",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Tăng Hồi Máu",
+       "before": "22%",
+       "after": "30%",
+       "dir": "buff",
        "kind": "traits"
       },
       {
@@ -8738,7 +8796,15 @@
        "subject": "Ma Trận Mã Độc",
        "stat": "Khuếch Đại Sát Thương",
        "before": "10%",
-       "after": "15%, Sát Thương Lan: 75% SMCK ⇒ 100% SMCK",
+       "after": "15%",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Lan",
+       "before": "75% SMCK",
+       "after": "100% SMCK",
        "dir": "buff",
        "kind": "traits"
       },
@@ -8746,7 +8812,15 @@
        "subject": "Kính Khóa Mục Tiêu",
        "stat": "SMPT/SMCK",
        "before": "20%",
-       "after": "30%, Hồi Máu: 20% ⇒ 30%",
+       "after": "30%",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Hồi Máu",
+       "before": "20%",
+       "after": "30%",
        "dir": "buff",
        "kind": "traits"
       },
@@ -8897,7 +8971,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.7",
@@ -8911,9 +8985,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d31cf26c891710cbd3534cf71150f9cbed3e4f19-3067x1726.png",
    "description": "Choncc’s Lore & Legends (set 16) is here along with a patch of buffs for Space Gods!",
    "counts": {
-    "buff": 9,
-    "nerf": 10,
-    "adjust": 9,
+    "buff": 16,
+    "nerf": 9,
+    "adjust": 8,
     "new": 0,
     "removed": 0,
     "fix": 1
@@ -9087,8 +9161,17 @@
        "subject": "Diana",
        "stat": "Lá Chắn SMPT",
        "before": "275/325/475",
-       "after": "275/325/515 SMPT, Sát Thương Kỹ Năng SMPT: 60/90/145 ⇒ 60/90/160 SMPT",
-       "dir": "nerf",
+       "after": "275/325/515 SMPT",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Bậc 3"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Kỹ Năng SMPT",
+       "before": "60/90/145",
+       "after": "60/90/160 SMPT",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 3"
       },
@@ -9188,15 +9271,47 @@
        "subject": "Trái Tim Của Hiểm Họa",
        "stat": "Chống Chịu Thượng Cổ Thần Binh",
        "before": "60",
-       "after": "75, Năng Lượng: 30/90 ⇒ 30/70, Nội Tại Sát Thương Kiếm SMCK/SMPT: 50 ⇒ 75",
-       "dir": "adjust",
+       "after": "75",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Năng Lượng",
+       "before": "30/90",
+       "after": "30/70",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Nội Tại Sát Thương Kiếm SMCK/SMPT",
+       "before": "50",
+       "after": "75",
+       "dir": "buff",
        "kind": "augments"
       },
       {
        "subject": "Liên Hoàn Tinh Tú",
        "stat": "Sát Thương Cú Đánh Thứ 2",
        "before": "110/165/275/470 SMCK",
-       "after": "125/185/315/525 SMCK, Sát Thương Cú Đánh Thứ 3: 200/300/475/800 SMCK ⇒ 210/315/520/885 SMCK, Sát Thương Đòn Tinh Tú Thứ 5: 120/180/270/405 SMCK ⇒ 135/200/300/515 SMCK",
+       "after": "125/185/315/525 SMCK",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Cú Đánh Thứ 3",
+       "before": "200/300/475/800 SMCK",
+       "after": "210/315/520/885 SMCK",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Đòn Tinh Tú Thứ 5",
+       "before": "120/180/270/405 SMCK",
+       "after": "135/200/300/515 SMCK",
        "dir": "buff",
        "kind": "augments"
       },
@@ -9227,7 +9342,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.6",
@@ -9242,7 +9357,7 @@
    "description": "Updates for Pengu’s Party & a small balance pass for Space Gods!",
    "counts": {
     "buff": 45,
-    "nerf": 17,
+    "nerf": 18,
     "adjust": 28,
     "new": 0,
     "removed": 3,
@@ -9280,6 +9395,7 @@
     "Cuộc Viễn Chinh": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/expedition_i.png",
     "Tôi Luyện Sức Mạnh": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/forgedinstrength_iii.png",
     "Nghĩ Về Tương Lai": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/forwardthinking_ii.png",
+    "Vàng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft13_crime_gold.png",
     "Thích Mở Rộng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/going-long-iii.png",
     "Ván Cược Hoàng Kim": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/goldengamble_iii.png",
     "Ván Cược Hoàng Kim+": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/goldengamble_iii.png",
@@ -9809,8 +9925,16 @@
        "subject": "Nghĩ Về Tương Lai",
        "stat": "Số Vòng",
        "before": "5",
-       "after": "6, Vàng: 70 ⇒ 62",
+       "after": "6",
        "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": "Vàng",
+       "stat": null,
+       "before": "70",
+       "after": "62",
+       "dir": "nerf",
        "kind": "augments"
       },
       {
@@ -10192,7 +10316,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.5",
@@ -10206,9 +10330,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2fde6dcff0c58e509ccd1f6b4bbd8ef5c7f1c10b-1920x1080.jpg",
    "description": "17.5 buffs struggling champions and takes a sweeping balance pass on Augments.",
    "counts": {
-    "buff": 34,
-    "nerf": 33,
-    "adjust": 8,
+    "buff": 48,
+    "nerf": 30,
+    "adjust": 9,
     "new": 0,
     "removed": 1,
     "fix": 4
@@ -10333,7 +10457,7 @@
      "changes": [
       {
        "subject": "Thần Phán",
-       "stat": ", Mỗi 3 Đòn Đánh, Nhận Leona",
+       "stat": "Mỗi 3 Đòn Đánh, Nhận Leona",
        "before": "8/12%",
        "after": "5/8%",
        "dir": "nerf",
@@ -10341,7 +10465,7 @@
       },
       {
        "subject": "Thần Phán",
-       "stat": ", Mỗi 3 Đòn Đánh, Nhận Giáp",
+       "stat": "Mỗi 3 Đòn Đánh, Nhận Giáp",
        "before": "12/18",
        "after": "10/16",
        "dir": "nerf",
@@ -10349,7 +10473,7 @@
       },
       {
        "subject": "Thần Phán",
-       "stat": ", Tiêu Hao 50 Năng Lượng, Nhận Leona",
+       "stat": "Tiêu Hao 50 Năng Lượng, Nhận Leona",
        "before": "10/15%",
        "after": "9/12%",
        "dir": "nerf",
@@ -10367,7 +10491,31 @@
        "subject": "Tinh Linh Chuông",
        "stat": "(10) - Kỹ Năng Meep Chúa: Sát Thương Chính của Cú Đập Lớn",
        "before": "1.100 SMPT",
-       "after": "1.500 SMPT, Sát Thương Đập Diện Rộng: 700 SMPT ⇒ 1.000 SMPT, Thời Gian Choáng: 1,5 giây ⇒ 3 giây, Sát Thương Phép Làm Choáng: 150 SMPT ⇒ 400 SMPT",
+       "after": "1.500 SMPT",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Đập Diện Rộng",
+       "before": "700 SMPT",
+       "after": "1.000 SMPT",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Thời Gian Choáng",
+       "before": "1,5 giây",
+       "after": "3 giây",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Phép Làm Choáng",
+       "before": "150 SMPT",
+       "after": "400 SMPT",
        "dir": "buff",
        "kind": "traits"
       },
@@ -10399,7 +10547,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Cự Xà - Sát Thương Độc",
+       "stat": "Cự Xà - Sát Thương Độc",
        "before": "20/40/60%",
        "after": "18/35/50%",
        "dir": "nerf",
@@ -10475,7 +10623,15 @@
        "subject": "Siêu Thú",
        "stat": "Trang Bị Bậc 1: Bàn Tay Hỏa Tiễn - Sức Mạnh Công Kích",
        "before": "10%",
-       "after": "15%, Sát Thương Cộng Thêm cho Jinx: 35% ⇒ 40%",
+       "after": "15%",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Siêu Thú",
+       "stat": "Sát Thương Cộng Thêm cho Jinx",
+       "before": "35%",
+       "after": "40%",
        "dir": "buff",
        "kind": "traits"
       },
@@ -10499,16 +10655,41 @@
        "subject": "Siêu Thú",
        "stat": "Trang Bị Bậc 2: Tuyệt Diệt - Sát Thương Tích Trữ",
        "before": "20%",
-       "after": "25%, Hồi Năng Lượng: 3 ⇒ 5",
-       "dir": "nerf",
+       "after": "25%",
+       "dir": "buff",
        "kind": "traits"
       },
       {
        "subject": "Siêu Thú",
-       "stat": "Trang Bị Bậc 2: Cung Ngắn Bỏng Cháy, Sức Mạnh Phép Thuật",
+       "stat": "Hồi Năng Lượng",
+       "before": "3",
+       "after": "5",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Siêu Thú",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "traits",
+       "text": "Trang Bị Bậc 2: Cung Ngắn Bỏng Cháy"
+      },
+      {
+       "subject": "Siêu Thú",
+       "stat": "Sức Mạnh Phép Thuật",
        "before": "40",
-       "after": "45, Sức Mạnh Công Kích: 10% ⇒ 15%",
-       "dir": "nerf",
+       "after": "45",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Siêu Thú",
+       "stat": "Sức Mạnh Công Kích",
+       "before": "10%",
+       "after": "15%",
+       "dir": "buff",
        "kind": "traits"
       },
       {
@@ -10702,8 +10883,16 @@
        "subject": "Triệu Gọi Hỗn Mang",
        "stat": null,
        "before": "Rương Trang Bị Ánh Sáng May Mắn + 15 Vàng",
-       "after": "Rương Trang Bị Ánh Sáng May Mắn + 8 Vàng, 58 Vàng ⇒ 52 Vàng, 64 XP ⇒ 58 XP, Lượt Đổi: 40 ⇒ 36",
+       "after": "Rương Trang Bị Ánh Sáng May Mắn + 8 Vàng, 58 Vàng ⇒ 52 Vàng, 64 XP ⇒ 58 XP",
        "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Lượt Đổi",
+       "before": "40",
+       "after": "36",
+       "dir": "nerf",
        "kind": "augments"
       },
       {
@@ -10775,8 +10964,24 @@
        "subject": "Xúc Xắc Ma Pháp",
        "stat": "Tuyển Tập Tướng: Số tướng 3 vàng 2 sao",
        "before": "2",
-       "after": "1, Số lượng tướng 2 vàng 2 sao: 1 ⇒ 2, Số tướng 1 vàng 2 sao: 0 ⇒ 1",
+       "after": "1",
        "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Số lượng tướng 2 vàng 2 sao",
+       "before": "1",
+       "after": "2",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Số tướng 1 vàng 2 sao",
+       "before": "0",
+       "after": "1",
+       "dir": "buff",
        "kind": "augments"
       },
       {
@@ -10799,8 +11004,16 @@
        "subject": "Những Người Bạn Nhỏ",
        "stat": "Máu",
        "before": "55",
-       "after": "65, Tốc Độ Đánh: 6% ⇒ 7%",
-       "dir": "nerf",
+       "after": "65",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Độ Đánh",
+       "before": "6%",
+       "after": "7%",
+       "dir": "buff",
        "kind": "augments"
       },
       {
@@ -10855,8 +11068,16 @@
        "subject": "U.R.F.",
        "stat": "Tốc Độ Đánh",
        "before": "15%",
-       "after": "20%, Hồi Năng Lượng: 2 ⇒ 3",
-       "dir": "nerf",
+       "after": "20%",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Hồi Năng Lượng",
+       "before": "2",
+       "after": "3",
+       "dir": "buff",
        "kind": "augments"
       },
       {
@@ -10985,7 +11206,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.4",
@@ -11000,8 +11221,8 @@
    "description": "Buffs are on the horizon for struggling lines, Artifacts, and Arbiter outputs.",
    "counts": {
     "buff": 68,
-    "nerf": 28,
-    "adjust": 55,
+    "nerf": 30,
+    "adjust": 54,
     "new": 0,
     "removed": 2,
     "fix": 14
@@ -11454,7 +11675,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Bệ Đá Cổ: - Hồi Máu Chiêm Tinh",
+       "stat": "Bệ Đá Cổ: - Hồi Máu Chiêm Tinh",
        "before": "2,5%",
        "after": "3%",
        "dir": "buff",
@@ -11462,7 +11683,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Bệ Đá Cổ (5) - SMCK/SMPT Cộng Thêm Mỗi 2 Giây",
+       "stat": "Bệ Đá Cổ (5) - SMCK/SMPT Cộng Thêm Mỗi 2 Giây",
        "before": "7%",
        "after": "9%",
        "dir": "buff",
@@ -11470,7 +11691,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Nữ Thợ Săn - Tốc Độ Đánh Toàn Đội",
+       "stat": "Nữ Thợ Săn - Tốc Độ Đánh Toàn Đội",
        "before": "15%",
        "after": "12%",
        "dir": "nerf",
@@ -11478,7 +11699,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Nữ Thợ Săn - Tốc Độ Đánh Tướng Chiêm Tinh",
+       "stat": "Nữ Thợ Săn - Tốc Độ Đánh Tướng Chiêm Tinh",
        "before": "12/35/55%",
        "after": "15/45/70%",
        "dir": "buff",
@@ -11486,7 +11707,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Nữ Thợ Săn - Số Lượng Dấu Ấn",
+       "stat": "Nữ Thợ Săn - Số Lượng Dấu Ấn",
        "before": "3/5/7",
        "after": "3/5/9",
        "dir": "buff",
@@ -11494,7 +11715,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Xà Tinh - Sát Thương Phép",
+       "stat": "Xà Tinh - Sát Thương Phép",
        "before": "25/40/60%",
        "after": "20/40/60%",
        "dir": "nerf",
@@ -11502,7 +11723,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Núi - Tốc Độ Đánh",
+       "stat": "Núi - Tốc Độ Đánh",
        "before": "10%",
        "after": "8%",
        "dir": "nerf",
@@ -11510,7 +11731,7 @@
       },
       {
        "subject": "Chiêm Tinh",
-       "stat": ", Núi - Chống Chịu",
+       "stat": "Núi - Chống Chịu",
        "before": "6%",
        "after": "5%",
        "dir": "nerf",
@@ -12248,8 +12469,16 @@
        "subject": "Giữ Vững Hàng Ngũ",
        "stat": "SMCK Cộng Thêm",
        "before": "9%",
-       "after": "8%, SMPT Cộng Thêm: 10% ⇒ 9%",
-       "dir": "adjust",
+       "after": "8%",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "SMPT Cộng Thêm",
+       "before": "10%",
+       "after": "9%",
+       "dir": "nerf",
        "kind": "augments"
       },
       {
@@ -12598,7 +12827,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.3",
@@ -12612,9 +12841,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/cd6619c002b9ed3107b516d2cf71d001c2b52378-3067x1726.png",
    "description": "Cân bằng các vị Thần, Phước Lành mới, cùng các Nâng Cấp mới đi kèm tộc/hệ sẽ có mặt trong một bản cập nhật cân bằng chắc chắn sẽ làm rung chuyển meta! Khoan... đó có phải là Morgana đỡ đòn linh hoạt 4 vàng không! Cảm ơn các vị Thần Không Gian!",
    "counts": {
-    "buff": 42,
-    "nerf": 40,
-    "adjust": 59,
+    "buff": 43,
+    "nerf": 39,
+    "adjust": 60,
     "new": 0,
     "removed": 6,
     "fix": 13
@@ -13542,7 +13771,16 @@
        "subject": "Aurelion Sol",
        "stat": "Dạng Không Phải Máy Móc - Sát Thương Tia",
        "before": "185/280/2.000",
-       "after": "320/480/2.000, Mức giảm: 60% ⇒ 80%",
+       "after": "320/480/2.000",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 4"
+      },
+      {
+       "subject": null,
+       "stat": "Mức giảm",
+       "before": "60%",
+       "after": "80%",
        "dir": "buff",
        "kind": "champions",
        "group": "Tier 4"
@@ -13643,7 +13881,7 @@
        "stat": "Máu",
        "before": "800",
        "after": "1.300",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "Tier 4 · Morgana"
       },
@@ -13863,7 +14101,7 @@
        "stat": "(Aatrox) - Sát Thương Lần Tung Chiêu Thứ 2",
        "before": "100/150/2.250 SMCK",
        "after": "110/165/275 SMCK",
-       "dir": "buff",
+       "dir": "adjust",
        "kind": "augments"
       },
       {
@@ -14206,7 +14444,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.2",
@@ -14220,9 +14458,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/a1eaa30401466eb7175e99e36a979eaf34ccb5d3-3067x1726.png",
    "description": "Những Vòng Kỳ Ngộ Khai Cuộc & Phước Lành Thần Thánh mới sẽ biến Phiên Bản 17.2 thành cuộc đối đầu không thể bỏ lỡ tại thần giới.",
    "counts": {
-    "buff": 62,
-    "nerf": 72,
-    "adjust": 61,
+    "buff": 80,
+    "nerf": 87,
+    "adjust": 60,
     "new": 5,
     "removed": 8,
     "fix": 18
@@ -14236,6 +14474,7 @@
     "Thresh": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft11_thresh_square.png",
     "Yasuo": "https://raw.communitydragon.org/latest/game/assets/ux/tft/championsplashes/tft11_yasuo_square.png",
     "Siêu Thú": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_17_animatech.png",
+    "Lá Chắn": "https://raw.communitydragon.org/latest/game/assets/ux/tft/hud/zaps/wands/set18_mechanicicon.png",
     "Đấu Sĩ": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_brawler.png",
     "Thách Đấu": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_17_challenger.png",
     "Máy Móc": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_17_mecha.png",
@@ -14308,7 +14547,7 @@
     "Ấn Hành Tinh": "https://raw.communitydragon.org/latest/game/assets/maps/particles/tft/item_icons/traits/spatula/set17/tft17_emblem_spacegroove.png",
     "Ấn Thời Không": "https://raw.communitydragon.org/latest/game/assets/maps/particles/tft/item_icons/traits/spatula/set17/tft17_emblem_timebreaker.png",
     "Ấn Tiên Phong": "https://raw.communitydragon.org/latest/game/assets/maps/particles/tft/item_icons/traits/spatula/set14/tft14_emblem_vanguard.png",
-    "Ấn Viễn Chinh": "https://raw.communitydragon.org/latest/game/assets/maps/particles/tft/item_icons/traits/spatula/set17/tft17_emblem_voyager.png",
+    "Chống Chịu": "https://raw.communitydragon.org/latest/game/assets/ux/tft/hud/zaps/wands/set18_mechanicicon.png",
     "Hào Quang Của Ahri": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft17_item_artifact_ahrirhythm.png",
     "Lõi Bình Minh": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_artifact_dawncore.png",
     "Kiên Nhẫn Của Ekko": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft17_item_artifact_ekkopatience.png",
@@ -15119,7 +15358,16 @@
        "subject": null,
        "stat": "Gây Sát Thương 10 Lần: SMPT Nhận Được",
        "before": "8/12",
-       "after": "7/10, Máu Tối Đa Vĩnh Viễn Nhận Được: 11/17 ⇒ 13/20",
+       "after": "7/10",
+       "dir": "nerf",
+       "kind": "mechanics",
+       "group": "Thần Phán - Đầu Vào"
+      },
+      {
+       "subject": null,
+       "stat": "Máu Tối Đa Vĩnh Viễn Nhận Được",
+       "before": "11/17",
+       "after": "13/20",
        "dir": "buff",
        "kind": "mechanics",
        "group": "Thần Phán - Đầu Vào"
@@ -15128,7 +15376,16 @@
        "subject": null,
        "stat": "Mỗi cấp sao của Thần Phán: Tăng Tỉ Lệ Nhận Vàng",
        "before": "5/5%",
-       "after": "8/8%, Máu Tối Đa Vĩnh Viễn Nhận Được: 10/10 ⇒ 12/12",
+       "after": "8/8%",
+       "dir": "buff",
+       "kind": "mechanics",
+       "group": "Thần Phán - Đầu Vào"
+      },
+      {
+       "subject": null,
+       "stat": "Máu Tối Đa Vĩnh Viễn Nhận Được",
+       "before": "10/10",
+       "after": "12/12",
        "dir": "buff",
        "kind": "mechanics",
        "group": "Thần Phán - Đầu Vào"
@@ -15155,16 +15412,34 @@
        "subject": null,
        "stat": "Tăng Tốc Đánh Khi Máu xuống dưới 40%",
        "before": "70/100%",
-       "after": "80/120%, Lá Chắn Nhận Được Theo Máu tối đa: 55/85% ⇒ 50/75%",
-       "dir": "nerf",
+       "after": "80/120%",
+       "dir": "buff",
        "kind": "mechanics",
+       "group": "Thần Phán - Đầu Vào"
+      },
+      {
+       "subject": "Lá Chắn",
+       "stat": "Nhận Được Theo Máu tối đa",
+       "before": "55/85%",
+       "after": "50/75%",
+       "dir": "nerf",
+       "kind": "items",
        "group": "Thần Phán - Đầu Vào"
       },
       {
        "subject": null,
        "stat": "Đã Reroll Lượt Trước: Lá Chắn Nhận Được Theo Máu Tối Đa",
        "before": "40/60%",
-       "after": "44/66%, Nhận Vĩnh Viễn Máu Tối Đa: 50/75 ⇒ 67/100",
+       "after": "44/66%",
+       "dir": "buff",
+       "kind": "mechanics",
+       "group": "Thần Phán - Đầu Vào"
+      },
+      {
+       "subject": null,
+       "stat": "Nhận Vĩnh Viễn Máu Tối Đa",
+       "before": "50/75",
+       "after": "67/100",
        "dir": "buff",
        "kind": "mechanics",
        "group": "Thần Phán - Đầu Vào"
@@ -15217,15 +15492,31 @@
        "subject": "Kết Nối Drone",
        "stat": "Sức Mạnh Phép Thuật",
        "before": "25",
-       "after": "30, Sát Thương Lặp Lại: 20 ⇒ 25%",
-       "dir": "adjust",
+       "after": "30",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Lặp Lại",
+       "before": "20",
+       "after": "25%",
+       "dir": "buff",
        "kind": "items"
       },
       {
        "subject": "Cảm Quan Cấy Ghép",
        "stat": "Hồi Phục Năng Lượng Cơ Bản",
        "before": "2",
-       "after": "4, Sát Thương Chuẩn: 20% ⇒ 25%",
+       "after": "4",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Chuẩn",
+       "before": "20%",
+       "after": "25%",
        "dir": "buff",
        "kind": "items"
       },
@@ -15233,7 +15524,15 @@
        "subject": "Kính Khóa Mục Tiêu",
        "stat": "SMCK cơ bản",
        "before": "15%",
-       "after": "25%, Hồi Máu: 15% ⇒ 20%",
+       "after": "25%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Hồi Máu",
+       "before": "15%",
+       "after": "20%",
        "dir": "buff",
        "kind": "items"
       },
@@ -15291,8 +15590,16 @@
        "subject": "Chiêm Tinh",
        "stat": "Nữ Thợ Săn - Chiêm Tinh - Tốc Độ Đánh",
        "before": "10/30/45%",
-       "after": "12/35/55%, Hồi Máu: 10% ⇒ 15%",
-       "dir": "nerf",
+       "after": "12/35/55%",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Chiêm Tinh",
+       "stat": "Hồi Máu",
+       "before": "10%",
+       "after": "15%",
+       "dir": "buff",
        "kind": "traits"
       },
       {
@@ -15316,8 +15623,32 @@
        "subject": "Chiêm Tinh",
        "stat": "Ngọn Núi - Phần Trăm Máu",
        "before": "12%",
-       "after": "15%, SMCK/SMPT: 12% ⇒ 15%, Chống Chịu: 12 ⇒ 10, Tốc Độ Đánh: 12% ⇒ 10%",
+       "after": "15%",
        "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Chiêm Tinh",
+       "stat": "SMCK/SMPT",
+       "before": "12%",
+       "after": "15%",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Chiêm Tinh",
+       "stat": "Chống Chịu",
+       "before": "12",
+       "after": "10",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Chiêm Tinh",
+       "stat": "Tốc Độ Đánh",
+       "before": "12%",
+       "after": "10%",
+       "dir": "nerf",
        "kind": "traits"
       },
       {
@@ -15362,24 +15693,57 @@
        "subject": null,
        "stat": "Cho’Gath - Máu Cơ Bản",
        "before": "650",
-       "after": "700, Máu cộng thêm: 25/35/65/110 ⇒ 30/40/70/115",
-       "dir": "nerf",
+       "after": "700",
+       "dir": "buff",
+       "kind": "champions"
+      },
+      {
+       "subject": null,
+       "stat": "Máu cộng thêm",
+       "before": "25/35/65/110",
+       "after": "30/40/70/115",
+       "dir": "buff",
        "kind": "champions"
       },
       {
        "subject": "Ezreal",
        "stat": "Sát Thương Kỹ Năng",
        "before": "155/235/355 SMCK",
-       "after": "160/240/365 SMCK, Sát Thương Kỹ Năng: 10/15/25 SMPT ⇒ 14/21/32 SMPT",
-       "dir": "nerf",
+       "after": "160/240/365 SMCK",
+       "dir": "buff",
+       "kind": "champions"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Kỹ Năng",
+       "before": "10/15/25 SMPT",
+       "after": "14/21/32 SMPT",
+       "dir": "buff",
        "kind": "champions"
       },
       {
        "subject": "Talon",
-       "stat": "Sát Thương Kỹ Năng giờ sẽ hưởng lợi chính xác từ Hút Máu Toàn Phần, Tốc Đánh",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "champions",
+       "text": "Talon - Sát Thương Kỹ Năng giờ sẽ hưởng lợi chính xác từ Hút Máu Toàn Phần"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Đánh",
        "before": "0,8",
-       "after": "0,75, Sát Thương Kỹ Năng: 460/690/1.090 ⇒ 430/645/1.000",
-       "dir": "buff",
+       "after": "0,75",
+       "dir": "nerf",
+       "kind": "champions"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Kỹ Năng",
+       "before": "460/690/1.090",
+       "after": "430/645/1.000",
+       "dir": "nerf",
        "kind": "champions"
       },
       {
@@ -15410,16 +15774,40 @@
        "subject": "Milio",
        "stat": "Sát Thương Kỹ Năng",
        "before": "230/345/520/885",
-       "after": "255/380/575/975, Sát Thương Nảy: 75/115/175/300 ⇒ 85/130/190/325",
-       "dir": "nerf",
+       "after": "255/380/575/975",
+       "dir": "buff",
+       "kind": "champions"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Nảy",
+       "before": "75/115/175/300",
+       "after": "85/130/190/325",
+       "dir": "buff",
        "kind": "champions"
       },
       {
        "subject": "Diana",
        "stat": "Lá Chắn",
        "before": "225/275/375",
-       "after": "250/290/375, Sát Thương Kỹ Năng: 45/70/110 ⇒ 50/75/120, Sát Thương Phép Trên Đòn Đánh: 50/75/130 ⇒ 52/78/135",
-       "dir": "nerf",
+       "after": "250/290/375",
+       "dir": "buff",
+       "kind": "champions"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Kỹ Năng",
+       "before": "45/70/110",
+       "after": "50/75/120",
+       "dir": "buff",
+       "kind": "champions"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Phép Trên Đòn Đánh",
+       "before": "50/75/130",
+       "after": "52/78/135",
+       "dir": "buff",
        "kind": "champions"
       },
       {
@@ -15546,8 +15934,16 @@
        "subject": null,
        "stat": "Nunu - Năng Lượng Cơ Bản",
        "before": "40/145",
-       "after": "40/155, Thời Gian Làm Choáng: 1,75/2/8 ⇒ 1,5/1,75/8",
-       "dir": "buff",
+       "after": "40/155",
+       "dir": "nerf",
+       "kind": "champions"
+      },
+      {
+       "subject": null,
+       "stat": "Thời Gian Làm Choáng",
+       "before": "1,75/2/8",
+       "after": "1,5/1,75/8",
+       "dir": "nerf",
        "kind": "champions"
       },
       {
@@ -15572,7 +15968,7 @@
        "stat": "3 sao - Sát Thương Kỹ Năng",
        "before": "800% SMPT",
        "after": "1.500% SMPT",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions"
       },
       {
@@ -15692,15 +16088,23 @@
        "stat": "Sát Thương Lần Tung Chiêu Thứ Năm",
        "before": "620/930 SMPT",
        "after": "680/1.050 SMPT",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "champions"
       },
       {
        "subject": "Vex",
        "stat": "Tầm Đánh Tự Động",
        "before": "8 Ô",
-       "after": "5 Ô, Sát Thương Kỹ Năng: 140/210/1.000 ⇒ 130/195/1.000",
-       "dir": "buff",
+       "after": "5 Ô",
+       "dir": "nerf",
+       "kind": "champions"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Kỹ Năng",
+       "before": "140/210/1.000",
+       "after": "130/195/1.000",
+       "dir": "nerf",
        "kind": "champions"
       },
       {
@@ -15785,7 +16189,15 @@
        "subject": "Siêu Vũ Trụ",
        "stat": "(Meepsie) - Sát Thương Kỹ Năng",
        "before": "265/400/600/1.000 SMPT",
-       "after": "240/360/560/950 SMPT, Suy Giảm Mỗi Ô: 35% ⇒ 45%",
+       "after": "240/360/560/950 SMPT",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Suy Giảm Mỗi Ô",
+       "before": "35%",
+       "after": "45%",
        "dir": "buff",
        "kind": "augments"
       },
@@ -15901,7 +16313,15 @@
        "subject": "Trên Đà Phát Triển",
        "stat": "Lượt Đổi",
        "before": "2",
-       "after": "1, Vàng: 2 ⇒ 6",
+       "after": "1",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": "Vàng",
+       "stat": null,
+       "before": "2",
+       "after": "6",
        "dir": "buff",
        "kind": "augments"
       },
@@ -15909,8 +16329,16 @@
        "subject": "Kiên Nhẫn Là Một Đức Tính",
        "stat": "Lượt Đổi Mỗi Lượt",
        "before": "2",
-       "after": "1, Số Lượt Đổi Ban Đầu: 0 ⇒ 4",
+       "after": "1",
        "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": null,
+       "stat": "Số Lượt Đổi Ban Đầu",
+       "before": "0",
+       "after": "4",
+       "dir": "buff",
        "kind": "augments"
       },
       {
@@ -15975,7 +16403,7 @@
        "stat": "Hình Nộm - Máu mỗi giai đoạn",
        "before": "800/1.100/1.900/2.400",
        "after": "600/900/1.500/2.000",
-       "dir": "adjust",
+       "dir": "nerf",
        "kind": "augments"
       },
       {
@@ -16031,7 +16459,15 @@
        "subject": "Ấn Du Mục",
        "stat": "Hồi Phục Năng Lượng",
        "before": "3",
-       "after": "2, Chia Sẻ Năng Lượng: 12% ⇒ 8%",
+       "after": "2",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Chia Sẻ Năng Lượng",
+       "before": "12%",
+       "after": "8%",
        "dir": "buff",
        "kind": "items"
       },
@@ -16039,8 +16475,24 @@
        "subject": "Ấn Hành Tinh",
        "stat": "Hồi Phục Năng Lượng",
        "before": "3",
-       "after": "0, Máu: 0 ⇒ 200, Thời gian Phiêu khi Thi Triển: 3 giây ⇒ 2,5 giây. Không còn có thể kích hoạt quá 1 lần mỗi 4 giây.",
+       "after": "0",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Máu",
+       "before": "0",
+       "after": "200",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Thời gian Phiêu khi Thi Triển",
+       "before": "3 giây",
+       "after": "2,5 giây. Không còn có thể kích hoạt quá 1 lần mỗi 4 giây.",
+       "dir": "nerf",
        "kind": "items"
       },
       {
@@ -16055,15 +16507,40 @@
        "subject": "Ấn Tiên Phong",
        "stat": "Máu",
        "before": "150",
-       "after": "0, SMPT mỗi Lá Chắn: 3 ⇒ 2",
+       "after": "0",
        "dir": "nerf",
        "kind": "items"
       },
       {
-       "subject": "Ấn Viễn Chinh",
-       "stat": ", Hút Máu Toàn Phần",
+       "subject": null,
+       "stat": "SMPT mỗi Lá Chắn",
+       "before": "3",
+       "after": "2",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "items",
+       "text": "Ấn Viễn Chinh"
+      },
+      {
+       "subject": null,
+       "stat": "Hút Máu Toàn Phần",
        "before": "18%",
-       "after": "10%, Chống Chịu Cộng Thêm: 15 ⇒ 10",
+       "after": "10%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Chống Chịu",
+       "stat": "Cộng Thêm",
+       "before": "15",
+       "after": "10",
        "dir": "nerf",
        "kind": "items"
       },
@@ -16079,8 +16556,16 @@
        "subject": "Lõi Bình Minh",
        "stat": "Hồi Phục Năng Lượng",
        "before": "0",
-       "after": "2, SMCK/SMPT: 20% ⇒ 15%",
+       "after": "2",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "SMCK/SMPT",
+       "before": "20%",
+       "after": "15%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
@@ -16128,9 +16613,27 @@
        "subject": "Robot",
        "stat": "Chống Chịu",
        "before": "90%",
-       "after": "60%, Sát Thương Kỹ Năng Diện Rộng: 1.500% SMCK ⇒ 800% SMCK, Sát Thương Kỹ Năng Trên Đường Thẳng: 4.000% SMCK ⇒ 2.000% SMCK",
-       "dir": "buff",
+       "after": "60%",
+       "dir": "nerf",
        "kind": "champions",
+       "group": "TƯỚNG 4 VÀNG 3 SAO"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Kỹ Năng Diện Rộng",
+       "before": "1.500% SMCK",
+       "after": "800% SMCK",
+       "dir": "nerf",
+       "kind": "mechanics",
+       "group": "TƯỚNG 4 VÀNG 3 SAO"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Kỹ Năng Trên Đường Thẳng",
+       "before": "4.000% SMCK",
+       "after": "2.000% SMCK",
+       "dir": "nerf",
+       "kind": "mechanics",
        "group": "TƯỚNG 4 VÀNG 3 SAO"
       },
       {
@@ -16323,7 +16826,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "17.1",
@@ -16337,8 +16840,8 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/f6bf389636317d0e33ef7ab51c72928eda133f83-300x300.png",
    "description": "Choose your Space God, earn their powerful boon, and assemble your galactic roster!",
    "counts": {
-    "buff": 27,
-    "nerf": 34,
+    "buff": 28,
+    "nerf": 45,
     "adjust": 134,
     "new": 0,
     "removed": 1,
@@ -16354,6 +16857,7 @@
     "Một, Hai, Ba": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t1.png",
     "Kích Cỡ Là Quan Trọng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/sizematters_i.png",
     "Bán Thăng Hoa": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/ascension1.png",
+    "Khuếch Đại Sát Thương": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_debugdamageamp.png",
     "Vàng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft13_crime_gold.png",
     "Kho Báu Chôn Giấu": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/buried-treasures-iii.png",
     "Cố Gắng Lật Kèo": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/comebackstory_iii.png",
@@ -16376,6 +16880,7 @@
     "Mũ Phù Thủy Rabadon": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_rabadonsdeathcap.png",
     "Giáp Tâm Linh": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_spiritvisagerr.png",
     "Móng Vuốt Sterak": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_steraksgage.png",
+    "Sức Mạnh": "https://raw.communitydragon.org/latest/game/assets/maps/particles/tft/item_icons/traits/set9_inventor/tft9_piltoverpower.png",
     "Trái Tim Kiên Định": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_nightharvester.png",
     "Mũ Thích Nghi Ánh Sáng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft5_item_adaptivehelmradiant.png",
     "Áo Choàng Gai Ánh Sáng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft5_item_bramblevestradiant.png",
@@ -17429,7 +17934,7 @@
        "stat": "% Máu Nhận Được",
        "before": "80%",
        "after": "60%, Máu mỗi giai đoạn 1.500 ⇒ 1.250",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "augments",
        "group": "Bạc"
       },
@@ -17482,8 +17987,17 @@
        "subject": "Bán Thăng Hoa",
        "stat": "Thời gian trễ",
        "before": "15",
-       "after": "12 giây, Khuếch Đại Sát Thương: 30 ⇒ 25%",
-       "dir": "buff",
+       "after": "12 giây",
+       "dir": "nerf",
+       "kind": "augments",
+       "group": "Bạc"
+      },
+      {
+       "subject": "Khuếch Đại Sát Thương",
+       "stat": null,
+       "before": "30",
+       "after": "25%",
+       "dir": "nerf",
        "kind": "augments",
        "group": "Bạc"
       },
@@ -17567,8 +18081,16 @@
        "subject": "Vàng",
        "stat": "Bảo Hộ Vô Tận - Vàng Ban Đầu",
        "before": "4",
-       "after": "3, Lá Chắn Theo Phần Trăm Máu: 15% ⇒ 12%",
-       "dir": "buff",
+       "after": "3",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": "Vàng",
+       "stat": "Lá Chắn Theo Phần Trăm Máu",
+       "before": "15%",
+       "after": "12%",
+       "dir": "nerf",
        "kind": "augments"
       },
       {
@@ -17759,16 +18281,32 @@
        "subject": "Áo Choàng Gai",
        "stat": "Máu cộng thêm",
        "before": "9%",
-       "after": "6%, Giáp: 65 ⇒ 50",
-       "dir": "buff",
+       "after": "6%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Giáp",
+       "before": "65",
+       "after": "50",
+       "dir": "nerf",
        "kind": "items"
       },
       {
        "subject": "Vuốt Rồng",
        "stat": "Máu cộng thêm",
        "before": "9%",
-       "after": "6%, Kháng Phép: 75 ⇒ 60",
-       "dir": "buff",
+       "after": "6%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Kháng Phép",
+       "before": "75",
+       "after": "60",
+       "dir": "nerf",
        "kind": "items"
       },
       {
@@ -17807,7 +18345,15 @@
        "subject": "Giáp Tâm Linh",
        "stat": "Chống Chịu",
        "before": "10%",
-       "after": "8%, Hồi Máu: 2,5% ⇒ 2%",
+       "after": "8%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Hồi Máu",
+       "before": "2,5%",
+       "after": "2%",
        "dir": "nerf",
        "kind": "items"
       },
@@ -17815,7 +18361,15 @@
        "subject": "Móng Vuốt Sterak",
        "stat": "Giá Trị Lá Chắn",
        "before": "50% Máu tối đa",
-       "after": "40% Máu tối đa, Sức Mạnh Công Kích: 40% ⇒ 45%",
+       "after": "40% Máu tối đa",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Sức Mạnh",
+       "stat": "Công Kích",
+       "before": "40%",
+       "after": "45%",
        "dir": "buff",
        "kind": "items"
       },
@@ -17839,8 +18393,16 @@
        "subject": "Áo Choàng Gai Ánh Sáng",
        "stat": "Phần Trăm Máu",
        "before": "18%",
-       "after": "12%, Giáp: 130 ⇒ 100",
-       "dir": "buff",
+       "after": "12%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Giáp",
+       "before": "130",
+       "after": "100",
+       "dir": "nerf",
        "kind": "items"
       },
       {
@@ -17879,7 +18441,15 @@
        "subject": "Giáp Tâm Linh Ánh Sáng",
        "stat": "Chống Chịu",
        "before": "20%",
-       "after": "15%, Hồi Máu: 5% ⇒ 4%",
+       "after": "15%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Hồi Máu",
+       "before": "5%",
+       "after": "4%",
        "dir": "nerf",
        "kind": "items"
       },
@@ -17887,7 +18457,15 @@
        "subject": "Móng Vuốt Sterak Ánh Sáng",
        "stat": "Giá Trị Lá Chắn",
        "before": "100%",
-       "after": "80%, Sức Mạnh Công Kích: 80% ⇒ 90%",
+       "after": "80%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Sức Mạnh",
+       "stat": "Công Kích",
+       "before": "80%",
+       "after": "90%",
        "dir": "buff",
        "kind": "items"
       },
@@ -18128,7 +18706,15 @@
        "subject": "Khiên Hừng Đông",
        "stat": "Máu Cơ Bản",
        "before": "300",
-       "after": "400, Đánh Cắp Giáp: 5 ⇒ 3",
+       "after": "400",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Đánh Cắp Giáp",
+       "before": "5",
+       "after": "3",
        "dir": "nerf",
        "kind": "items"
       },
@@ -18136,7 +18722,15 @@
        "subject": "Khiên Hoàng Hôn",
        "stat": "Máu Cơ Bản",
        "before": "300",
-       "after": "400, Đánh Cắp Kháng Phép: 5 ⇒ 3",
+       "after": "400",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Đánh Cắp Kháng Phép",
+       "before": "5",
+       "after": "3",
        "dir": "nerf",
        "kind": "items"
       },
@@ -18168,7 +18762,15 @@
        "subject": "Đao Chớp",
        "stat": "Tốc Độ Đánh",
        "before": "12%",
-       "after": "20%, SMCK/SMPT Nhận Được: Mỗi 5 đòn đánh ⇒ Mỗi 3 đòn đánh",
+       "after": "20%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "SMCK/SMPT Nhận Được",
+       "before": "Mỗi 5 đòn đánh",
+       "after": "Mỗi 3 đòn đánh",
        "dir": "nerf",
        "kind": "items"
       },
@@ -18239,7 +18841,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "16.8",
@@ -18253,9 +18855,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/06a8120c0f6a0181fe5297a0675904ffceac7896-3067x1726.jpg",
    "description": "It’s our final patch before this set becomes the stuff of legend and lore.",
    "counts": {
-    "buff": 40,
+    "buff": 41,
     "nerf": 14,
-    "adjust": 12,
+    "adjust": 11,
     "new": 0,
     "removed": 2,
     "fix": 2
@@ -18912,7 +19514,7 @@
        "stat": "Sát Thương",
        "before": "390/585/935",
        "after": "420/630/1.010",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "champions"
       },
       {
@@ -18958,7 +19560,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "16.7",
@@ -19542,7 +20144,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "16.6",
@@ -19557,8 +20159,8 @@
    "description": "Unlocks unlocked! 16.6 brings sweeping changes to Unlock access.",
    "counts": {
     "buff": 61,
-    "nerf": 72,
-    "adjust": 27,
+    "nerf": 73,
+    "adjust": 26,
     "new": 0,
     "removed": 2,
     "fix": 3
@@ -19902,7 +20504,7 @@
        "stat": null,
        "before": "3.800 Máu",
        "after": "3.400 Máu + Cấp 8",
-       "dir": "buff",
+       "dir": "nerf",
        "kind": "champions",
        "group": "ĐIỀU KIỆN MỞ KHÓA"
       },
@@ -20249,7 +20851,7 @@
        "stat": "Sát Thương Kỹ Năng",
        "before": "330/500/900 SMPT",
        "after": "330/500/1.000 SMPT",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 3"
       },
@@ -20538,7 +21140,7 @@
        "stat": "Công Lý Demacia - Sát thương",
        "before": "700/1.050 SMPT",
        "after": "630/950 SMPT",
-       "dir": "adjust",
+       "dir": "nerf",
        "kind": "champions",
        "group": "Bậc 5"
       },
@@ -21119,7 +21721,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "16.5",
@@ -22313,7 +22915,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "16.4",
@@ -22327,8 +22929,8 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/8db134b6b53b402e5546c5e9d4c1461254746ef7-3067x1726.png",
    "description": "Phiên bản 16.4 sẽ đem tới những Nâng Cấp mới, điều chỉnh việc lên cấp, và vài thay đổi cân bằng để đảm bảo có thật nhiều đội hình được tỏa sáng!",
    "counts": {
-    "buff": 46,
-    "nerf": 32,
+    "buff": 47,
+    "nerf": 31,
     "adjust": 14,
     "new": 0,
     "removed": 3,
@@ -22716,7 +23318,7 @@
        "stat": "Nâng Cấp Bụi Sao: Sát Thương Chuẩn Thêm - Bụi Sao",
        "before": "475",
        "after": "550 Thiên Thạch - Bụi Sao: 750 ⇒ 800 Hố Đen - Bụi Sao: 1.543 ⇒ 1.444",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 5"
       },
@@ -23385,7 +23987,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "16.3",
@@ -23399,8 +24001,8 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9b72fd69200e9fc1f32949ef00be78d7a1ee8c0b-3067x1726.jpg",
    "description": "Patch 16.3 comes with system changes like XP, unlock conditions and balance changes!",
    "counts": {
-    "buff": 63,
-    "nerf": 60,
+    "buff": 66,
+    "nerf": 57,
     "adjust": 30,
     "new": 1,
     "removed": 9,
@@ -23549,7 +24151,7 @@
        "stat": "Máu",
        "before": "900",
        "after": "1.000",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "date": "Ngày 26/01"
       },
@@ -24454,7 +25056,7 @@
        "stat": "Sát Thương Mục Tiêu Chính",
        "before": "900/1.500 SMPT",
        "after": "1.000/1.500 SMPT",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 5"
       },
@@ -24499,7 +25101,7 @@
        "stat": "Sát Thương Mục Tiêu Chính",
        "before": "900/1.500 SMPT",
        "after": "1.000/1.500 SMPT",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "Bậc 5"
       },
@@ -25073,7 +25675,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "16.2",
@@ -25087,7 +25689,7 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/968613eaa6de808116da6b55498ef1e06af5ca87-1920x1081.jpg",
    "description": "New year, new patch, new Opening Encounters, balance changes, buffs, and more!",
    "counts": {
-    "buff": 65,
+    "buff": 66,
     "nerf": 49,
     "adjust": 16,
     "new": 1,
@@ -25343,8 +25945,16 @@
        "subject": "Ixtal",
        "stat": "Điều chỉnh nhiệm vụ: Thua 10 giao tranh liên tục",
        "before": "550 Mảnh",
-       "after": "500 Mảnh, Chơi 3 Ixtal: 3 Ixtal trong 17 vòng đấu ⇒ Chơi Ixtal trong 13 vòng đấu",
+       "after": "500 Mảnh",
        "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": null,
+       "stat": "Chơi 3 Ixtal",
+       "before": "3 Ixtal trong 17 vòng đấu",
+       "after": "Chơi Ixtal trong 13 vòng đấu",
+       "dir": "buff",
        "kind": "traits"
       },
       {
@@ -26672,7 +27282,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "16.1",
@@ -26686,8 +27296,8 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/324f7ff1edf0e0864b56f4068281aafdbb9af5f8-300x300.png",
    "description": "Khám phá vô vàn đội hình với mùa mới: Truyền Thuyết & Huyền Thoại!",
    "counts": {
-    "buff": 104,
-    "nerf": 102,
+    "buff": 144,
+    "nerf": 120,
     "adjust": 155,
     "new": 0,
     "removed": 25,
@@ -26794,6 +27404,7 @@
     "Đam Mê Đai Lưng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/beltoverflow_iii.png",
     "Tất Tay Bậc Đồng II": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/bronzeforlife_iii.png",
     "Kho Báu Chôn Giấu": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/buried-treasures-iii.png",
+    "Chống Chịu": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_15_secrettechnique.png",
     "Kiếm Tử Thần": "https://raw.communitydragon.org/latest/game/assets/maps/particles/tft/tft_item_deathblade.png",
     "Mũ Tử Thần": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/deadliercaps_ii.png",
     "To Lớn & Mạnh Mẽ": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/giantandmighty_iii.png",
@@ -26814,6 +27425,7 @@
     "Vuốt Rồng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_dragonsclaw.png",
     "Áo Choàng Bóng Tối": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_guardianangel.png",
     "Thú Tượng Thạch Giáp": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_gargoylestoneplate.png",
+    "Khuếch Đại Sát Thương": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_debugdamageamp.png",
     "Cuồng Đao Guinsoo": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_guinsoosrageblade.png",
     "Bàn Tay Công Lý": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_unstableconcoction.png",
     "Kiếm Súng Hextech": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_hextechgunblade.png",
@@ -27143,7 +27755,7 @@
       },
       {
        "subject": "Sylas",
-       "stat": ", Lux - Sát Thương",
+       "stat": "Lux - Sát Thương",
        "before": "325/540 SMPT",
        "after": "300/475 SMPT",
        "dir": "nerf",
@@ -27152,7 +27764,7 @@
       },
       {
        "subject": "Sylas",
-       "stat": ", Garen - Sát Thương",
+       "stat": "Garen - Sát Thương",
        "before": "700/1.050 SMPT",
        "after": "670/1.000 SMPT",
        "dir": "nerf",
@@ -28540,7 +29152,7 @@
        "stat": "Thiên Giới Ban Phước I/II/III - Giáp",
        "before": "200/300/400",
        "after": "200/400/1.000",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "augments"
       },
       {
@@ -29332,7 +29944,16 @@
        "subject": "Triệu Gọi Hỗn Mang",
        "stat": "Người Đá Ngẫu Nhiên - Thưởng Chỉ Số: SMCK cộng thêm",
        "before": "0%",
-       "after": "30%, Chống Chịu cộng thêm: 25 ⇒ 40",
+       "after": "30%",
+       "dir": "buff",
+       "kind": "augments",
+       "group": "Bậc kim cương"
+      },
+      {
+       "subject": "Chống Chịu",
+       "stat": "cộng thêm",
+       "before": "25",
+       "after": "40",
        "dir": "buff",
        "kind": "augments",
        "group": "Bậc kim cương"
@@ -29773,8 +30394,16 @@
        "subject": "Huyết Kiếm",
        "stat": "SMCK/SMPT",
        "before": "45%",
-       "after": "30%, Kháng Phép: 20 ⇒ 40",
+       "after": "30%",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Kháng Phép",
+       "before": "20",
+       "after": "40",
+       "dir": "buff",
        "kind": "items"
       },
       {
@@ -29789,8 +30418,16 @@
        "subject": "Áo Choàng Gai",
        "stat": "Giáp",
        "before": "100",
-       "after": "130, Máu tối đa: 15% ⇒ 18%",
-       "dir": "nerf",
+       "after": "130",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Máu tối đa",
+       "before": "15%",
+       "after": "18%",
+       "dir": "buff",
        "kind": "items"
       },
       {
@@ -29821,7 +30458,23 @@
        "subject": "Vuốt Rồng",
        "stat": "Kháng Phép",
        "before": "115",
-       "after": "150, Máu tối đa: 15% ⇒ 18%, Hồi Máu: 10% ⇒ 5%",
+       "after": "150",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Máu tối đa",
+       "before": "15%",
+       "after": "18%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Hồi Máu",
+       "before": "10%",
+       "after": "5%",
        "dir": "nerf",
        "kind": "items"
       },
@@ -29862,8 +30515,16 @@
        "subject": "Thú Tượng Thạch Giáp",
        "stat": "Máu",
        "before": "250",
-       "after": "200, Giáp/Kháng Phép mỗi mục tiêu: 15 ⇒ 20",
+       "after": "200",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Giáp/Kháng Phép mỗi mục tiêu",
+       "before": "15",
+       "after": "20",
+       "dir": "buff",
        "kind": "items"
       },
       {
@@ -29879,24 +30540,72 @@
        "subject": "Diệt Khổng Lồ",
        "stat": "SMCK/SMPT",
        "before": "50%",
-       "after": "30%, Tốc Đánh: 20% ⇒ 30%, Khuếch Đại Sát Thương: 20% ⇒ 30%, Khuếch Đại Sát Thương & Đỡ Đòn Cộng Thêm: 25% ⇒ 30%",
+       "after": "30%",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Đánh",
+       "before": "20%",
+       "after": "30%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Khuếch Đại Sát Thương",
+       "stat": null,
+       "before": "20%",
+       "after": "30%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Khuếch Đại Sát Thương",
+       "stat": "& Đỡ Đòn Cộng Thêm",
+       "before": "25%",
+       "after": "30%",
+       "dir": "buff",
        "kind": "items"
       },
       {
        "subject": "Cuồng Đao Guinsoo",
        "stat": "SMPT",
        "before": "30%",
-       "after": "20%, Tốc Độ Đánh Cơ Bản: 25% ⇒ 20%, Tốc Đánh Cộng Dồn: 13% ⇒ 14%",
+       "after": "20%",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Độ Đánh Cơ Bản",
+       "before": "25%",
+       "after": "20%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Đánh Cộng Dồn",
+       "before": "13%",
+       "after": "14%",
+       "dir": "buff",
        "kind": "items"
       },
       {
        "subject": "Bàn Tay Công Lý",
        "stat": "SMCK/SMPT",
        "before": "35%",
-       "after": "30%, Hút Máu Toàn Phần: 20% ⇒ 24%",
+       "after": "30%",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Hút Máu Toàn Phần",
+       "before": "20%",
+       "after": "24%",
+       "dir": "buff",
        "kind": "items"
       },
       {
@@ -29909,7 +30618,7 @@
       },
       {
        "subject": "Vô Cực Kiếm",
-       "stat": ", SMCK",
+       "stat": "SMCK",
        "before": "65%",
        "after": "75%",
        "dir": "buff",
@@ -29919,7 +30628,15 @@
        "subject": "Nỏ Sét",
        "stat": "Tầm Giật Điện",
        "before": "3",
-       "after": "2, Sát Thương Giật: 200% ⇒ 300%",
+       "after": "2",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Sát Thương Giật",
+       "before": "200%",
+       "after": "300%",
        "dir": "buff",
        "kind": "items"
       },
@@ -29935,31 +30652,103 @@
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Thịnh Nộ Thủy Quái - Kháng Phép",
        "before": "20",
-       "after": "40, Tốc Đánh: 25% ⇒ 20%, SMCK cộng dồn: 7% ⇒ 8%, Tốc Đánh cộng thêm: 80% ⇒ 60%",
+       "after": "40",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Tốc Đánh",
+       "before": "25%",
+       "after": "20%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "SMCK cộng dồn",
+       "before": "7%",
+       "after": "8%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Tốc Đánh cộng thêm",
+       "before": "80%",
+       "after": "60%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Cung Xanh - Tốc Đánh",
        "before": "25%",
-       "after": "40%, Chí Mạng: 55% ⇒ 40%",
+       "after": "40%",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Chí Mạng",
+       "before": "55%",
+       "after": "40%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Quỷ Thư Morello - Máu",
        "before": "150",
-       "after": "300, SMPT: 50% ⇒ 40%, Hồi Năng Lượng: 3 ⇒ 2, Thời Gian Thiêu Đốt: 8 ⇒ 10 giây",
+       "after": "300",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "SMPT",
+       "before": "50%",
+       "after": "40%",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Hồi Năng Lượng",
+       "before": "3",
+       "after": "2",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Thời Gian Thiêu Đốt",
+       "before": "8",
+       "after": "10 giây",
+       "dir": "buff",
        "kind": "items"
       },
       {
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Nanh Nashor - Tốc Đánh",
        "before": "10%",
-       "after": "20%, Máu: 200 ⇒ 300, Chí Mạng: 35% ⇒ 40%",
+       "after": "20%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Máu",
+       "before": "200",
+       "after": "300",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Chí Mạng",
+       "before": "35%",
+       "after": "40%",
        "dir": "buff",
        "kind": "items"
       },
@@ -29967,23 +30756,55 @@
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Lời Thề Hộ Vệ - Năng Lượng Khởi Đầu Cộng Thêm",
        "before": "20",
-       "after": "40, Năng Lượng Khi Kích Hoạt: 20 ⇒ 30, Khiên Máu: 45% ⇒ 40%",
+       "after": "40",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Năng Lượng Khi Kích Hoạt",
+       "before": "20",
+       "after": "30",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Khiên Máu",
+       "before": "45%",
+       "after": "40%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Áo Choàng Thủy Ngân - Kháng Phép",
        "before": "30%",
-       "after": "40%, Tốc Đánh: 40% ⇒ 30%",
+       "after": "40%",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Tốc Đánh",
+       "before": "40%",
+       "after": "30%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Mũ Phù Thủy Rabadon - SMPT",
        "before": "80",
-       "after": "100, Khuếch Đại Sát Thương: 50% ⇒ 30%",
+       "after": "100",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Khuếch Đại Sát Thương",
+       "before": "50%",
+       "after": "30%",
        "dir": "nerf",
        "kind": "items"
       },
@@ -29991,7 +30812,15 @@
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Bùa Đỏ - Tốc Đánh",
        "before": "65%",
-       "after": "90%, Khuếch Đại Sát Thương: 10% ⇒ 6%",
+       "after": "90%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Khuếch Đại Sát Thương",
+       "before": "10%",
+       "after": "6%",
        "dir": "nerf",
        "kind": "items"
       },
@@ -30007,15 +30836,47 @@
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Giáp Tâm Linh - Giảm Sát Thương",
        "before": "18%",
-       "after": "20%, Hồi Năng Lượng: 2 ⇒ 4",
-       "dir": "nerf",
+       "after": "20%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Hồi Năng Lượng",
+       "before": "2",
+       "after": "4",
+       "dir": "buff",
        "kind": "items"
       },
       {
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Trái Tim Kiên Định - Chí Mạng",
        "before": "20%",
-       "after": "40%, Chống Chịu Cơ Bản: 16% ⇒ 20%, Ngưỡng Máu: 40% ⇒ 50%, Chống Chịu Cường Hóa: 30% ⇒ 36%",
+       "after": "40%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Chống Chịu Cơ Bản",
+       "before": "16%",
+       "after": "20%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Ngưỡng Máu",
+       "before": "40%",
+       "after": "50%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Chống Chịu Cường Hóa",
+       "before": "30%",
+       "after": "36%",
        "dir": "buff",
        "kind": "items"
       },
@@ -30023,7 +30884,39 @@
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Chùy Đoản Côn - Máu",
        "before": "150",
-       "after": "300, Tốc Đánh: 25% ⇒ 20%, Chí Mạng: 35% ⇒ 40%, Khuếch Đại Sát Thương mỗi Cộng Dồn: 8% ⇒ 10%, Thời Gian Cường Hóa: 8 ⇒ 5 giây",
+       "after": "300",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Tốc Đánh",
+       "before": "25%",
+       "after": "20%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Chí Mạng",
+       "before": "35%",
+       "after": "40%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Khuếch Đại Sát Thương mỗi Cộng Dồn",
+       "before": "8%",
+       "after": "10%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Thời Gian Cường Hóa",
+       "before": "8",
+       "after": "5 giây",
        "dir": "nerf",
        "kind": "items"
       },
@@ -30031,23 +30924,79 @@
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Áo Choàng Lửa - Máu tối đa",
        "before": "12%",
-       "after": "16%, Thời Gian Kích Hoạt: 1,5 ⇒ 2 giây, Phạm Vi Ô Tác Dụng: 3 ⇒ 2, Thời Gian Cường Hóa: 8 ⇒ 10 giây",
+       "after": "16%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Thời Gian Kích Hoạt",
+       "before": "1,5",
+       "after": "2 giây",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Phạm Vi Ô Tác Dụng",
+       "before": "3",
+       "after": "2",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Thời Gian Cường Hóa",
+       "before": "8",
+       "after": "10 giây",
+       "dir": "buff",
        "kind": "items"
       },
       {
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Quyền Năng Khổng Lồ - Giáp",
        "before": "35",
-       "after": "40, Tốc Đánh: 30% ⇒ 20%, SMCK/SMPT mỗi cộng dồn: 3% ⇒ 4%",
+       "after": "40",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Tốc Đánh",
+       "before": "30%",
+       "after": "20%",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "SMCK/SMPT mỗi cộng dồn",
+       "before": "3%",
+       "after": "4%",
+       "dir": "buff",
        "kind": "items"
       },
       {
        "subject": "Xóa bỏ Hồi Phục Máu",
        "stat": "Trượng Hư Vô - SMPT",
        "before": "60%",
-       "after": "75%, Tốc Đánh: 60% ⇒ 30%, Hồi Năng Lượng: 3 ⇒ 2",
+       "after": "75%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Tốc Đánh",
+       "before": "60%",
+       "after": "30%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": "Xóa bỏ Hồi Phục Máu",
+       "stat": "Hồi Năng Lượng",
+       "before": "3",
+       "after": "2",
        "dir": "nerf",
        "kind": "items"
       },
@@ -30282,7 +31231,15 @@
        "subject": "Lưỡng Cực Zhonya",
        "stat": "SMPT",
        "before": "40%",
-       "after": "25%, Giáp/Kháng Phép: 30 ⇒ 25",
+       "after": "25%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Giáp/Kháng Phép",
+       "before": "30",
+       "after": "25",
        "dir": "nerf",
        "kind": "items"
       },
@@ -30290,8 +31247,24 @@
        "subject": "Thần Búa Tiến Công",
        "stat": "Giáp/Kháng Phép",
        "before": "35",
-       "after": "50, Máu Cộng Thêm: 600 ⇒ 400, SMCK/SMPT Cộng Thêm: 20% ⇒ 10%",
+       "after": "50",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Máu Cộng Thêm",
+       "before": "600",
+       "after": "400",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "SMCK/SMPT Cộng Thêm",
+       "before": "20%",
+       "after": "10%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
@@ -30306,16 +31279,32 @@
        "subject": "Đao Chớp",
        "stat": "SMCK mỗi 5 đòn đánh",
        "before": "3%",
-       "after": "2%, SMPT mỗi 5 đòn đánh: 4% ⇒ 2%",
-       "dir": "buff",
+       "after": "2%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "SMPT mỗi 5 đòn đánh",
+       "before": "4%",
+       "after": "2%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
        "subject": "Kiếm Của Tay Bạc",
        "stat": "Tốc Độ Đánh",
        "before": "35%",
-       "after": "45%, SMPT: 10% ⇒ Loại bỏ",
-       "dir": "nerf",
+       "after": "45%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "SMPT",
+       "before": "10%",
+       "after": "Loại bỏ",
+       "dir": "adjust",
        "kind": "items"
       },
       {
@@ -30395,15 +31384,47 @@
        "subject": "Móng Vuốt Ám Muội",
        "stat": "SMCK",
        "before": "30%",
-       "after": "35%, Tỉ Lệ Chí Mạng: 50% ⇒ 45%, Đòn Đánh Chí Mạng Cộng Thêm: 60% ⇒ 50%",
+       "after": "35%",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Tỉ Lệ Chí Mạng",
+       "before": "50%",
+       "after": "45%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Đòn Đánh Chí Mạng Cộng Thêm",
+       "before": "60%",
+       "after": "50%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
        "subject": "Đao Tím",
        "stat": "Máu",
        "before": "300",
-       "after": "400, Tốc Đánh: 30% ⇒ 25%, Giáp/Kháng Phép: 30 ⇒ 20",
+       "after": "400",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Đánh",
+       "before": "30%",
+       "after": "25%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Giáp/Kháng Phép",
+       "before": "30",
+       "after": "20",
        "dir": "nerf",
        "kind": "items"
       },
@@ -30436,7 +31457,23 @@
        "subject": "Kính Nhắm Thiện Xạ",
        "stat": "SMCK",
        "before": "15%",
-       "after": "20%, SMPT: 15% ⇒ 20%, Tốc Đánh: 15% ⇒ 20%",
+       "after": "20%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "SMPT",
+       "before": "15%",
+       "after": "20%",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Đánh",
+       "before": "15%",
+       "after": "20%",
        "dir": "buff",
        "kind": "items"
       },
@@ -30453,15 +31490,31 @@
        "subject": "Kiếm Tai Ương",
        "stat": "SMPT",
        "before": "30%",
-       "after": "55%, Tốc Đánh: 30% ⇒ 10%",
+       "after": "55%",
        "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Đánh",
+       "before": "30%",
+       "after": "10%",
+       "dir": "nerf",
        "kind": "items"
       },
       {
        "subject": "Giáp Tay Seeker",
        "stat": "SMPT",
        "before": "40%",
-       "after": "25%, Giáp/Kháng Phép: 30 ⇒ 10",
+       "after": "25%",
+       "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Giáp/Kháng Phép",
+       "before": "30",
+       "after": "10",
        "dir": "nerf",
        "kind": "items"
       },
@@ -30496,8 +31549,16 @@
        "subject": "Dao Điện Statikk",
        "stat": "SMPT",
        "before": "40%",
-       "after": "15%, Tốc Đánh: 40% ⇒ 50%",
+       "after": "15%",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Tốc Đánh",
+       "before": "40%",
+       "after": "50%",
+       "dir": "buff",
        "kind": "items"
       },
       {
@@ -30521,14 +31582,30 @@
        "subject": "Bất Khuất",
        "stat": "Máu",
        "before": "400",
-       "after": "500, Giáp/Kháng Phép: 25 ⇒ 20, Máu Tối Đa: 10% ⇒ 12%",
+       "after": "500",
+       "dir": "buff",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Giáp/Kháng Phép",
+       "before": "25",
+       "after": "20",
        "dir": "nerf",
+       "kind": "items"
+      },
+      {
+       "subject": null,
+       "stat": "Máu Tối Đa",
+       "before": "10%",
+       "after": "12%",
+       "dir": "buff",
        "kind": "items"
       }
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.9",
@@ -30542,9 +31619,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/85f3fc01055a0435c97b234b9becc1f4f8953d1a-1920x1080.jpg",
    "description": "Choncc’s Treasure returns with our final patch of the set before Lore & Legends goes live on December 3rd with patch 16.1!",
    "counts": {
-    "buff": 33,
+    "buff": 34,
     "nerf": 7,
-    "adjust": 19,
+    "adjust": 18,
     "new": 0,
     "removed": 0,
     "fix": 6
@@ -31058,7 +32135,7 @@
        "stat": "Bạo Long - Máu",
        "before": "600/900/1.500/2.250",
        "after": "750/1.050/1.650/2.400",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "traits"
       },
       {
@@ -31197,7 +32274,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.8",
@@ -31634,7 +32711,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.7",
@@ -31648,8 +32725,8 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/5f638f7a58a6bd442c714e78039cfc374a551a85-1920x1080.png",
    "description": "Một bản cập nhật cân bằng nhỏ cho K.O. Đại Chiến Anh Hùng, cùng sự trở lại hoành tráng của những chú Rồng từ Vùng Nguyên Sinh!",
    "counts": {
-    "buff": 33,
-    "nerf": 21,
+    "buff": 31,
+    "nerf": 23,
     "adjust": 7,
     "new": 0,
     "removed": 5,
@@ -31941,7 +33018,7 @@
        "stat": "Máu",
        "before": "1.000",
        "after": "950",
-       "dir": "buff",
+       "dir": "nerf",
        "kind": "champions",
        "group": "TƯỚNG 4 VÀNG"
       },
@@ -32037,7 +33114,7 @@
        "stat": "Ekko - Máu",
        "before": "1.100",
        "after": "950",
-       "dir": "buff",
+       "dir": "nerf",
        "kind": "augments"
       },
       {
@@ -32398,7 +33475,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.6",
@@ -32412,9 +33489,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/325b716a19d1863649e4e79d2f13f5afb0534e93-1920x1080.jpg",
    "description": "New 2XKO themed Power-Ups help you fight your way to the top of the lobby or Ao Shin’s Ascent!",
    "counts": {
-    "buff": 56,
+    "buff": 57,
     "nerf": 27,
-    "adjust": 38,
+    "adjust": 37,
     "new": 0,
     "removed": 13,
     "fix": 5
@@ -32941,7 +34018,7 @@
        "stat": "(Dũng Sĩ) - Sát Thương Đơn Mục Tiêu",
        "before": "525/800 SMCK",
        "after": "800/1.200 SMCK",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "champions",
        "group": "TƯỚNG 5 VÀNG"
       },
@@ -33775,7 +34852,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.5",
@@ -33948,7 +35025,7 @@
      "changes": [
       {
        "subject": "Pha Lê",
-       "stat": ", Hệ Số Giai Đoạn - Giai Đoạn 3 - 4",
+       "stat": "Hệ Số Giai Đoạn - Giai Đoạn 3 - 4",
        "before": "1,25/1,65x",
        "after": "1,4/2x",
        "dir": "buff",
@@ -38516,7 +39593,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.4",
@@ -38530,8 +39607,8 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/439ab33071ee4bb7fbed0111f2e656fe004601bd-1920x1080.jpg",
    "description": "Đại Chiến Anh Hùng chào mừng thay đổi cân bằng, Cập Nhật Trang Bị, điều chỉnh Tộc/Hệ và hơn thế nữa!",
    "counts": {
-    "buff": 77,
-    "nerf": 64,
+    "buff": 75,
+    "nerf": 66,
     "adjust": 63,
     "new": 0,
     "removed": 12,
@@ -39526,7 +40603,7 @@
        "stat": "Lá Chắn",
        "before": "500/575/1.200 SMPT",
        "after": "280/330/900 SMPT + 10% Máu tối đa",
-       "dir": "buff",
+       "dir": "nerf",
        "kind": "champions",
        "group": "TƯỚNG 4 VÀNG"
       },
@@ -39559,7 +40636,7 @@
       },
       {
        "subject": "Ryze",
-       "stat": ", Sensei - Sát Thương Kỹ Năng",
+       "stat": "Sensei - Sát Thương Kỹ Năng",
        "before": "800/1.200/6.000 AP",
        "after": "770/1.155/6.000 AP",
        "dir": "nerf",
@@ -39568,7 +40645,7 @@
       },
       {
        "subject": "Ryze",
-       "stat": ", Sensei - Sát Thương Mạch Nước",
+       "stat": "Sensei - Sát Thương Mạch Nước",
        "before": "50/75/450 SMPT",
        "after": "45/65/450 SMPT",
        "dir": "nerf",
@@ -39625,7 +40702,7 @@
        "stat": "Cây Cận Chiến - Máu",
        "before": "1.200 HP",
        "after": "800 HP",
-       "dir": "buff",
+       "dir": "nerf",
        "kind": "champions",
        "group": "TƯỚNG 5 VÀNG"
       },
@@ -40790,7 +41867,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.3",
@@ -40804,9 +41881,9 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/f1dc7e5d8c6b0c63af6fc3a4a19833c2a620cc20-1920x1080.jpg",
    "description": "Balance changes coming at you fast!",
    "counts": {
-    "buff": 70,
-    "nerf": 60,
-    "adjust": 20,
+    "buff": 75,
+    "nerf": 57,
+    "adjust": 18,
     "new": 0,
     "removed": 9,
     "fix": 15
@@ -41747,7 +42824,7 @@
        "stat": "Máu",
        "before": "1.000/1.400",
        "after": "900/1.250",
-       "dir": "adjust",
+       "dir": "nerf",
        "kind": "traits",
        "group": "THỨC TỈNH"
       },
@@ -41921,7 +42998,7 @@
        "stat": "Máu",
        "before": "300/400/600/800",
        "after": "300/400/750/1.000",
-       "dir": "adjust",
+       "dir": "buff",
        "kind": "traits",
        "group": "THỨC TỈNH"
       },
@@ -42281,7 +43358,7 @@
        "stat": "3 Sao - Sát Thương Lên Mục Tiêu Phụ",
        "before": "600 SMCK",
        "after": "1.000 SMCK",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "TƯỚNG 4 VÀNG"
       },
@@ -42290,7 +43367,7 @@
        "stat": "3 Sao - Sát Thương Dạng Cơ Bản",
        "before": "800% Chống Chịu",
        "after": "1.200% Chống Chịu",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "TƯỚNG 4 VÀNG"
       },
@@ -42308,7 +43385,7 @@
        "stat": "3 Sao - Sát Thương Phụ",
        "before": "550 SMPT",
        "after": "1.200 SMPT",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "TƯỚNG 4 VÀNG"
       },
@@ -42317,7 +43394,7 @@
        "stat": "3 Sao - Sensei - Sát Thương Phụ Từ Kỹ Năng",
        "before": "550 SMPT",
        "after": "1.200 SMPT",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "TƯỚNG 4 VÀNG"
       },
@@ -42493,7 +43570,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.2",
@@ -42507,8 +43584,8 @@
    "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c970a13345980003594e7da8d6471c03d639074a-1920x1080.jpg",
    "description": "A ton of new balance changes and a few new Opening Encounters land with patch 15.2!",
    "counts": {
-    "buff": 28,
-    "nerf": 46,
+    "buff": 29,
+    "nerf": 45,
     "adjust": 64,
     "new": 0,
     "removed": 15,
@@ -43388,10 +44465,10 @@
       },
       {
        "subject": "Gwen",
-       "stat": ", Nội Tại - Sát Thương Đánh Thường",
+       "stat": "Nội Tại - Sát Thương Đánh Thường",
        "before": "30/45/400 SMPT sát thương theo hình nón",
        "after": "10/15/500 SMPT sát thương phép lên mục tiêu và 40/60/1.000 SMPT sát thương phép chia đều lên tất cả kẻ địch trong hình nón.",
-       "dir": "nerf",
+       "dir": "buff",
        "kind": "champions",
        "group": "TƯỚNG 5 VÀNG"
       },
@@ -44481,7 +45558,7 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   },
   {
    "version": "15.1",
@@ -47551,8 +48628,8 @@
      ]
     }
    ],
-   "fetched_at": "2026-11-03T04:47:17Z"
+   "fetched_at": "2026-11-03T04:49:54Z"
   }
  ],
- "parser": 2
+ "parser": 3
 }

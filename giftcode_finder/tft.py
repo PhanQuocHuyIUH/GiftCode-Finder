@@ -62,21 +62,36 @@ MORE_IS_BETTER = re.compile(
 
 # Which section a heading opens. Checked in this order; English and Vietnamese.
 SECTION_KINDS = [
-    ("fixes", r"bug|lỗi|sửa lỗi"),
-    ("augments", r"augment|lõi|anomal|dị biến"),
-    ("traits", r"trait|tộc|hệ\b|tộc hệ|origin|class"),
-    ("items", r"item|trang bị|emblem|ấn\b|artifact|tạo tác|radiant|ánh sáng|support item|hỗ trợ|component|mảnh ghép"),
-    ("champions", r"champion|unit|tướng|đơn vị|tier \d|\d-cost"),
-    ("modes", r"double up|hyper roll|tranh tài|siêu tốc|chế độ|mode|ranked|xếp hạng|revival|tocker"),
+    ("fixes", r"\bbugs?\b|sửa lỗi|lỗi\b"),
+    ("mechanics", r"hệ thống|\bsystems?\b"),
+    ("augments", r"augment|lõi|nâng cấp|anomal|dị biến"),
+    ("traits", r"trait|tộc|(?<!\w)hệ(?!\w)|origin|\bclass"),
+    ("items", r"\bitems?\b|trang bị|emblem|(?<!\w)ấn(?!\w)|artifact|tạo tác|radiant|ánh sáng|component|mảnh ghép"),
+    ("champions", r"champion|\bunits?\b|tướng|đơn vị|tier \d|\d-cost"),
+    ("modes", r"double up|hyper roll|tranh tài|siêu tốc|chế độ|\bmodes?\b|ranked|xếp hạng|revival|tái hiện|tocker"),
     (
         "mechanics",
-        r"system|mechanic|gameplay|hệ thống|cơ chế|lối chơi|econom|kinh tế|portal|cổng|encounter|sự kiện|"
-        r"big change|thay đổi lớn|mid-?set|giữa mùa|player damage|sát thương người chơi|loot|chiến lợi phẩm|"
-        r"carousel|vòng quay|odds|tỉ lệ|tỷ lệ|shop|cửa hàng|pve|creep|quái",
+        r"mechanic|gameplay|cơ chế|lối chơi|econom|kinh tế|portal|cổng|encounter|"
+        r"big change|large change|small change|thay đổi lớn|thay đổi nhỏ|player damage|sát thương người chơi|loot|"
+        r"chiến lợi phẩm|carousel|vòng quay|odds|tỉ lệ|tỷ lệ|shop|cửa hàng|pve|creep|quái",
     ),
 ]
 SECTION_KINDS = [(kind, re.compile(pattern, re.I)) for kind, pattern in SECTION_KINDS]
-SKIP_SECTIONS = re.compile(r"^(?:skins?|trang phục|cosmetic|ngoại hình|little legends?|linh thú|arena|sàn đấu|chibi|pass)\b", re.I)
+# Sections about skins, videos and such: no balance changes to show.
+SKIP_SECTIONS = re.compile(
+    r"vật phẩm trang trí|trang phục|cosmetic|skins?\b|phim ngắn|cinematic|teaser|video|lịch trình phát triển|roadmap|"
+    r"cấu hình|\bspecs?\b|bài viết liên quan|related articles|riot client|đăng nhập qr|gói đặt mua|pre-?order|"
+    r"\bpass\b|chapter|thông báo đtcl|bản đồ sao|star map|tàng thư|linh thú|little legend|chưởng lực|ghi chú hiệu năng|"
+    r"performance note",
+    re.I,
+)
+# "VẬT PHẨM TRANG TRÍ ĐẠI NGÀN KỲ BÍ" in a set's first patch names the set.
+SET_NAME_HEAD = re.compile(
+    r"^(?:phim ngắn|vật phẩm trang trí|lịch trình phát triển|teaser (?:&|và) video lịch trình phát triển)\s+(?P<vi>.+)$"
+    r"|^(?P<en>.+?)\s+(?:cinematic|cosmetics)$",
+    re.I,
+)
+NOT_SET_NAME = re.compile(r"chuyển đổi|khả dụng|được|sẽ|transferred|available|vault", re.I)
 
 
 @dataclass
@@ -87,6 +102,7 @@ class TftConfig:
     names_url: str | None = None
     asset_base: str = "https://raw.communitydragon.org/latest/game/"
     sets: dict = field(default_factory=dict)
+    min_version: str | None = None
 
 
 def load_tft_config(path: str | Path) -> TftConfig | None:
@@ -107,6 +123,7 @@ def load_tft_config(path: str | Path) -> TftConfig | None:
         names_url=raw.get("names_url"),
         asset_base=raw.get("asset_base") or TftConfig.asset_base,
         sets={str(k): str(v) for k, v in (raw.get("sets") or {}).items()},
+        min_version=str(raw["min_version"]) if raw.get("min_version") else None,
     )
 
 
@@ -211,7 +228,10 @@ def parse_listing(html: str, base_url: str) -> list[Article]:
         old = found.get(version)
         if old is None:
             found[version] = Article(url, title, version, date, image, _locale(url))
-        else:
+        elif old.url != url and date and old.published_at and date[:10] > old.published_at[:10]:
+            # Riot reused a number ("13.6" in 2023 and in 2025): keep the newer article.
+            found[version] = Article(url, title, version, date, image or old.image, _locale(url))
+        elif old.url == url:
             old.published_at = old.published_at or date
             old.image = old.image or image
 
@@ -363,6 +383,13 @@ def direction(stat: str, before: str, after: str) -> str:
     return "buff" if trend > 0 else "nerf"
 
 
+def kind_of(title: str) -> str | None:
+    for name, pattern in SECTION_KINDS:
+        if pattern.search(title):
+            return name
+    return None
+
+
 class _Parser:
     def __init__(self, names: Names | None):
         self.names = names or Names()
@@ -371,16 +398,15 @@ class _Parser:
         self.sub: str | None = None  # the h3/h4 above the current list
         self.highlights: str | None = None
         self.icons: dict[str, str] = {}
+        self.titles: list[str] = []
+        self.subkind: str | None = None  # set by a "Champions"/"Tướng" heading inside a section
 
     # Sections and headings
     def open_section(self, title: str) -> None:
-        kind = "other"
-        for name, pattern in SECTION_KINDS:
-            if pattern.search(title):
-                kind = name
-                break
-        self.section = _Section(title, kind)
+        self.titles.append(title)
+        self.section = _Section(title, kind_of(title) or "other")
         self.sub = None
+        self.subkind = None
         if not SKIP_SECTIONS.search(title):
             self.sections.append(self.section)
 
@@ -405,29 +431,31 @@ class _Parser:
             else:
                 before = left
             stat, before = stat.strip(), before.strip()
-        kind = section.kind
+        base = self.subkind or section.kind
+        kind = base
         icon = None
+        generic = base in ("other", "mechanics", "modes")
         # "Ahri Mana" -> subject Ahri, stat Mana.
         if not subject and stat:
             match = self.names.match(stat)
             if match:
                 subject, name_kind, icon, stat = match
-                kind = name_kind if section.kind in ("other", "mechanics") else kind
+                kind = name_kind if generic else kind
         if not subject and not stat and len(parts) == 1:
             match = self.names.match(text)
             if match and match[3]:
                 subject, name_kind, icon = match[0], match[1], match[2]
-                kind = name_kind if section.kind in ("other", "mechanics") else kind
+                kind = name_kind if generic else kind
         if subject and icon is None:
             known = self.names.find(subject)
             if known:
                 subject, name_kind, icon = known
-                if section.kind in ("other", "mechanics"):
+                if generic:
                     kind = name_kind
         if subject and icon:
             self.icons[subject] = icon
 
-        if section.kind == "fixes":
+        if base == "fixes":
             dir_ = "fix"
         elif NEW_LINE.search(text):
             dir_ = "new"
@@ -479,6 +507,13 @@ class _Parser:
         self.add(own, subject, group)
 
     def heading(self, text: str) -> None:
+        text = (text or "").strip(" :")
+        # "TƯỚNG", "TỘC/HỆ", "TRANG BỊ"...: a category inside the section, not a subject.
+        kind = kind_of(text) if text and len(text) <= 40 and not self.names.find(text) else None
+        if kind and kind != "fixes" and not TIER.search(text):
+            self.subkind = kind
+            self.sub = None
+            return
         self.sub = text or None
 
     def walk(self, node: Tag) -> None:
@@ -602,11 +637,18 @@ def parse_article(html: str, article: Article, names: Names | None = None, sets:
                     break
     title = _meta(soup, "og:title") or article.title
     major = int(article.version.split(".")[0])
+    guess = None
+    for heading in parser.titles:
+        match = SET_NAME_HEAD.match(heading.strip())
+        if match and not NOT_SET_NAME.search(heading):
+            name = (match["vi"] or match["en"]).strip()
+            guess = name.title() if name.isupper() else name
+            break
     counts = {d: sum(1 for c in changes if c["dir"] == d) for d in DIRS}
     return {
         "version": article.version,
         "set": major,
-        "set_name": (sets or {}).get(str(major)),
+        "set_name": (sets or {}).get(str(major)) or guess,
         "title": " ".join(title.split()),
         "url": article.url,
         "locale": article.locale,
@@ -675,6 +717,8 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
             log(f"  {url}: lỗi {exc}")
             continue
         for article in found:
+            if config.min_version and version_key(article.version) < version_key(config.min_version):
+                continue
             articles.setdefault(article.version, article)
     if not articles:
         result.errors.append("không tìm thấy bài patch notes nào")
@@ -715,7 +759,15 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
         for section in patch["sections"]:
             log(f"      [{section['kind']}] {section['title']}: {len(section['changes'])}")
 
-    patches = sorted(known.values(), key=lambda p: version_key(p["version"]), reverse=True)[: config.max_patches]
+    patches = sorted(known.values(), key=lambda p: version_key(p["version"]), reverse=True)
+    if config.min_version:
+        patches = [p for p in patches if version_key(p["version"]) >= version_key(config.min_version)]
+    patches = patches[: config.max_patches]
+    if [p["version"] for p in patches] != [p["version"] for p in history.get("patches", [])]:
+        changed = True
+    for patch in patches:  # names from the config win over guessed ones
+        if config.sets.get(str(patch.get("set"))):
+            patch["set_name"] = config.sets[str(patch["set"])]
     history["patches"] = patches
     if changed:
         history["updated_at"] = _stamp(now)

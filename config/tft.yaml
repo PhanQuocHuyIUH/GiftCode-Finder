@@ -9,12 +9,15 @@ tft:
   listings:
     - https://teamfighttactics.leagueoflegends.com/vi-vn/news/tags/patch-notes/
     - https://teamfighttactics.leagueoflegends.com/en-us/news/tags/patch-notes/
-    - https://www.leagueoflegends.com/en-us/news/tags/teamfight-tactics-patch-notes/
 
   # Tên và biểu tượng tướng, tộc hệ, trang bị, lõi (Community Dragon), dùng để
   # biết "Ahri Năng lượng: 0/60 ⇒ 0/50" là thay đổi của tướng Ahri.
   # {locale} được thay bằng ngôn ngữ của bài (vi_vn, en_us…).
   names_url: https://raw.communitydragon.org/latest/cdragon/tft/{locale}.json
+
+  # Từ bản 15.1 (mùa K.O. Đại Chiến Anh Hùng, 2025) số đầu của phiên bản là số mùa.
+  # Các bản cũ hơn đánh số theo năm nên không xếp được vào mùa: bỏ qua.
+  min_version: "15.1"
 
   # Số phiên bản giữ lại trên trang web (các mùa cũ hơn bị bỏ dần).
   max_patches: 40
@@ -22,7 +25,10 @@ tft:
   # Bài mới nhất được đọc lại sau mỗi chừng này giờ (Riot thêm bản vá B vào bài).
   refresh_hours: 6
 
-  # (Tuỳ chọn) Tên mùa hiện trên web, theo số đầu của phiên bản, ví dụ:
-  # sets:
-  #   "16": "Tên mùa 16"
-  sets: {}
+  # Tên mùa hiện trên web, theo số đầu của phiên bản. Mùa mới không có ở đây thì
+  # tên được đoán từ bài đầu mùa (mục "Vật phẩm trang trí <tên mùa>").
+  sets:
+    "15": "K.O. Đại Chiến Anh Hùng"
+    "16": "Truyền Thuyết & Huyền Thoại"
+    "17": "Thần Không Gian"
+    "18": "Đại Ngàn Kỳ Bí"

@@ -58,6 +58,7 @@ def _parser() -> argparse.ArgumentParser:
     tft.add_argument("--data", default="data/tft.json")
     tft.add_argument("--save", action="store_true", help="ghi kết quả vào --data")
     tft.add_argument("--show", type=int, default=0, metavar="N", help="in N thay đổi đầu của mỗi mục")
+    tft.add_argument("--outline", metavar="URL", help="in dàn ý (tiêu đề, danh sách) của một bài patch notes")
     tft.set_defaults(func=cmd_tft)
 
     ins = sub.add_parser("inspect", help="phân tích cấu trúc trang để cấu hình nguồn mới")
@@ -190,11 +191,37 @@ def tft_site_data(result: TftResult | None, data_path: str) -> dict | None:
     }
 
 
+def print_outline(html: str) -> None:
+    """Headings of a patch notes article, each with its first list items."""
+    from bs4 import BeautifulSoup
+
+    from .tft import _container
+
+    root = _container(BeautifulSoup(html, "html.parser"))
+    for node in root.find_all(["h1", "h2", "h3", "h4", "h5", "p", "ul", "blockquote", "table"]):
+        if node.name == "p" and not (node.find(["strong", "b"]) and len(node.get_text(strip=True)) < 60):
+            continue
+        if node.name == "ul" and node.find_parent("ul"):
+            continue
+        text = " ".join(node.get_text(" ", strip=True).split())[:100]
+        attrs = " ".join(f"{k}={v if isinstance(v, str) else ' '.join(v)}" for k, v in node.attrs.items())[:60]
+        if node.name == "ul":
+            items = node.find_all("li", recursive=False)
+            nested = sum(1 for li in items if li.find(["ul", "ol"]))
+            first = [str(li)[:160] for li in items[:2]]
+            print(f"      ul: {len(items)} li ({nested} lồng) {first}")
+        else:
+            print(f"  <{node.name} {attrs}> {text}")
+
+
 def cmd_tft(args: argparse.Namespace) -> int:
     config = load_tft_config(args.config)
     if config is None:
         print(f"Không có {args.config}")
         return 2
+    if args.outline:
+        print_outline(Fetcher().fetch(args.outline).text)
+        return 0
     history = load_history(args.data)
     result = update_history(config, history, Fetcher())
     for patch in result.history.get("patches", [])[:3]:

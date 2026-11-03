@@ -82,7 +82,9 @@ jobs:
       - name: Thử đọc patch notes TFT
         if: github.ref_name != github.event.repository.default_branch
         continue-on-error: true
-        run: python -m giftcode_finder tft --show 12
+        run: |
+          python -m giftcode_finder tft --outline https://teamfighttactics.leagueoflegends.com/vi-vn/news/game-updates/teamfight-tactics-patch-18-5 | head -150
+          python -m giftcode_finder tft --show 40 | head -400
 
       - name: Lấy giftcode
         id: scrape

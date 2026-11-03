@@ -71,13 +71,17 @@ def newest_first(entries: list[dict]) -> list[dict]:
     return sorted(entries, key=lambda e: (e["first_seen"], e.get("since") or ""), reverse=True)
 
 
-def build_site(data: dict, template_dir: str | Path, out_dir: str | Path) -> Path:
+def build_site(data: dict, template_dir: str | Path, out_dir: str | Path, tft: dict | None = None) -> Path:
     template_dir, out_dir = Path(template_dir), Path(out_dir)
     if out_dir.exists():
         shutil.rmtree(out_dir)
     shutil.copytree(template_dir, out_dir)
     payload = json.dumps(data, ensure_ascii=False, indent=2)
     (out_dir / "codes.json").write_text(payload + "\n", encoding="utf-8")
+    # TFT patch notes are large: the page loads them only when they are opened.
+    if tft is not None:
+        data = {**data, "tft": _tft_summary(tft)}
+        (out_dir / "tft.json").write_text(json.dumps(tft, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     index = out_dir / "index.html"
     # "</" would let the data close the <script> tag it is embedded in.
     embedded = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
@@ -89,6 +93,21 @@ def build_site(data: dict, template_dir: str | Path, out_dir: str | Path) -> Pat
     html = index.read_text(encoding="utf-8").replace(VERSION_PLACEHOLDER, digest.hexdigest()[:10])
     index.write_text(html.replace(DATA_PLACEHOLDER, embedded), encoding="utf-8")
     return out_dir
+
+
+def _tft_summary(tft: dict | None) -> dict | None:
+    """What the home page shows of the TFT data without loading all of it."""
+    if not tft or not tft.get("patches"):
+        return None
+    latest = tft["patches"][0]
+    return {
+        "patches": len(tft["patches"]),
+        "latest": {k: latest.get(k) for k in ("version", "set", "set_name", "title", "published_at", "image", "counts")},
+        "updated_at": tft.get("updated_at"),
+        "checked_at": tft.get("checked_at"),
+        "errors": tft.get("errors") or [],
+        "version": (tft.get("updated_at") or "")[:19],
+    }
 
 
 def vn_time(iso: str | None, with_time: bool = True) -> str:

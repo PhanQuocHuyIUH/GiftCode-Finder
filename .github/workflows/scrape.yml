@@ -78,6 +78,12 @@ jobs:
           INSPECT_ARGS: ${{ inputs.inspect_args }}
         run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --render --text 200
 
+      # TEMP: thử bộ đọc patch notes TFT trên trang thật (chỉ ở nhánh phụ).
+      - name: Thử đọc patch notes TFT
+        if: github.ref_name != github.event.repository.default_branch
+        continue-on-error: true
+        run: python -m giftcode_finder tft --show 12
+
       - name: Lấy giftcode
         id: scrape
         env:
@@ -97,7 +103,11 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Cập nhật giftcode (${{ steps.scrape.outputs.new_codes }} code mới, ${{ steps.scrape.outputs.new_events }} sự kiện mới)"
+          tft=""
+          if [ "${{ steps.scrape.outputs.new_patches }}" != "0" ] && [ -n "${{ steps.scrape.outputs.new_patches }}" ]; then
+            tft=", ${{ steps.scrape.outputs.new_patches }} bản cập nhật TFT mới"
+          fi
+          git commit -m "Cập nhật giftcode (${{ steps.scrape.outputs.new_codes }} code mới, ${{ steps.scrape.outputs.new_events }} sự kiện mới$tft)"
           for attempt in 1 2 3; do
             git push && exit 0
             git pull --rebase

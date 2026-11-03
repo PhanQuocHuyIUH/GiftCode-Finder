@@ -1,0 +1,28 @@
+# Cập nhật Teamfight Tactics (ĐTCL): đọc bài patch notes chính thức của Riot,
+# tách từng thay đổi tăng/giảm sức mạnh của tướng, tộc hệ, trang bị, lõi, cơ chế…
+#
+# Xoá file này (hoặc mục `tft`) để tắt tính năng.
+
+tft:
+  # Trang danh sách bài patch notes. Đọc theo thứ tự: bài có ở trang đầu (tiếng
+  # Việt) được ưu tiên, trang sau chỉ bù các phiên bản trang đầu không có.
+  listings:
+    - https://teamfighttactics.leagueoflegends.com/vi-vn/news/tags/patch-notes/
+    - https://teamfighttactics.leagueoflegends.com/en-us/news/tags/patch-notes/
+    - https://www.leagueoflegends.com/en-us/news/tags/teamfight-tactics-patch-notes/
+
+  # Tên và biểu tượng tướng, tộc hệ, trang bị, lõi (Community Dragon), dùng để
+  # biết "Ahri Năng lượng: 0/60 ⇒ 0/50" là thay đổi của tướng Ahri.
+  # {locale} được thay bằng ngôn ngữ của bài (vi_vn, en_us…).
+  names_url: https://raw.communitydragon.org/latest/cdragon/tft/{locale}.json
+
+  # Số phiên bản giữ lại trên trang web (các mùa cũ hơn bị bỏ dần).
+  max_patches: 40
+
+  # Bài mới nhất được đọc lại sau mỗi chừng này giờ (Riot thêm bản vá B vào bài).
+  refresh_hours: 6
+
+  # (Tuỳ chọn) Tên mùa hiện trên web, theo số đầu của phiên bản, ví dụ:
+  # sets:
+  #   "16": "Tên mùa 16"
+  sets: {}

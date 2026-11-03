@@ -13,6 +13,7 @@ from .fetch import Fetcher
 from .inspect import inspect_url
 from .publish import build_site, codes_markdown, site_data, update_readme, write_step_summary
 from .state import SourceResult, attach_events, load_state, now_iso, save_state, split_hidden, update_state
+from .tft import TftResult, load_history, load_tft_config, save_history, update_history
 
 IN_CI = os.environ.get("GITHUB_ACTIONS") == "true"
 
@@ -47,7 +48,17 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--dry-run", action="store_true", help="chỉ in code ra màn hình, không ghi file")
     run.add_argument("--strict", action="store_true", help="trả mã lỗi nếu có nguồn bị lỗi")
     run.add_argument("--debug", action="store_true", help="in traceback khi nguồn bị lỗi")
+    run.add_argument("--tft-config", default="config/tft.yaml")
+    run.add_argument("--tft-data", default="data/tft.json")
+    run.add_argument("--no-tft", action="store_true", help="bỏ qua phần cập nhật TFT")
     run.set_defaults(func=cmd_run)
+
+    tft = sub.add_parser("tft", help="đọc patch notes Teamfight Tactics (không ghi file)")
+    tft.add_argument("--config", default="config/tft.yaml")
+    tft.add_argument("--data", default="data/tft.json")
+    tft.add_argument("--save", action="store_true", help="ghi kết quả vào --data")
+    tft.add_argument("--show", type=int, default=0, metavar="N", help="in N thay đổi đầu của mỗi mục")
+    tft.set_defaults(func=cmd_tft)
 
     ins = sub.add_parser("inspect", help="phân tích cấu trúc trang để cấu hình nguồn mới")
     ins.add_argument("urls", nargs="*", metavar="URL", help="mặc định: mọi nguồn trong config")
@@ -119,12 +130,15 @@ def cmd_run(args: argparse.Namespace) -> int:
     results = scrape(_selected(games, args.only), Fetcher(), state, debug=args.debug)
     failed = [r for r in results if not r.ok]
 
+    tft = None if args.dry_run or args.no_tft else run_tft(args.tft_config, args.tft_data, Fetcher())
+
     if not args.dry_run:
         now = now_iso()
         state, new_by_game = update_state(state, results, now)
         save_state(args.state, state)
         data = site_data(games, state, results, now)
-        build_site(data, args.site_template, args.site_dir)
+        tft_data = None if args.no_tft else tft_site_data(tft, args.tft_data)
+        build_site(data, args.site_template, args.site_dir, tft=tft_data)
         update_readme(args.readme, codes_markdown(data))
         write_step_summary(data, new_by_game)
         new = [e for entries in new_by_game.values() for e in entries]
@@ -134,8 +148,67 @@ def cmd_run(args: argparse.Namespace) -> int:
         if out := os.environ.get("GITHUB_OUTPUT"):
             with open(out, "a", encoding="utf-8") as fh:
                 fh.write(f"new_codes={new_codes}\nnew_events={new_events}\nfailed_sources={len(failed)}\n")
+                fh.write(f"new_patches={len(tft.new_versions) if tft else 0}\n")
 
     return 1 if args.strict and failed else 0
+
+
+def run_tft(config_path: str, data_path: str, fetcher: Fetcher) -> TftResult | None:
+    """Update ``data_path`` with new TFT patch notes; never fails the run."""
+    try:
+        config = load_tft_config(config_path)
+    except ConfigError as exc:
+        print(f"✗ tft: {exc}")
+        return None
+    if config is None:
+        return None
+    print("TFT: đọc patch notes")
+    history = load_history(data_path)
+    try:
+        result = update_history(config, history, fetcher)
+    except Exception as exc:  # the giftcodes must still be published
+        traceback.print_exc()
+        return TftResult(history=history, errors=[str(exc)], checked_at=now_iso())
+    save_history(data_path, result.history)
+    patches = result.history.get("patches", [])
+    print(f"{'✓' if not result.errors else '✗'} tft: {len(patches)} phiên bản, mới: {', '.join(result.new_versions) or 'không'}")
+    for error in result.errors:
+        print(f"  lỗi: {error}")
+        if IN_CI:
+            print(f"::warning title=Lỗi đọc patch notes TFT::{error}")
+    return result
+
+
+def tft_site_data(result: TftResult | None, data_path: str) -> dict | None:
+    history = result.history if result is not None else load_history(data_path)
+    if not history.get("patches") and result is None:
+        return None
+    return {
+        **history,
+        "checked_at": result.checked_at if result else None,
+        "errors": result.errors if result else [],
+    }
+
+
+def cmd_tft(args: argparse.Namespace) -> int:
+    config = load_tft_config(args.config)
+    if config is None:
+        print(f"Không có {args.config}")
+        return 2
+    history = load_history(args.data)
+    result = update_history(config, history, Fetcher())
+    for patch in result.history.get("patches", [])[:3]:
+        print(f"\n== {patch['version']} {patch['title']} ({patch['published_at']}) {patch['counts']}")
+        for section in patch["sections"]:
+            print(f"  [{section['kind']}] {section['title']} — {len(section['changes'])} thay đổi")
+            for change in section["changes"][: args.show]:
+                who = change["subject"] or "·"
+                print(f"     {change['dir']:7} {who} | {change['stat']} | {change['before']} -> {change['after']} || {change['text'][:110]}")
+    if args.save:
+        save_history(args.data, result.history)
+    for error in result.errors:
+        print(f"lỗi: {error}")
+    return 1 if result.errors and not result.history.get("patches") else 0
 
 
 def cmd_inspect(args: argparse.Namespace) -> int:

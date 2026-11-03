@@ -155,3 +155,35 @@ def test_history_keeps_old_patches_and_reads_new_once():
     fetcher.calls.clear()
     again = update_history(config, result.history, fetcher, log=lambda *_: None)
     assert again.new_versions == [] and article not in fetcher.calls
+
+
+VI_NAMES = {
+    "setData": [{"number": 18, "champions": [
+        {"name": "Caitlyn", "traits": ["x"], "squareIcon": "ASSETS/c.tex"},
+        {"name": "Bụi Gai Đỏ", "traits": ["x"]},
+    ], "traits": [{"name": "Gai Đen", "icon": "ASSETS/g.tex"}, {"name": "Tiên Linh", "icon": "ASSETS/t.tex"}]}],
+    "items": [{"apiName": "TFT_Item_Radiant_Adaptive", "name": "Mũ Thích Nghi"}],
+}
+
+
+def test_vietnamese_article_structure():
+    names = build_names(VI_NAMES, 18, "https://cd.test/")
+    article = Article("https://t.test/vi-vn/news/game-updates/teamfight-tactics-patch-18-5",
+                      "Thông tin cập nhật ĐTCL 18.5", "18.5", locale="vi-vn")
+    patch = parse_article((FIXTURES / "tft_patch_vi.html").read_text(encoding="utf-8"), article, names)
+    assert patch["title"] == "Thông tin cập nhật ĐTCL 18.5"
+    assert patch["highlights"] == "https://cmsassets.rgpub.io/185-highlights.jpg"
+    titles = [s["title"] for s in patch["sections"]]
+    assert not any("TRANG TRÍ" in t for t in titles)  # cosmetics are skipped
+    mid = patch["sections"][1]["changes"]
+    assert (mid[0]["subject"], mid[0]["kind"], mid[0]["dir"], mid[0]["date"]) == ("Bụi Gai Đỏ", "champions", "nerf", "Ngày 22/10")
+    assert [(c["subject"], c["dir"]) for c in mid[1:3]] == [("Đổ Xúc Xắc", "buff"), ("Tay Sai", "nerf")]
+    assert mid[1]["group"] == "TINH LINH"
+    assert mid[3]["dir"] == "fix"
+    big = {c["subject"]: c for s in patch["sections"] if s["title"] == "THAY ĐỔI LỚN" for c in s["changes"]}
+    assert big["Gai Đen"]["kind"] == "traits" and big["Gai Đen"]["dir"] == "nerf"
+    assert big["Tiên Linh (2/4)"]["dir"] == "buff" and patch["icons"]["Tiên Linh (2/4)"] == "https://cd.test/assets/t.png"
+    assert big["Caitlyn"]["kind"] == "champions" and big["Caitlyn"]["group"] == "Bậc 2" and big["Caitlyn"]["dir"] == "buff"
+    assert big["Mũ Thích Nghi"]["kind"] == "items" and big["Mũ Thích Nghi"]["dir"] == "nerf"
+    augment = [c for c in big.values() if c["kind"] == "augments"]
+    assert augment and augment[0]["dir"] == "nerf"

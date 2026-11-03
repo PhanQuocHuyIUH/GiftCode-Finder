@@ -2,28 +2,40 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>GiftCode Finder</title>
-  <meta name="description" content="Giftcode game mới nhất, tự động cập nhật mỗi giờ. Chọn game, bấm là sao chép.">
+  <meta name="description" content="Giftcode game mới nhất, tự cập nhật mỗi giờ, và mọi thay đổi tăng/giảm sức mạnh của từng bản cập nhật Đấu Trường Chân Lý (TFT).">
   <meta property="og:title" content="GiftCode Finder">
-  <meta property="og:description" content="Giftcode game mới nhất, tự động cập nhật mỗi giờ.">
-  <meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f4f5fb" media="(prefers-color-scheme: light)">
+  <meta property="og:description" content="Giftcode game mới nhất và bản cập nhật ĐTCL/TFT theo từng mùa.">
+  <meta name="theme-color" content="#07060f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f1fb" media="(prefers-color-scheme: light)">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap">
   <link rel="stylesheet" href="style.css?v=__GCF_VERSION__">
 </head>
 <body>
-  <div class="bg" aria-hidden="true"></div>
+  <!-- The 3D backdrop: a glowing sky, a moving grid floor and floating wireframes (fx.js). -->
+  <div class="scene" aria-hidden="true">
+    <div class="sky"></div>
+    <div class="floor"><div class="grid"></div></div>
+    <div class="horizon"></div>
+    <div class="shapes"></div>
+  </div>
 
   <header class="topbar">
     <div class="wrap topbar-in">
       <a class="brand" href="#/" aria-label="GiftCode Finder - trang chủ">
-        <span class="brand-mark" aria-hidden="true">🎁</span>
-        <span>GiftCode<b>Finder</b></span>
+        <span class="logo" aria-hidden="true">
+          <span class="logo-cube"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        </span>
+        <span class="brand-text">GiftCode<b>Finder</b></span>
       </a>
+      <nav class="nav" aria-label="Mục chính">
+        <a class="nav-link" href="#/" data-nav="home"><span class="nav-ico" aria-hidden="true">🎁</span><span>Giftcode</span></a>
+        <a class="nav-link" href="#/tft" data-nav="tft"><span class="nav-ico" aria-hidden="true">⚔️</span><span>Cập nhật TFT</span></a>
+      </nav>
       <p class="topmeta" id="meta">Đang tải…</p>
     </div>
   </header>
@@ -38,6 +50,7 @@
 
   <script id="gcf-data" type="application/json">__GCF_DATA__</script>
   <script src="fx.js?v=__GCF_VERSION__"></script>
+  <script src="tft.js?v=__GCF_VERSION__"></script>
   <script src="app.js?v=__GCF_VERSION__"></script>
 </body>
 </html>

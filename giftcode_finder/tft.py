@@ -43,6 +43,8 @@ TIER = re.compile(
     r"^(?:tier|bậc|cấp|tướng|champions?|units?)\s*\d\b|^\d\s*[-–]?\s*(?:cost|vàng|gold|tiền)\b|^\d\s*★|^[1-5]\s*$",
     re.I,
 )
+DATE_HEAD = re.compile(r"^(?:ngày|day|date)?\s*\d{1,2}\s*/\s*\d{1,2}(?:\s*/\s*\d{2,4})?$|^(?:ngày|day)\s+\d", re.I)
+HIGHLIGHTS = re.compile(r"highlight|tiêu điểm|điểm nhấn", re.I)
 BUFF_HEAD = re.compile(r"\bbuffs?\b|tăng sức mạnh|được tăng|tăng cường", re.I)
 NERF_HEAD = re.compile(r"\bnerfs?\b|giảm sức mạnh|bị giảm|suy yếu", re.I)
 NEW_LINE = re.compile(r"^(?:new|mới|thêm mới|bổ sung)\b[:\s!]|^(?:new|mới)\s*[-–:]", re.I)
@@ -275,9 +277,10 @@ class Names:
 
     def find(self, text: str):
         low = text.lower().strip(" :")
+        bare = re.sub(r"\s*\([^)]*\)$", "", low)
         for name, kind, icon in self.entries:
-            if low == name:
-                return self.display[name], kind, icon
+            if low == name or bare == name:
+                return (self.display[name] if low == name else text.strip(" :")), kind, icon
         return None
 
 
@@ -397,9 +400,11 @@ class _Parser:
         self.section: _Section | None = None
         self.sub: str | None = None  # the h3/h4 above the current list
         self.highlights: str | None = None
+        self.highlights_sure = False
         self.icons: dict[str, str] = {}
         self.titles: list[str] = []
         self.subkind: str | None = None  # set by a "Champions"/"Tướng" heading inside a section
+        self.date: str | None = None  # "NGÀY 22/10": when a mid-patch change went live
 
     # Sections and headings
     def open_section(self, title: str) -> None:
@@ -407,6 +412,7 @@ class _Parser:
         self.section = _Section(title, kind_of(title) or "other")
         self.sub = None
         self.subkind = None
+        self.date = None
         if not SKIP_SECTIONS.search(title):
             self.sections.append(self.section)
 
@@ -476,6 +482,8 @@ class _Parser:
                   "text": text, "dir": dir_, "kind": kind}
         if group:
             change["group"] = group
+        if self.date:
+            change["date"] = self.date.capitalize() if self.date.isupper() else self.date
         section.changes.append(change)
 
     def li(self, li: Tag, subject: str | None, group: str | None) -> None:
@@ -489,9 +497,10 @@ class _Parser:
             elif TIER.search(label):
                 inner_group = label
             elif label:
-                inner_subject = label if not subject else subject
-                if subject and label:
-                    inner_group = label
+                # "Caitlyn" over its changes: the label is what they are about.
+                inner_subject = label
+                if subject and subject != label:
+                    inner_group = " · ".join(filter(None, (group, subject)))
             for lst in nested:
                 for child in lst.find_all("li", recursive=False):
                     self.li(child, inner_subject, inner_group)
@@ -506,13 +515,40 @@ class _Parser:
                 own = rest if ARROW.search(rest) or ":" not in rest else rest
         self.add(own, subject, group)
 
+    def list(self, node: Tag) -> None:
+        subject, group = self._sub_context()
+        items = node.find_all("li", recursive=False)
+        current = subject
+        for i, li in enumerate(items):
+            own = _own_text(li)
+            nxt = items[i + 1] if i + 1 < len(items) else None
+            # A flat list where a bare name ("Đổ Xúc Xắc") heads the lines after it.
+            if (
+                not li.find(["ul", "ol"], recursive=False)
+                and not ARROW.search(own)
+                and 0 < len(own) <= 40
+                and not re.search(r"[.!?:]$|[.!?] ", own)
+                and nxt is not None
+                and ARROW.search(_own_text(nxt))
+            ):
+                current = own
+                continue
+            self.li(li, current, group if current == subject else " · ".join(filter(None, (group, subject))) or None)
+
     def heading(self, text: str) -> None:
         text = (text or "").strip(" :")
         # "TƯỚNG", "TỘC/HỆ", "TRANG BỊ"...: a category inside the section, not a subject.
-        kind = kind_of(text) if text and len(text) <= 40 and not self.names.find(text) else None
-        if kind and kind != "fixes" and not TIER.search(text):
-            self.subkind = kind
+        if DATE_HEAD.search(text):  # "NGÀY 22/10" inside the mid-patch updates
+            self.date = text
             self.sub = None
+            self.subkind = None
+            return
+        kind = kind_of(text) if text and len(text) <= 40 else None
+        if kind and not TIER.search(text):
+            self.subkind = kind
+            # "TƯỚNG: BẬC 2" -> champions, grouped as "Bậc 2".
+            tail = text.split(":", 1)[1].strip() if ":" in text else ""
+            self.sub = (tail.capitalize() if tail.isupper() else tail) or None
             return
         self.sub = text or None
 
@@ -530,9 +566,7 @@ class _Parser:
             elif name in ("h3", "h4", "h5", "h6"):
                 self.heading(_text(child))
             elif name in ("ul", "ol"):
-                subject, group = self._sub_context()
-                for li in child.find_all("li", recursive=False):
-                    self.li(li, subject, group)
+                self.list(child)
             elif name == "blockquote":
                 note = _text(child)
                 if note:
@@ -554,8 +588,8 @@ class _Parser:
         known = self.names.find(self.sub)
         if known:
             return known[0], None
-        # A short heading over a list is what the list is about.
-        if len(self.sub) <= 40:
+        # Headings that name a single item/champion are rare; most are groups ("Tinh Linh").
+        if self.subkind is None and len(self.sub) <= 30 and not self.sub.isupper() and len(self.sub.split()) <= 3:
             return self.sub, None
         return None, self.sub
 
@@ -586,7 +620,12 @@ class _Parser:
 
     def image(self, img: Tag) -> None:
         src = img.get("src") or img.get("data-src")
-        if src and not self.highlights and src.startswith("http"):
+        if not src or not src.startswith("http"):
+            return
+        in_highlights = self.section is not None and HIGHLIGHTS.search(self.section.title)
+        if in_highlights and not self.highlights_sure:
+            self.highlights, self.highlights_sure = src, True
+        elif not self.highlights:
             self.highlights = src
 
 
@@ -635,7 +674,7 @@ def parse_article(html: str, article: Article, names: Names | None = None, sets:
                 if isinstance(node.get("publishedAt"), str):
                     published = node["publishedAt"]
                     break
-    title = _meta(soup, "og:title") or article.title
+    title = article.title or _meta(soup, "og:title") or article.version
     major = int(article.version.split(".")[0])
     guess = None
     for heading in parser.titles:

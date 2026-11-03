@@ -40,6 +40,7 @@
   --ease: cubic-bezier(.2, .8, .2, 1);
   --spring: cubic-bezier(.34, 1.56, .64, 1);
   --dock: 0px;
+  --depth: #000; /* what extruded edges fade into */
   color-scheme: dark;
   transition: --b1 .9s ease;
 }
@@ -68,6 +69,7 @@
     --fix: #0d9488;
     --grid: rgba(124, 58, 237, .22);
     --shadow: 0 1px 0 rgba(255, 255, 255, .8) inset, 0 18px 36px -24px rgba(40, 20, 110, .45);
+    --depth: #c9bdf5;
     color-scheme: light;
   }
 }
@@ -352,12 +354,12 @@ img { max-width: 100%; }
   font-weight: 900;
   letter-spacing: -.045em;
   text-shadow:
-    0 1px 0 color-mix(in oklab, var(--violet) 60%, #000),
-    0 2px 0 color-mix(in oklab, var(--violet) 52%, #000),
-    0 3px 0 color-mix(in oklab, var(--violet) 44%, #000),
-    0 4px 0 color-mix(in oklab, var(--violet) 36%, #000),
-    0 5px 0 color-mix(in oklab, var(--violet) 28%, #000),
-    0 14px 24px rgba(0, 0, 0, .45);
+    0 1px 0 color-mix(in oklab, var(--violet) 60%, var(--depth)),
+    0 2px 0 color-mix(in oklab, var(--violet) 52%, var(--depth)),
+    0 3px 0 color-mix(in oklab, var(--violet) 44%, var(--depth)),
+    0 4px 0 color-mix(in oklab, var(--violet) 36%, var(--depth)),
+    0 5px 0 color-mix(in oklab, var(--violet) 28%, var(--depth)),
+    0 14px 24px color-mix(in oklab, var(--violet) 25%, transparent);
 }
 .accent {
   background: linear-gradient(90deg, var(--pink), var(--violet) 45%, var(--cyan));
@@ -365,7 +367,7 @@ img { max-width: 100%; }
   background-clip: text;
   color: transparent;
   text-shadow: none;
-  filter: drop-shadow(0 4px 0 color-mix(in oklab, var(--violet) 40%, #000)) drop-shadow(0 12px 18px color-mix(in oklab, var(--pink) 35%, transparent));
+  filter: drop-shadow(0 4px 0 color-mix(in oklab, var(--violet) 40%, var(--depth))) drop-shadow(0 12px 18px color-mix(in oklab, var(--pink) 35%, transparent));
 }
 .intro-sub { max-width: 48ch; margin: 0 0 20px; color: var(--muted); font-size: 1.02rem; }
 .stats { display: flex; flex-wrap: wrap; gap: 12px; perspective: 700px; }
@@ -376,7 +378,7 @@ img { max-width: 100%; }
   padding: 12px 16px;
   border-radius: 16px;
   background: linear-gradient(160deg, color-mix(in oklab, var(--tone) 22%, var(--surface)), var(--surface) 70%);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 30%, var(--line)), 0 8px 0 -2px color-mix(in oklab, var(--tone) 30%, #000), 0 18px 28px -18px var(--tone);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 30%, var(--line)), 0 8px 0 -2px color-mix(in oklab, var(--tone) 30%, var(--depth)), 0 18px 28px -18px var(--tone);
   transform: rotateX(14deg);
   transform-origin: 50% 100%;
   transition: transform .4s var(--spring);
@@ -886,7 +888,7 @@ img { max-width: 100%; }
   text-align: left;
   color: var(--text);
   background: linear-gradient(160deg, color-mix(in oklab, var(--tone) 22%, var(--surface-2)), var(--surface-2) 70%);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 32%, var(--line)), 0 6px 0 -1px color-mix(in oklab, var(--tone) 28%, #000);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 32%, var(--line)), 0 6px 0 -1px color-mix(in oklab, var(--tone) 28%, var(--depth));
   cursor: pointer;
   transform: rotateX(12deg);
   transform-origin: 50% 100%;
@@ -991,7 +993,7 @@ img { max-width: 100%; }
 .mover-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .mover { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px 4px 4px; border: 0; border-radius: 99px; background: var(--surface-2); color: var(--text); font-weight: 700; font-size: .8rem; cursor: pointer; box-shadow: inset 0 0 0 1px var(--line); transition: transform .25s var(--spring); }
 .mover:hover { transform: translateY(-2px) scale(1.04); }
-.mover .av { width: 26px; height: 26px; border-radius: 50%; }
+.mover .av { width: 26px; height: 26px; border-radius: 50%; font-size: .58rem; }
 .mover em { color: var(--tone); font-style: normal; font-size: .72rem; }
 
 .tft-tools {
@@ -1035,7 +1037,9 @@ img { max-width: 100%; }
 .note.is-clamped { cursor: pointer; }
 .note.is-clamped span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 14px; align-items: start; perspective: 1400px; }
+/* Cards flow in columns like a masonry wall, so short ones leave no gaps. */
+.cards { columns: 3 300px; column-gap: 14px; }
+.cards > .sc { display: inline-block; width: 100%; margin: 0 0 14px; break-inside: avoid; vertical-align: top; }
 .sc {
   --tone: var(--adjust);
   position: relative;

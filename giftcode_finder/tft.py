@@ -32,12 +32,12 @@ from .config import ConfigError
 from .fetch import Fetcher
 
 # Bump when parsing changes: every patch still listed by Riot is then read again.
-PARSER_VERSION = 2
+PARSER_VERSION = 3
 KINDS = ("champions", "traits", "items", "augments", "mechanics", "modes", "fixes", "other")
 DIRS = ("buff", "nerf", "adjust", "new", "removed", "fix")
 
 ARROW = re.compile(r"\s*(?:⇒|=>|→|->|➔|➜|⟶|⮕|»)\s*")
-NUMBER = re.compile(r"-?\d+(?:[.,]\d+)?")
+NUMBER = re.compile(r"-?\d+(?:[.,]\d+)*")
 VERSION_IN_TITLE = re.compile(r"(?<![\d.])(\d{1,2})\.(\d{1,2})([a-z])?(?![\d.])", re.I)
 VERSION_IN_URL = re.compile(r"(?:patch|cap-nhat|phien-ban|ban)-(\d{1,2})-(\d{1,2})([a-z])?(?=-|/|$)", re.I)
 NOT_NOTES = re.compile(r"preview|xem trước|xem-truoc|rundown|tóm tắt trước|teaser", re.I)
@@ -45,6 +45,8 @@ TIER = re.compile(
     r"^(?:tier|bậc|cấp|tướng|champions?|units?)\s*\d\b|^\d\s*[-–]?\s*(?:cost|vàng|gold|tiền)\b|^\d\s*★|^[1-5]\s*$",
     re.I,
 )
+# A ", " that starts another "Stat: old ⇒ new" in the same bullet.
+MULTI_SPLIT = re.compile(r"[,;]\s+(?=[^,;⇒>]{2,60}:\s*[^⇒]{1,60}?(?:⇒|=>|→|->))")
 DATE_HEAD = re.compile(r"^(?:ngày|day|date)?\s*\d{1,2}\s*/\s*\d{1,2}(?:\s*/\s*\d{2,4})?$|^(?:ngày|day)\s+\d", re.I)
 HIGHLIGHTS = re.compile(r"highlight|tiêu điểm|điểm nhấn", re.I)
 BUFF_HEAD = re.compile(r"\bbuffs?\b|tăng sức mạnh|được tăng|tăng cường", re.I)
@@ -274,7 +276,7 @@ class Names:
         low = text.lower()
         for name, kind, icon in self.entries:
             if low.startswith(name) and (len(low) == len(name) or not low[len(name)].isalnum()):
-                return self.display[name], kind, icon, text[len(name):].strip(" :–-")
+                return self.display[name], kind, icon, text[len(name):].strip(" :,–-")
         return None
 
     def find(self, text: str):
@@ -362,8 +364,9 @@ def _own_text(li: Tag) -> str:
 def _numbers(text: str) -> list[float]:
     values = []
     for raw in NUMBER.findall(text):
-        if re.fullmatch(r"-?\d{1,3},\d{3}", raw):
-            raw = raw.replace(",", "")
+        # "1.000" (Vietnamese) and "1,000" (English) are thousands; "0,5" and "0.5" are halves.
+        if re.fullmatch(r"-?\d{1,3}(?:[.,]\d{3})+", raw):
+            raw = re.sub(r"[.,]", "", raw)
         values.append(float(raw.replace(",", ".")))
     return values
 
@@ -428,6 +431,13 @@ class _Parser:
         text = " ".join(text.split())
         if len(text) < 3:
             return
+        # "Damage: 700 ⇒ 1.000, Stun: 1,5 giây ⇒ 3 giây": one change per stat.
+        if len(ARROW.findall(text)) > 1:
+            parts = MULTI_SPLIT.split(text)
+            if len(parts) > 1:
+                for part in parts:
+                    self.add(part, subject, group)
+                return
         section = self.current()
         heading = " ".join(filter(None, (section.title, self.sub, group)))
         parts = ARROW.split(text, maxsplit=1)

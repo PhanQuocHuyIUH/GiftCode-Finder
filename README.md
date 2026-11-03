@@ -1,15 +1,36 @@
 # 🎁 GiftCode Finder
 
 Tự động lấy giftcode game từ các trang web, cập nhật mỗi giờ bằng GitHub Actions.
-Mở link là có code, bấm vào code là sao chép.
+Mở link là có code, bấm vào code là sao chép. Thêm mục **Cập nhật TFT**: mọi thay đổi tăng/giảm
+sức mạnh của từng bản cập nhật Đấu Trường Chân Lý, theo từng mùa.
 
 **👉 Xem code: https://phanquochuyiuh.github.io/GiftCode-Finder/**
 
-Trang chủ là nơi chọn game: một hộp quà 3D (kéo để xoay, chạm để mở và lấy các code mới nhất),
-dải *Sắp hết hạn* cho code livestream, và mỗi game là một thẻ 3D nghiêng theo chuột. Mỗi game có
-link riêng để lưu ra màn hình chính điện thoại:
+Trang web là một "sân chơi" 3D: nền lưới neon chuyển động, hộp quà 3D (kéo để xoay, chạm để mở và
+lấy các code mới nhất), dải *Sắp hết hạn* cho code livestream, và mỗi game là một thẻ 3D nghiêng theo
+chuột với đồng xu lật. Mỗi game có link riêng để lưu ra màn hình chính điện thoại:
 [Wuthering Waves](https://phanquochuyiuh.github.io/GiftCode-Finder/#/wuthering-waves) ·
 [Strinova](https://phanquochuyiuh.github.io/GiftCode-Finder/#/strinova) (dạng `…/#/<id game>`).
+
+### ⚔️ Cập nhật TFT (Đấu Trường Chân Lý)
+
+[`…/#/tft`](https://phanquochuyiuh.github.io/GiftCode-Finder/#/tft) (hoặc `…/#/tft/18.5` cho một bản):
+
+- **Chọn mùa** (Mùa 18 — Đại Ngàn Kỳ Bí, Mùa 17 — Thần Không Gian…) rồi lướt các bản cập nhật của
+  mùa trên vòng quay 3D.
+- Mỗi bản có ô đếm **▲ tăng / ▼ giảm / ◆ điều chỉnh / ✦ mới / ✕ gỡ bỏ / ✔ sửa lỗi**, thanh cân bằng,
+  ảnh tiêu điểm của Riot và danh sách **được tăng / bị giảm sức mạnh** nhiều nhất.
+- Lọc theo **tướng, tộc/hệ, trang bị, nâng cấp (lõi), cơ chế, chế độ chơi**; mỗi tướng/trang bị là
+  một thẻ có biểu tượng, chỉ số cũ → mới.
+- Gõ tên (vd. `Ahri`, không cần dấu) và bật **Cả mùa** để xem lịch sử tăng/giảm của nó qua mọi bản
+  trong mùa.
+
+Dữ liệu đọc từ [bài patch notes chính thức tiếng Việt](https://teamfighttactics.leagueoflegends.com/vi-vn/news/tags/patch-notes/)
+của Riot (bản nào chưa có tiếng Việt thì lấy tiếng Anh), tên và biểu tượng tướng/trang bị từ
+[Community Dragon](https://www.communitydragon.org/). Tăng hay giảm được xếp tự động theo con số
+(năng lượng, hồi chiêu, giá tiền giảm là *tăng* sức mạnh), nên vài dòng có thể chưa chuẩn. Cấu hình ở
+[`config/tft.yaml`](config/tft.yaml); lịch sử lưu trong [`data/tft.json`](data/tft.json) nên các mùa
+cũ vẫn còn khi Riot không liệt kê nữa.
 
 (Bảng bên dưới cũng tự cập nhật, dùng được ngay cả khi chưa bật trang web.)
 
@@ -69,8 +90,10 @@ _Code thay đổi lần cuối: 23/10/2026 20:23 (giờ Việt Nam)._
    chuyển sang mục "code cũ". Code có hạn dùng thì trang web **đếm ngược** đến lúc hết hạn.
    Sự kiện mà trang nguồn chỉ hiện mã khi đăng nhập (🔒) vẫn được báo trong danh sách, kèm nút
    *Nhận code*; khi nguồn khác đăng mã của sự kiện đó, hai bên được ghép lại thành một dòng.
-4. Trang web được dựng lại và đăng lên GitHub Pages; bảng code ở README này cũng được cập nhật
-   (chỉ commit khi danh sách code thay đổi).
+4. Cùng lúc đó, bài patch notes TFT mới (nếu có) được đọc và tách thành từng thay đổi
+   (bài mới nhất được đọc lại vài giờ một lần để lấy bản vá B).
+5. Trang web được dựng lại và đăng lên GitHub Pages; bảng code ở README này cũng được cập nhật
+   (chỉ commit khi danh sách code hoặc dữ liệu TFT thay đổi).
 
 Nếu một trang nguồn bị lỗi (sập, đổi giao diện), code cũ của nguồn đó vẫn được giữ và trang web
 hiện cảnh báo, chứ không xoá sạch danh sách.
@@ -255,6 +278,7 @@ tích (và tham số thêm cho `inspect` nếu cần) để xem kết quả này
 pip install -r requirements-dev.txt
 python -m giftcode_finder run --dry-run   # chỉ in code, không ghi file
 python -m giftcode_finder run             # cập nhật data/, README và dựng web vào _site/
+python -m giftcode_finder tft --show 10   # thử đọc patch notes TFT (không ghi file)
 python -m pytest                          # chạy test
 ```
 

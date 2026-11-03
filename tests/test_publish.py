@@ -64,6 +64,20 @@ def test_build_site_embeds_data_safely(tmp_path):
     assert json.loads((out / "codes.json").read_text(encoding="utf-8")) == data
 
 
+def test_build_site_publishes_tft_and_embeds_a_summary(tmp_path):
+    template = tmp_path / "tpl"
+    template.mkdir()
+    (template / "index.html").write_text('<script id="d">__GCF_DATA__</script>', encoding="utf-8")
+    patch = {"version": "18.5", "set": 18, "set_name": "Mùa", "title": "18.5", "published_at": None,
+             "image": None, "counts": {"buff": 2}, "sections": [{"title": "x", "changes": [{"dir": "buff"}]}]}
+    tft = {"updated_at": "2026-11-03T04:00:00Z", "patches": [patch], "errors": []}
+    out = build_site({"games": []}, template, tmp_path / "out", tft=tft)
+    assert json.loads((out / "tft.json").read_text(encoding="utf-8")) == tft
+    embedded = json.loads((out / "index.html").read_text(encoding="utf-8").removeprefix('<script id="d">').removesuffix("</script>"))
+    assert embedded["tft"]["latest"]["version"] == "18.5" and embedded["tft"]["patches"] == 1
+    assert "sections" not in embedded["tft"]["latest"]  # the page loads those from tft.json
+
+
 def entry(code, first_seen, since=None, link=None, title=None, expires_at=None):
     return {"code": code, "title": title, "reward": None, "expires": None, "expires_at": expires_at,
             "since": since, "link": link, "sources": ["a"], "first_seen": first_seen, "removed_at": None}

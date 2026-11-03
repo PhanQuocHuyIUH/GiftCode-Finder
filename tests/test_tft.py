@@ -200,3 +200,16 @@ def test_new_parser_version_reads_listed_patches_again():
     result = update_history(TftConfig(listings=[listing]), {"parser": 0, "patches": [stale]}, fetcher, log=lambda *_: None)
     assert article in fetcher.calls
     assert result.history["patches"][0]["sections"] and result.history["parser"] > 0
+
+
+def test_numbers_with_thousands_and_several_stats_in_one_bullet():
+    assert direction("Sát Thương", "700 SMPT", "1.000 SMPT") == "buff"
+    assert direction("Damage", "1,100", "950") == "nerf"
+    assert direction("Tốc Độ Đánh", "0,8", "0,85") == "buff"
+    from giftcode_finder.tft import Names, _Parser
+
+    parser = _Parser(Names())
+    parser.open_section("THAY ĐỔI LỚN")
+    parser.add("Sát Thương Chính: 1.100 SMPT ⇒ 1.500 SMPT, Thời Gian Choáng: 1,5 giây ⇒ 3 giây", "Meep")
+    assert [(c["stat"], c["after"], c["subject"]) for c in parser.sections[0].changes] == [
+        ("Sát Thương Chính", "1.500 SMPT", "Meep"), ("Thời Gian Choáng", "3 giây", "Meep")]

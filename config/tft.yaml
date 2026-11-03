@@ -22,8 +22,8 @@ tft:
   # Số phiên bản giữ lại trên trang web (các mùa cũ hơn bị bỏ dần).
   max_patches: 40
 
-  # Bài mới nhất được đọc lại sau mỗi chừng này giờ (Riot thêm bản vá B vào bài).
-  refresh_hours: 6
+  # Ngôn ngữ của bảng thông số tướng/tộc hệ/trang bị/nâng cấp (Community Dragon).
+  db_locale: vi_vn
 
   # Tên mùa hiện trên web, theo số đầu của phiên bản. Mùa mới không có ở đây thì
   # tên được đoán từ bài đầu mùa (mục "Vật phẩm trang trí <tên mùa>").

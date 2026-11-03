@@ -152,9 +152,10 @@ def test_history_keeps_old_patches_and_reads_new_once():
     assert result.new_versions == ["16.5"]
     assert [p["version"] for p in result.history["patches"]] == ["16.5", "16.4"]
     assert result.errors and "broken.test" in result.errors[0]
-    fetcher.calls.clear()
+    stamp = result.history["updated_at"]
     again = update_history(config, result.history, fetcher, log=lambda *_: None)
-    assert again.new_versions == [] and article not in fetcher.calls
+    # The newest article is fetched again for B-patches, but unchanged text is not re-parsed.
+    assert again.new_versions == [] and again.history["updated_at"] == stamp
 
 
 VI_NAMES = {

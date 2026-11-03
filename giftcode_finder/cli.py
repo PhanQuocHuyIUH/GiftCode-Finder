@@ -50,6 +50,7 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--debug", action="store_true", help="in traceback khi nguồn bị lỗi")
     run.add_argument("--tft-config", default="config/tft.yaml")
     run.add_argument("--tft-data", default="data/tft.json")
+    run.add_argument("--tft-db", default="data/tft_db", help="thư mục bảng thông số TFT theo mùa")
     run.add_argument("--no-tft", action="store_true", help="bỏ qua phần cập nhật TFT")
     run.set_defaults(func=cmd_run)
 
@@ -59,6 +60,7 @@ def _parser() -> argparse.ArgumentParser:
     tft.add_argument("--save", action="store_true", help="ghi kết quả vào --data")
     tft.add_argument("--show", type=int, default=0, metavar="N", help="in N thay đổi đầu của mỗi mục")
     tft.add_argument("--outline", metavar="URL", help="in dàn ý (tiêu đề, danh sách) của một bài patch notes")
+    tft.add_argument("--describe-db", type=int, metavar="MÙA", help="in cấu trúc dữ liệu game (Community Dragon) của mùa này")
     tft.set_defaults(func=cmd_tft)
 
     ins = sub.add_parser("inspect", help="phân tích cấu trúc trang để cấu hình nguồn mới")
@@ -131,7 +133,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     results = scrape(_selected(games, args.only), Fetcher(), state, debug=args.debug)
     failed = [r for r in results if not r.ok]
 
-    tft = None if args.dry_run or args.no_tft else run_tft(args.tft_config, args.tft_data, Fetcher())
+    tft = None if args.dry_run or args.no_tft else run_tft(args.tft_config, args.tft_data, Fetcher(), args.tft_db)
 
     if not args.dry_run:
         now = now_iso()
@@ -139,7 +141,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         save_state(args.state, state)
         data = site_data(games, state, results, now)
         tft_data = None if args.no_tft else tft_site_data(tft, args.tft_data)
-        build_site(data, args.site_template, args.site_dir, tft=tft_data)
+        build_site(data, args.site_template, args.site_dir, tft=tft_data, tft_db_dir=None if args.no_tft else args.tft_db)
         update_readme(args.readme, codes_markdown(data))
         write_step_summary(data, new_by_game)
         new = [e for entries in new_by_game.values() for e in entries]
@@ -154,7 +156,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 1 if args.strict and failed else 0
 
 
-def run_tft(config_path: str, data_path: str, fetcher: Fetcher) -> TftResult | None:
+def run_tft(config_path: str, data_path: str, fetcher: Fetcher, db_dir: str | None = None) -> TftResult | None:
     """Update ``data_path`` with new TFT patch notes; never fails the run."""
     try:
         config = load_tft_config(config_path)
@@ -166,7 +168,7 @@ def run_tft(config_path: str, data_path: str, fetcher: Fetcher) -> TftResult | N
     print("TFT: đọc patch notes")
     history = load_history(data_path)
     try:
-        result = update_history(config, history, fetcher)
+        result = update_history(config, history, fetcher, db_dir=db_dir)
     except Exception as exc:  # the giftcodes must still be published
         traceback.print_exc()
         return TftResult(history=history, errors=[str(exc)], checked_at=now_iso())
@@ -221,6 +223,21 @@ def cmd_tft(args: argparse.Namespace) -> int:
         return 2
     if args.outline:
         print_outline(Fetcher().fetch(args.outline).text)
+        return 0
+    if args.describe_db:
+        import json
+
+        from .tft_db import build_db, describe
+
+        url = config.names_url.replace("{locale}", config.db_locale)
+        raw = json.loads(Fetcher().fetch(url).text)
+        print(describe(raw, args.describe_db))
+        db = build_db(raw, args.describe_db, config.asset_base)
+        if db:
+            for key in ("champions", "traits", "items", "augments"):
+                print(f"\n## {key}: {len(db[key])}")
+                for entry in db[key][:3]:
+                    print("  ", json.dumps(entry, ensure_ascii=False)[:900])
         return 0
     history = load_history(args.data)
     result = update_history(config, history, Fetcher())

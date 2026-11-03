@@ -71,7 +71,9 @@ def newest_first(entries: list[dict]) -> list[dict]:
     return sorted(entries, key=lambda e: (e["first_seen"], e.get("since") or ""), reverse=True)
 
 
-def build_site(data: dict, template_dir: str | Path, out_dir: str | Path, tft: dict | None = None) -> Path:
+def build_site(
+    data: dict, template_dir: str | Path, out_dir: str | Path, tft: dict | None = None, tft_db_dir: str | Path | None = None
+) -> Path:
     template_dir, out_dir = Path(template_dir), Path(out_dir)
     if out_dir.exists():
         shutil.rmtree(out_dir)
@@ -79,8 +81,14 @@ def build_site(data: dict, template_dir: str | Path, out_dir: str | Path, tft: d
     payload = json.dumps(data, ensure_ascii=False, indent=2)
     (out_dir / "codes.json").write_text(payload + "\n", encoding="utf-8")
     # TFT patch notes are large: the page loads them only when they are opened.
+    db_sets = []
+    if tft_db_dir and Path(tft_db_dir).is_dir():
+        for path in sorted(Path(tft_db_dir).glob("*.json")):
+            if path.stem.isdigit():
+                shutil.copyfile(path, out_dir / f"tft-db-{path.stem}.json")
+                db_sets.append(int(path.stem))
     if tft is not None:
-        data = {**data, "tft": _tft_summary(tft)}
+        data = {**data, "tft": _tft_summary(tft, db_sets)}
         (out_dir / "tft.json").write_text(json.dumps(tft, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     index = out_dir / "index.html"
     # "</" would let the data close the <script> tag it is embedded in.
@@ -95,7 +103,7 @@ def build_site(data: dict, template_dir: str | Path, out_dir: str | Path, tft: d
     return out_dir
 
 
-def _tft_summary(tft: dict | None) -> dict | None:
+def _tft_summary(tft: dict | None, db_sets: list[int] | None = None) -> dict | None:
     """What the home page shows of the TFT data without loading all of it."""
     if not tft or not tft.get("patches"):
         return None
@@ -107,6 +115,7 @@ def _tft_summary(tft: dict | None) -> dict | None:
         "checked_at": tft.get("checked_at"),
         "errors": tft.get("errors") or [],
         "version": (tft.get("updated_at") or "")[:19],
+        "db_sets": sorted(db_sets or [], reverse=True),
     }
 
 

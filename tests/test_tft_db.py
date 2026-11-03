@@ -1,0 +1,54 @@
+from giftcode_finder.tft_db import build_db, clean, fill
+
+GAME = {
+    "setData": [
+        {"number": 18, "name": "Set18", "champions": [
+            {"apiName": "TFT18_Ahri", "name": "Ahri", "cost": 4, "traits": ["Pháp Sư"], "squareIcon": "ASSETS/A.tex",
+             "stats": {"hp": 800, "mana": 90, "initialMana": 30, "damage": 45, "armor": 30, "magicResist": 30,
+                       "attackSpeed": 0.75, "range": 4, "critChance": 0.25, "critMultiplier": 1.4},
+             "ability": {"name": "Cầu Lửa", "desc": "Gây <magicDamage>@ModifiedDamage@ (%i:scaleAP%)</magicDamage> sát thương.<br>Hồi @ManaRefund@ năng lượng, @Chance*100@% cơ hội.",
+                         "variables": [{"name": "Damage", "value": [0, 200, 300, 450, 0, 0, 0]},
+                                       {"name": "ManaRefund", "value": [0, 10, 10, 10]},
+                                       {"name": "Chance", "value": [0, 0.25, 0.25, 0.25]}]}},
+            {"apiName": "TFT18_Dummy", "name": "Bù Nhìn", "cost": 8, "traits": []},
+        ], "traits": [
+            {"apiName": "TFT18_Mage", "name": "Pháp Sư", "icon": "ASSETS/T.tex",
+             "desc": "Pháp sư mạnh hơn.<br><row>(@MinUnits@) @AP@ SMPT</row><row>(@MinUnits@) @AP@ SMPT</row>",
+             "effects": [{"minUnits": 2, "maxUnits": 3, "style": 1, "variables": {"AP": 20}},
+                         {"minUnits": 4, "maxUnits": 25000, "style": 3, "variables": {"AP": 50}}]},
+        ]},
+        {"number": 18, "name": "Set18_Mode", "champions": []},
+    ],
+    "items": [
+        {"apiName": "TFT_Item_BFSword", "name": "Kiếm B.F.", "desc": "+@AD*100@% SMCK", "effects": {"AD": 0.1}, "composition": []},
+        {"apiName": "TFT_Item_Deathblade", "name": "Kiếm Tử Thần", "desc": "Khuếch đại @BonusDamage*100@%",
+         "effects": {"AD": 0.55, "BonusDamage": 0.08}, "composition": ["TFT_Item_BFSword", "TFT_Item_BFSword"]},
+        {"apiName": "TFT18_Augment_Gold", "name": "Kho Vàng", "desc": "Nhận @Gold@ vàng.", "effects": {"Gold": 10},
+         "icon": "ASSETS/Maps/TFT/Icons/Augments/Hexcore/Gold-II.tex"},
+        {"apiName": "TFT17_Augment_Old", "name": "Cũ", "desc": "x", "effects": {}},
+    ],
+}
+
+
+def test_markup_and_placeholders():
+    assert clean("A<br>B %i:scaleAP% <b>C</b>") == "A\nB SMPT C"
+    assert fill("@X@ và @Y*100@%", lambda n, t: {"X": "1", "Y": "50" if t else "0,5"}.get(n)) == "1 và 50%"
+    assert fill("@Missing@", lambda n, t: None) == "?"
+
+
+def test_build_db_fills_stats_breakpoints_recipes():
+    db = build_db(GAME, 18, "https://cd.test/")
+    assert [c["name"] for c in db["champions"]] == ["Ahri"]  # the dummy is not a champion
+    ahri = db["champions"][0]
+    assert ahri["icon"] == "https://cd.test/assets/a.png" and ahri["stats"]["hp"] == 800
+    assert ahri["ability"]["desc"] == "Gây 200/300/450 (SMPT) sát thương.\nHồi 10 năng lượng, 25% cơ hội."
+    assert {"name": "Damage", "value": "200/300/450"} in ahri["ability"]["variables"]
+    mage = db["traits"][0]
+    assert mage["desc"] == "Pháp sư mạnh hơn."
+    assert [b["text"] for b in mage["breakpoints"]] == ["(2) 20 SMPT", "(4) 50 SMPT"]
+    blade = next(i for i in db["items"] if i["name"] == "Kiếm Tử Thần")
+    assert blade["from"] == ["Kiếm B.F.", "Kiếm B.F."] and blade["desc"] == "Khuếch đại 8%"
+    assert {"label": "SMCK", "value": "55%"} in blade["stats"]
+    assert [a["name"] for a in db["augments"]] == ["Kho Vàng"] and db["augments"][0]["tier"] == 2
+    assert db["augments"][0]["desc"] == "Nhận 10 vàng."
+    assert build_db(GAME, 99, "https://cd.test/") is None

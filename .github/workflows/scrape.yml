@@ -78,6 +78,12 @@ jobs:
           INSPECT_ARGS: ${{ inputs.inspect_args }}
         run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --render --text 200
 
+      # TEMP: xem cấu trúc dữ liệu game để dựng bảng thông số (chỉ nhánh dev).
+      - name: Thử dữ liệu thông số TFT
+        if: github.ref_name == 'dev'
+        continue-on-error: true
+        run: python -m giftcode_finder tft --describe-db 18 | cut -c1-2500
+
       - name: Lấy giftcode
         id: scrape
         env:
@@ -107,6 +113,17 @@ jobs:
             git pull --rebase
           done
           exit 1
+
+      # TEMP: đưa dữ liệu TFT về nhánh dev để làm giao diện.
+      - name: Lưu dữ liệu TFT (nhánh dev)
+        if: github.ref_name == 'dev'
+        run: |
+          git add data/tft.json data/tft_db
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Dữ liệu TFT thử nghiệm"
+          git push
 
       - name: Kiểm tra GitHub Pages
         id: pages

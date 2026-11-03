@@ -32,7 +32,7 @@ from .config import ConfigError
 from .fetch import Fetcher
 
 # Bump when parsing changes: every patch still listed by Riot is then read again.
-PARSER_VERSION = 3
+PARSER_VERSION = 4
 KINDS = ("champions", "traits", "items", "augments", "mechanics", "modes", "fixes", "other")
 DIRS = ("buff", "nerf", "adjust", "new", "removed", "fix")
 
@@ -104,11 +104,12 @@ NOT_SET_NAME = re.compile(r"chuyển đổi|khả dụng|được|sẽ|transferr
 class TftConfig:
     listings: list[str]
     max_patches: int = 40
-    refresh_hours: int = 6
     names_url: str | None = None
     asset_base: str = "https://raw.communitydragon.org/latest/game/"
     sets: dict = field(default_factory=dict)
     min_version: str | None = None
+    db_locale: str = "vi_vn"
+    db_hours: tuple = (6,)
 
 
 def load_tft_config(path: str | Path) -> TftConfig | None:
@@ -125,11 +126,11 @@ def load_tft_config(path: str | Path) -> TftConfig | None:
     return TftConfig(
         listings=listings,
         max_patches=int(raw.get("max_patches", 40)),
-        refresh_hours=int(raw.get("refresh_hours", 6)),
         names_url=raw.get("names_url"),
         asset_base=raw.get("asset_base") or TftConfig.asset_base,
         sets={str(k): str(v) for k, v in (raw.get("sets") or {}).items()},
         min_version=str(raw["min_version"]) if raw.get("min_version") else None,
+        db_locale=str(raw.get("db_locale") or "vi_vn"),
     )
 
 
@@ -716,7 +717,7 @@ def parse_article(html: str, article: Article, names: Names | None = None, sets:
         "counts": counts,
         "icons": parser.icons,
         "sections": [
-            {"title": s.title, "kind": s.kind, "notes": s.notes[:6], "changes": s.changes} for s in sections
+            {"title": s.title, "kind": s.kind, "notes": s.notes, "changes": s.changes} for s in sections
         ],
     }
 
@@ -748,6 +749,7 @@ class TftResult:
     history: dict
     new_versions: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
+    db_sets: list[int] = field(default_factory=list)
     checked_at: str | None = None
 
 
@@ -759,7 +761,7 @@ def _stamp(moment: datetime) -> str:
     return moment.isoformat().replace("+00:00", "Z")
 
 
-def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print) -> TftResult:
+def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print, db_dir: str | Path | None = None) -> TftResult:
     """Read new patch notes into ``history``; errors are collected, not raised."""
     now = _now()
     result = TftResult(history=history, checked_at=_stamp(now))
@@ -787,26 +789,33 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
     todo = []
     for version, article in sorted(articles.items(), key=lambda kv: version_key(kv[0]), reverse=True)[: config.max_patches]:
         stored = known.get(version)
-        if stored is None or reparse:
+        # The newest article is read again every run (B-patches are added to it);
+        # it is only parsed when its text changed.
+        if stored is None or reparse or version == newest:
             todo.append(article)
-        elif version == newest and _stale(stored, now, config.refresh_hours):
-            todo.append(article)  # B-patches are added to the newest article
 
     names_cache: dict = {}
     changed = False
+    parsed_any = False
     for article in todo:
+        stored = known.get(article.version)
         try:
             html = fetcher.fetch(article.url).text
+            digest = source_hash(html)
+            if stored and not reparse and stored.get("source_hash") == digest:
+                continue
             names = _names(config, article, names_cache, fetcher, log, result)
             patch = parse_article(html, article, names, config.sets)
         except Exception as exc:
             result.errors.append(f"{article.version}: {exc}")
             log(f"  {article.version}: lỗi {exc}")
             continue
-        patch["fetched_at"] = _stamp(now)
-        stored = known.get(article.version)
+        patch["source_hash"] = digest
+        parsed_any = True
         if stored and _same(stored, patch):
-            stored["fetched_at"] = patch["fetched_at"]
+            if stored.get("source_hash") != digest:
+                stored["source_hash"] = digest
+                changed = True
             log(f"  {article.version}: không đổi")
             continue
         if stored is None:
@@ -832,21 +841,53 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
         changed = True
     if changed:
         history["updated_at"] = _stamp(now)
+    if db_dir:
+        _update_dbs(config, patches, db_dir, parsed_any, now, names_cache, fetcher, log, result)
     return result
 
 
-def _stale(patch: dict, now: datetime, hours: int) -> bool:
-    fetched = patch.get("fetched_at")
-    if not fetched:
-        return True
-    published = patch.get("published_at")
-    if published and now - datetime.fromisoformat(published.replace("Z", "+00:00")) > timedelta(days=21):
-        return False
-    return now - datetime.fromisoformat(fetched.replace("Z", "+00:00")) >= timedelta(hours=hours)
+def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, result) -> None:
+    """Stat sheets of every season shown: rebuilt when a patch came in, a
+    season has none yet, or once a day (the game data changes with hotfixes)."""
+    from .tft_db import build_db, save_db
+
+    sets = sorted({p["set"] for p in patches}, reverse=True)
+    missing = [s for s in sets if not (Path(db_dir) / f"{s}.json").exists()]
+    if not (parsed_any or missing or now.hour in config.db_hours) or not config.names_url:
+        return
+    url = config.names_url.replace("{locale}", config.db_locale)
+    if url not in cache:
+        try:
+            cache[url] = json.loads(fetcher.fetch(url).text)
+        except Exception as exc:
+            cache[url] = None
+            result.errors.append(f"thông số tướng/trang bị: {exc}")
+    if cache[url] is None:
+        return
+    for number in sets:
+        db = build_db(cache[url], number, config.asset_base)
+        if db is None:
+            log(f"  thông số mùa {number}: không có trong dữ liệu game")
+            continue
+        written = save_db(db_dir, db)
+        result.db_sets.append(number)
+        log(
+            f"  thông số mùa {number}: {len(db['champions'])} tướng, {len(db['traits'])} tộc/hệ, "
+            f"{len(db['items'])} trang bị, {len(db['augments'])} nâng cấp{' (mới)' if written else ''}"
+        )
+
+
+def source_hash(html: str) -> str:
+    """Fingerprint of an article's text, to skip re-parsing an unchanged one."""
+    import hashlib
+
+    container = _container(BeautifulSoup(html, "html.parser"))
+    text = container.get_text(" ", strip=True) if container is not None else html
+    return hashlib.sha1(text.encode("utf-8")).hexdigest()[:16]
 
 
 def _same(a: dict, b: dict) -> bool:
-    skip = {"fetched_at"}
+    skip = {"fetched_at", "source_hash"}
     return {k: v for k, v in a.items() if k not in skip} == {k: v for k, v in b.items() if k not in skip}
 
 

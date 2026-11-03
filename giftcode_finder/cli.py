@@ -232,16 +232,6 @@ def cmd_tft(args: argparse.Namespace) -> int:
         url = config.names_url.replace("{locale}", config.db_locale)
         raw = json.loads(Fetcher().fetch(url).text)
         print(describe(raw, args.describe_db))
-        for name in ("tft18_akali", "tft18_camille", "tft17_aatrox"):
-            try:
-                text = Fetcher().fetch(f"{config.asset_base}data/characters/{name}/{name}.bin.json").text
-                bin_data = json.loads(text)
-                spells = [k for k in bin_data if "spell" in k.lower()]
-                print(f"## bin {name}: {len(text)} bytes, {len(bin_data)} entries, spells {spells[:6]}")
-                for key in spells[:3]:
-                    print("   ", key, json.dumps(bin_data[key], ensure_ascii=False)[:1400])
-            except Exception as exc:
-                print(f"## bin {name}: {exc}")
         db = build_db(raw, args.describe_db, config.asset_base)
         if db:
             for key in ("champions", "traits", "items", "augments"):

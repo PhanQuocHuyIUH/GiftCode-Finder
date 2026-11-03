@@ -871,21 +871,8 @@ def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, r
             result.errors.append(f"thông số tướng/trang bị: {exc}")
     if cache[url] is None:
         return
-    bins: dict = {}
-    misses = []
-
-    def fetch_bin(character: str):
-        key = character.lower()
-        if key not in bins:
-            try:
-                bins[key] = json.loads(fetcher.fetch(f"{config.asset_base}data/characters/{key}/{key}.bin.json").text)
-            except Exception as exc:  # the stat sheet just lacks the ability numbers
-                bins[key] = None
-                misses.append(f"{key}: {exc}")
-        return bins[key]
-
     for number in sets:
-        db = build_db(cache[url], number, config.asset_base, fetch_bin if number == sets[0] else None)
+        db = build_db(cache[url], number, config.asset_base)
         if db is None:
             log(f"  thông số mùa {number}: không có trong dữ liệu game")
             continue
@@ -897,8 +884,6 @@ def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, r
             f"  thông số mùa {number}: {len(db['champions'])} tướng, {len(db['traits'])} tộc/hệ, "
             f"{len(db['items'])} trang bị, {len(db['augments'])} nâng cấp{' (mới)' if written else ''}"
         )
-    if misses:
-        log(f"  không đọc được {len(misses)} file tướng, vd: {misses[:2]}")
 
 
 def source_hash(html: str) -> str:

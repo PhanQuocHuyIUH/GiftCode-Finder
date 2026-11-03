@@ -6,9 +6,10 @@ sức mạnh của từng bản cập nhật Đấu Trường Chân Lý, theo t�
 
 **👉 Xem code: https://phanquochuyiuh.github.io/GiftCode-Finder/**
 
-Trang web là một "sân chơi" 3D: nền lưới neon chuyển động, hộp quà 3D (kéo để xoay, chạm để mở và
-lấy các code mới nhất), dải *Sắp hết hạn* cho code livestream, và mỗi game là một thẻ 3D nghiêng theo
-chuột với đồng xu lật. Mỗi game có link riêng để lưu ra màn hình chính điện thoại:
+Trang web là một "sân chơi" 3D: nền lưới neon và cực quang chuyển động, dải chữ chạy các code mới
+nhất, hộp quà 3D có các game bay quanh như hành tinh (kéo để xoay, chạm để mở và lấy code), dải
+*Sắp hết hạn* cho code livestream, mỗi game là một poster theo màu riêng với khối lập phương 3D, và
+code hiện như vé, lật 3D khi bấm chép. Mỗi game có link riêng để lưu ra màn hình chính điện thoại:
 [Wuthering Waves](https://phanquochuyiuh.github.io/GiftCode-Finder/#/wuthering-waves) ·
 [Strinova](https://phanquochuyiuh.github.io/GiftCode-Finder/#/strinova) (dạng `…/#/<id game>`).
 
@@ -24,10 +25,18 @@ chuột với đồng xu lật. Mỗi game có link riêng để lưu ra màn h�
   một thẻ có biểu tượng, chỉ số cũ → mới.
 - Gõ tên (vd. `Ahri`, không cần dấu) và bật **Cả mùa** để xem lịch sử tăng/giảm của nó qua mọi bản
   trong mùa.
+- **📚 Tra cứu thông số** ([`…/#/tft/tra-cuu`](https://phanquochuyiuh.github.io/GiftCode-Finder/#/tft/tra-cuu)):
+  toàn bộ tướng theo giá tiền, tộc/hệ, trang bị và nâng cấp của mỗi mùa. Bấm vào một tướng (hoặc vào
+  tên tướng/trang bị trong bản cập nhật) để mở bảng thông số: máu, SMCK, tốc đánh, giáp, kháng phép,
+  năng lượng, tầm đánh, chí mạng, kỹ năng với chỉ số 1★/2★/3★, các mốc tộc/hệ, công thức trang bị,
+  số liệu mới nhất theo patch notes và lịch sử tăng/giảm trong mùa. Dữ liệu game mùa mới nhất của
+  Community Dragon không kèm số liệu kỹ năng, nên với mùa đó số liệu kỹ năng lấy từ các dòng patch
+  notes gần nhất.
 
 Dữ liệu đọc từ [bài patch notes chính thức tiếng Việt](https://teamfighttactics.leagueoflegends.com/vi-vn/news/tags/patch-notes/)
 của Riot (bản nào chưa có tiếng Việt thì lấy tiếng Anh), tên và biểu tượng tướng/trang bị từ
-[Community Dragon](https://www.communitydragon.org/). Tăng hay giảm được xếp tự động theo con số
+[Community Dragon](https://www.communitydragon.org/) (bảng thông số lưu ở [`data/tft_db/`](data/tft_db),
+dựng lại mỗi ngày và khi có bản mới). Tăng hay giảm được xếp tự động theo con số
 (năng lượng, hồi chiêu, giá tiền giảm là *tăng* sức mạnh), nên vài dòng có thể chưa chuẩn. Cấu hình ở
 [`config/tft.yaml`](config/tft.yaml); lịch sử lưu trong [`data/tft.json`](data/tft.json) nên các mùa
 cũ vẫn còn khi Riot không liệt kê nữa.

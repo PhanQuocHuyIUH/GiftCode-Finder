@@ -652,7 +652,8 @@ const TFT = (() => {
                 el("thead", {}, el("tr", {}, el("th", {}, "Chỉ số kỹ năng"), el("th", {}, "1★ / 2★ / 3★"))),
                 el("tbody", {}, ab.variables.map((v) => el("tr", {}, el("td", {}, v.name), el("td", {}, v.value)))),
               )
-            : el("p", { class: "none" }, "Dữ liệu game chưa có bảng chỉ số chi tiết cho kỹ năng này."),
+            : null,
+          latestValues(set, entry.name, !(ab.variables && ab.variables.length)),
         ),
       );
     }
@@ -703,6 +704,10 @@ const TFT = (() => {
         );
       }
     }
+    if (type !== "champions") {
+      const values = latestValues(set, entry.name, false);
+      if (values) parts.push(el("section", { class: "sheet-sec" }, values));
+    }
     const history = seasonHistory(set, entry.name);
     parts.push(
       el(
@@ -726,6 +731,39 @@ const TFT = (() => {
       ),
     );
     return parts;
+  }
+
+  // The newest value of every stat the season's patch notes changed: the
+  // ability numbers when the game data leaves them out ("?").
+  function latestValues(set, name, primary) {
+    const rows = new Map();
+    for (const { patch, found } of seasonHistory(set, name)) {
+      for (const change of found) {
+        if (!change.after || !change.stat) continue;
+        const key = fold(change.stat);
+        if (!rows.has(key)) rows.set(key, { stat: change.stat, value: change.after, version: patch.version, dir: change.dir });
+      }
+    }
+    if (!rows.size) {
+      return primary ? el("p", { class: "none" }, "Dữ liệu game chưa kèm số liệu kỹ năng (chỗ “?”), và các bản cập nhật của mùa chưa đổi chỉ số nào của tướng này.") : null;
+    }
+    return el(
+      "div",
+      {},
+      el("h4", { class: "vars-title" }, primary ? "📊 Số liệu kỹ năng (theo bản cập nhật gần nhất)" : "📊 Số liệu mới nhất theo patch notes"),
+      el(
+        "table",
+        { class: "vars" },
+        el("thead", {}, el("tr", {}, el("th", {}, "Chỉ số"), el("th", {}, "Giá trị hiện tại"), el("th", {}, "Từ bản"))),
+        el(
+          "tbody",
+          {},
+          [...rows.values()].map((r) =>
+            el("tr", { "data-dir": r.dir }, el("td", {}, r.stat), el("td", {}, r.value), el("td", { class: "ver-cell" }, el("a", { href: `#/tft/${r.version}` }, r.version))),
+          ),
+        ),
+      ),
+    );
   }
 
   function miniChamp(c, open) {

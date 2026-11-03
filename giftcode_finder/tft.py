@@ -31,6 +31,8 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 from .config import ConfigError
 from .fetch import Fetcher
 
+# Bump when parsing changes: every patch still listed by Riot is then read again.
+PARSER_VERSION = 2
 KINDS = ("champions", "traits", "items", "augments", "mechanics", "modes", "fixes", "other")
 DIRS = ("buff", "nerf", "adjust", "new", "removed", "fix")
 
@@ -479,7 +481,9 @@ class _Parser:
         else:
             dir_ = "adjust"
         change = {"subject": subject, "stat": stat or None, "before": before or None, "after": after or None,
-                  "text": text, "dir": dir_, "kind": kind}
+                  "dir": dir_, "kind": kind}
+        if not (before and after):
+            change["text"] = text  # otherwise "stat: before ⇒ after" says it all
         if group:
             change["group"] = group
         if self.date:
@@ -502,8 +506,7 @@ class _Parser:
                 if subject and subject != label:
                     inner_group = " · ".join(filter(None, (group, subject)))
             for lst in nested:
-                for child in lst.find_all("li", recursive=False):
-                    self.li(child, inner_subject, inner_group)
+                self.items(lst.find_all("li", recursive=False), inner_subject, inner_group)
             return
         # "<strong>Ahri</strong>: Mana 0/60 ⇒ 0/50"
         strong = li.find(["strong", "b"], recursive=False)
@@ -517,8 +520,10 @@ class _Parser:
 
     def list(self, node: Tag) -> None:
         subject, group = self._sub_context()
-        items = node.find_all("li", recursive=False)
-        current = subject
+        self.items(node.find_all("li", recursive=False), subject, group)
+
+    def items(self, items: list[Tag], subject: str | None, group: str | None) -> None:
+        current, current_group = subject, group
         for i, li in enumerate(items):
             own = _own_text(li)
             nxt = items[i + 1] if i + 1 < len(items) else None
@@ -530,10 +535,12 @@ class _Parser:
                 and not re.search(r"[.!?:]$|[.!?] ", own)
                 and nxt is not None
                 and ARROW.search(_own_text(nxt))
+                and not nxt.find(["ul", "ol"], recursive=False)
             ):
                 current = own
+                current_group = " · ".join(filter(None, (group, subject))) or None
                 continue
-            self.li(li, current, group if current == subject else " · ".join(filter(None, (group, subject))) or None)
+            self.li(li, current, current_group)
 
     def heading(self, text: str) -> None:
         text = (text or "").strip(" :")
@@ -550,6 +557,7 @@ class _Parser:
             tail = text.split(":", 1)[1].strip() if ":" in text else ""
             self.sub = (tail.capitalize() if tail.isupper() else tail) or None
             return
+        self.subkind = None
         self.sub = text or None
 
     def walk(self, node: Tag) -> None:
@@ -765,10 +773,11 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
 
     known = {p["version"]: p for p in history.get("patches", [])}
     newest = max(articles, key=version_key)
+    reparse = history.get("parser") != PARSER_VERSION
     todo = []
     for version, article in sorted(articles.items(), key=lambda kv: version_key(kv[0]), reverse=True)[: config.max_patches]:
         stored = known.get(version)
-        if stored is None:
+        if stored is None or reparse:
             todo.append(article)
         elif version == newest and _stale(stored, now, config.refresh_hours):
             todo.append(article)  # B-patches are added to the newest article
@@ -808,6 +817,9 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
         if config.sets.get(str(patch.get("set"))):
             patch["set_name"] = config.sets[str(patch["set"])]
     history["patches"] = patches
+    if reparse:  # an article that failed keeps its earlier reading
+        history["parser"] = PARSER_VERSION
+        changed = True
     if changed:
         history["updated_at"] = _stamp(now)
     return result

@@ -5,7 +5,7 @@ const SOON_MS = 7 * 86400 * 1000; // codes expiring sooner than this get their o
 const LATEST_IN_BOX = 6;
 const COPIED_KEY = "gcf:copied";
 const HEX_COLOR = /^#(?:[0-9a-f]{3}){1,2}$/i;
-const BRAND_COLOR = "#9d8cff";
+const BRAND_COLOR = "#a855f7";
 
 const store = {
   read() {
@@ -145,7 +145,8 @@ function themeStyle(game) {
 
 // The page glow takes the color of the game on screen.
 function setTheme(game) {
-  document.documentElement.style.setProperty("--b1", game ? colorsOf(game)[0] : BRAND_COLOR);
+  const color = typeof game === "string" ? game : game ? colorsOf(game)[0] : BRAND_COLOR;
+  document.documentElement.style.setProperty("--b1", color);
 }
 
 function soonestExpiry(items) {
@@ -280,10 +281,23 @@ function sourceLine(source) {
   );
 }
 
-// The game's initials in its colors: its badge on cards and on its page.
+function initials(name) {
+  return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase() || "?";
+}
+
+// The game's initials in its colors: its badge on its page.
 function monogram(game, size = "") {
-  const letters = game.name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase();
-  return el("span", { class: `mono ${size}`, style: `view-transition-name: mono-${game.id}`, "aria-hidden": "true" }, letters || "?");
+  return el("span", { class: `mono ${size}`, style: `view-transition-name: mono-${game.id}`, "aria-hidden": "true" }, initials(game.name));
+}
+
+// On cards: a coin that flips to show the gift when hovered.
+function coin(game) {
+  return el(
+    "span",
+    { class: "coin", style: `view-transition-name: mono-${game.id}`, "aria-hidden": "true" },
+    el("span", { class: "coin-front" }, initials(game.name)),
+    el("span", { class: "coin-back" }, "🎁"),
+  );
 }
 
 function countText(game) {
@@ -297,20 +311,23 @@ function countText(game) {
 
 function intro(data, soonCount) {
   const codeCount = data.games.reduce((n, game) => n + codesOf(game).length, 0);
+  const stat = (value, label, tone = "") => {
+    const number = el("b", {}, value);
+    FX.countUp(number, value);
+    return el("div", { class: `stat ${tone}` }, number, el("span", {}, label));
+  };
   return el(
     "section",
     { class: "intro" },
     el("p", { class: "live" }, el("i", { class: "live-dot" }), `Tự cập nhật mỗi giờ · kiểm tra ${ago(data.generated_at)}`),
     el("h1", { class: "intro-title" }, "Giftcode mới nhất,", el("br"), el("span", { class: "accent" }, "bấm là chép.")),
-    el("p", { class: "intro-sub" }, "Chọn game để xem code. Code livestream có đồng hồ đếm ngược hạn dùng."),
+    el("p", { class: "intro-sub" }, "Chọn game để xem code, mở hộp quà để lấy code mới nhất. Code livestream có đồng hồ đếm ngược hạn dùng."),
     el(
-      "p",
-      { class: "intro-stats" },
-      el("b", {}, codeCount),
-      " code đang dùng được · ",
-      el("b", {}, data.games.length),
-      " game",
-      soonCount > 0 && [" · ", el("b", { class: "warn" }, soonCount), " sắp hết hạn"],
+      "div",
+      { class: "stats" },
+      stat(codeCount, "code đang dùng được"),
+      stat(data.games.length, "game", "cyan"),
+      soonCount > 0 && stat(soonCount, "sắp hết hạn", "warn"),
     ),
   );
 }
@@ -319,7 +336,7 @@ function soonStrip(entries) {
   return el(
     "section",
     { class: "soon", "aria-label": "Code sắp hết hạn" },
-    el("h2", { class: "section-title" }, "⏳ Sắp hết hạn"),
+    el("h2", { class: "section-title" }, "🔥 Sắp hết hạn"),
     el(
       "div",
       { class: "soon-list" },
@@ -335,6 +352,7 @@ function soonStrip(entries) {
           },
           el("b", {}, item.code),
           el("span", { class: "soon-meta" }, `${game.name} · `, el("span", { class: "expiry", "data-expires": item.expires_at, "data-compact": "" })),
+          el("span", { class: "soon-ico", "aria-hidden": "true" }, "⏳"),
         ),
       ),
     ),
@@ -345,6 +363,8 @@ function gameTile(game, index) {
   const items = game.items || [];
   const newest = items[0];
   const next = soonestExpiry(items);
+  const codes = codesOf(game).length;
+  const locked = items.length - codes;
   const search = [game.name, ...items.map((i) => i.code || i.title || "")].join(" ").toLowerCase();
   return el(
     "a",
@@ -353,13 +373,14 @@ function gameTile(game, index) {
       href: `#/${encodeURIComponent(game.id)}`,
       style: `${themeStyle(game)};--i:${index}`,
       "data-search": search,
-      "aria-label": `${game.name}: ${codesOf(game).length} code`,
+      "aria-label": `${game.name}: ${codes} code`,
     },
+    el("span", { class: "gcard-art", "aria-hidden": "true" }, initials(game.name)),
     el(
       "span",
       { class: "gcard-head" },
-      monogram(game),
-      el("span", { class: "gcard-count" }, countText(game)),
+      coin(game),
+      el("span", { class: "gcard-count" }, el("b", {}, codes), locked ? `code · 🔒 ${locked}` : "code"),
       items.some(isNew) && el("span", { class: "badge" }, "MỚI"),
       el("span", { class: "gcard-go", "aria-hidden": "true" }, "→"),
     ),
@@ -400,7 +421,7 @@ function picker(data, first) {
   return el(
     "section",
     { class: `picker${first ? " is-first" : ""}`, id: "chon-game" },
-    el("h2", { class: "section-title" }, "Chọn game"),
+    el("h2", { class: "section-title" }, "🎮 Chọn game"),
     search,
     cards.length ? el("div", { class: "gcards" }, cards) : el("p", { class: "empty" }, "Chưa có game nào trong cấu hình."),
     empty,
@@ -433,7 +454,17 @@ function giftScene(latest) {
       "div",
       { class: "gift-area" },
       el("span", { class: "gift-ring", "aria-hidden": "true" }),
+      el(
+        "span",
+        { class: "orbit", "aria-hidden": "true" },
+        el(
+          "span",
+          { class: "orbit-in" },
+          ["#ffc94d", "#ff4fd8", "#22d3ee", "#b18cff", "#ffc94d", "#34d399", "#ff4fd8", "#22d3ee"].map((c, k) => el("i", { style: `--k:${k};--c:${c}` })),
+        ),
+      ),
       el("span", { class: "gift-glow", "aria-hidden": "true" }),
+      el("span", { class: "beams", "aria-hidden": "true" }, [0, 1, 2, 3, 4, 5].map((k) => el("i", { style: `--k:${k}` }))),
       el(
         "div",
         { class: "box-pos", "aria-hidden": "true" },
@@ -468,10 +499,18 @@ function renderHome(data, first) {
   view.className = "wrap home";
   view.removeAttribute("style");
   view.replaceChildren(
-    ...[intro(data, soon.length), soon.length > 0 && soonStrip(soon), picker(data, first), giftScene(latestCodes(data, LATEST_IN_BOX))].filter(Boolean),
+    ...[
+      intro(data, soon.length),
+      soon.length > 0 && soonStrip(soon),
+      picker(data, first),
+      TFT.promo(data.tft),
+      giftScene(latestCodes(data, LATEST_IN_BOX)),
+    ].filter(Boolean),
   );
   FX.giftBox(view.querySelector(".gift"));
   view.querySelectorAll(".gcard").forEach(FX.tilt);
+  const promo = view.querySelector(".tftp-card");
+  if (promo) FX.pauseAway(promo);
 }
 
 // --- Game page ------------------------------------------------------------
@@ -503,6 +542,7 @@ function renderGame(data, game) {
   const head = el(
     "header",
     { class: "ghead" },
+    el("span", { class: "ghead-art", "aria-hidden": "true" }, initials(game.name)),
     el(
       "div",
       { class: "ghead-main" },
@@ -521,7 +561,11 @@ function renderGame(data, game) {
     { class: "gmain" },
     el("h2", { class: "section-title" }, "Code đang dùng được"),
     items.length
-      ? el("ul", { class: "codes" }, items.map((i) => (i.code ? codeRow(game, i) : lockedRow(i))))
+      ? el("ul", { class: "codes" }, items.map((i, n) => {
+          const row = i.code ? codeRow(game, i) : lockedRow(i);
+          row.style.setProperty("--i", n);
+          return row;
+        }))
       : el("p", { class: "none" }, "Chưa có code nào đang hoạt động — trang tự kiểm tra lại mỗi giờ."),
   );
   const side = el(
@@ -542,42 +586,62 @@ function renderGame(data, game) {
   view.className = "wrap gpage";
   view.setAttribute("style", themeStyle(game));
   view.replaceChildren(el("nav", { class: "crumbs" }, el("a", { class: "back", href: "#/" }, "← Chọn game khác")), head, el("div", { class: "glayout" }, list, side));
+  FX.tilt(head);
 }
 
-// --- Routing: #/<game id> shows a game, anything else the home page -------
+// --- Routing ----------------------------------------------------------------
+// #/<game id> shows a game, #/tft (or #/tft/<patch>) the TFT patch notes,
+// anything else the home page.
 
 let DATA = null;
-let shown; // id of the game on screen, "" for home
+let shown; // what is on screen: "home", "game:<id>", "tft:<patch>"
 let homeScroll = 0;
 
-function gameFromHash() {
-  let id;
+function route() {
+  let path;
   try {
-    id = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
+    path = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
   } catch {
-    return null; // a mangled link: show the home page
+    return { key: "home" }; // a mangled link: show the home page
   }
-  return DATA.games.find((game) => game.id === id) || null;
+  const tft = path.match(/^tft(?:\/(.+))?$/);
+  if (tft) return { key: `tft:${tft[1] || ""}`, tft: tft[1] || "" };
+  const game = DATA.games.find((g) => g.id === path);
+  return game ? { key: `game:${game.id}`, game } : { key: "home" };
+}
+
+function markNav(key) {
+  const section = key.startsWith("tft") ? "tft" : "home";
+  for (const link of document.querySelectorAll("[data-nav]")) {
+    link.classList.toggle("is-active", link.dataset.nav === section);
+    if (link.dataset.nav === section) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  }
 }
 
 function show(animate = true) {
-  const game = gameFromHash();
-  const next = game ? game.id : "";
-  if (next === shown) return;
-  if (shown === "") homeScroll = window.scrollY;
+  const where = route();
+  if (where.key === shown) return;
+  if (shown === "home") homeScroll = window.scrollY;
   const first = shown === undefined;
-  shown = next;
+  const sameTft = shown && shown.startsWith("tft:") && where.key.startsWith("tft:");
+  shown = where.key;
+  markNav(where.key);
   const update = () => {
-    if (game) {
-      renderGame(DATA, game);
+    if (where.game) {
+      renderGame(DATA, where.game);
       window.scrollTo(0, 0);
+    } else if (where.tft !== undefined) {
+      TFT.render(document.getElementById("view"), DATA, where.tft, { keepScroll: sameTft });
+      if (!sameTft) window.scrollTo(0, 0);
     } else {
       renderHome(DATA, first);
       window.scrollTo(0, homeScroll);
     }
     tick();
   };
-  if (animate) FX.transition(update);
+  // Switching patches inside the TFT page swaps content in place.
+  if (animate && !sameTft) FX.transition(update);
   else update();
 }
 
@@ -601,11 +665,12 @@ function chrome(data) {
 function start(data) {
   DATA = data;
   chrome(data);
+  FX.scene();
   show(false);
   setInterval(tick, 1000);
   window.addEventListener("hashchange", () => show());
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && shown) location.hash = "#/";
+    if (event.key === "Escape" && shown !== "home" && !document.querySelector("dialog[open]")) location.hash = "#/";
   });
 }
 

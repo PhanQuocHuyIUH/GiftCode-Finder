@@ -1,8 +1,9 @@
 "use strict";
 
-// Visual effects: card tilt, the 3D gift box, confetti, page transitions.
-// Built to stay light on phones: the box spins with a CSS animation (paused
-// off screen) and JavaScript only runs while someone drags it.
+// Visual effects: the 3D backdrop, card tilt, the gift box, the patch carousel,
+// count-ups, confetti and page transitions. Built to stay light on phones:
+// everything that loops is a CSS transform animation (paused off screen or in a
+// background tab); JavaScript only runs while someone drags or scrolls.
 const FX = (() => {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -119,16 +120,98 @@ const FX = (() => {
     });
 
     // No spinning while the box is scrolled out of view.
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(([entry]) => scene.classList.toggle("is-away", !entry.isIntersecting)).observe(area);
-    }
+    pauseAway(scene, area);
     for (const chip of chips) chip.tabIndex = -1;
   }
 
-  const CONFETTI = ["#ff6fae", "#a594ff", "#38d9f0", "#ffc24b", "#4ade80"];
+  // Floating wireframe shapes in the backdrop. Fewer on small screens.
+  function scene() {
+    const root = document.querySelector(".scene");
+    if (!root) return;
+    const holder = root.querySelector(".shapes");
+    const small = window.matchMedia("(max-width: 640px)").matches;
+    const specs = [
+      { type: "gyro", x: 86, y: 14, s: 110, c: "#22d3ee", spin: 30, delay: -3 },
+      { type: "cube", x: 6, y: 18, s: 70, c: "#ff4fd8", spin: 26, delay: 0 },
+      { type: "pyramid", x: 78, y: 62, s: 80, c: "#ffc94d", spin: 24, delay: -5 },
+      { type: "cube", x: 14, y: 70, s: 46, c: "#8b5cf6", spin: 20, delay: -2 },
+      { type: "gyro", x: 48, y: 8, s: 54, c: "#ff4fd8", spin: 34, delay: -6 },
+    ].slice(0, small ? 0 : 5); // phones keep their compositor for the gift box and the hex
+    for (const spec of specs) {
+      const inner = document.createElement("div");
+      inner.className = `shape-in ${spec.type}`;
+      const faces = { cube: 6, gyro: 4, pyramid: 4 }[spec.type];
+      for (let i = 0; i < faces; i++) inner.append(document.createElement("i"));
+      const shape = document.createElement("div");
+      shape.className = "shape";
+      shape.style.cssText = `left:${spec.x}%;top:${spec.y}%;--s:${small ? spec.s * 0.7 : spec.s}px;--c:${spec.c};--spin:${spec.spin}s;--delay:${spec.delay}s`;
+      shape.append(inner);
+      holder.append(shape);
+    }
+    const still = () => root.classList.toggle("is-still", document.hidden || reduced.matches);
+    document.addEventListener("visibilitychange", still);
+    reduced.addEventListener?.("change", still);
+    still();
+  }
+
+  // Patch cards on a carousel: each card turns toward the middle like a
+  // cover flow. Only runs on scroll, one frame at a time.
+  function coverflow(track, onPick) {
+    const cards = [...track.children];
+    let frame = 0;
+    const apply = () => {
+      frame = 0;
+      const mid = track.scrollLeft + track.clientWidth / 2;
+      for (const card of cards) {
+        // Layout boxes, not the turned ones: offsetLeft ignores transforms.
+        const offset = (card.offsetLeft + card.offsetWidth / 2 - mid) / (card.offsetWidth + 14);
+        const o = clamp(offset, -3, 3);
+        card.style.setProperty("--ry", `${(-o * 26).toFixed(1)}deg`);
+        card.style.setProperty("--tz", `${(-Math.abs(o) * 70).toFixed(0)}px`);
+        card.style.setProperty("--op", (1 - Math.min(Math.abs(o), 3) * 0.16).toFixed(2));
+      }
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(apply);
+    };
+    track.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    const center = (card, smooth) => {
+      const left = card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2;
+      track.scrollTo({ left, behavior: smooth && !reduced.matches ? "smooth" : "auto" });
+      schedule();
+    };
+    const step = (dir) => track.scrollBy({ left: dir * 194, behavior: reduced.matches ? "auto" : "smooth" });
+    schedule();
+    return { center, step, refresh: schedule, onPick };
+  }
+
+  // Count a number up from 0 (stats, tiles). Text is set once when reduced.
+  function countUp(node, to, duration = 700) {
+    if (reduced.matches || to <= 0) {
+      node.textContent = String(to);
+      return;
+    }
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min((now - start) / duration, 1);
+      node.textContent = String(Math.round(to * (1 - Math.pow(1 - t, 3))));
+      if (t < 1) requestAnimationFrame(step);
+    };
+    node.textContent = "0";
+    requestAnimationFrame(step);
+  }
+
+  // Pause looping decorations (gift box, hex prism) while they are off screen.
+  function pauseAway(node, target = node) {
+    if (!("IntersectionObserver" in window)) return;
+    new IntersectionObserver(([entry]) => node.classList.toggle("is-away", !entry.isIntersecting)).observe(target);
+  }
+
+  const CONFETTI = ["#ff4fd8", "#b18cff", "#22d3ee", "#ffc94d", "#34d399"];
 
   // A short confetti pop at a point on screen (client coordinates).
-  function burst(x, y, colors = CONFETTI, count = finePointer.matches ? 20 : 12) {
+  function burst(x, y, colors = CONFETTI, count = finePointer.matches ? 26 : 14) {
     if (reduced.matches || !Element.prototype.animate) return;
     const layer = document.createElement("div");
     layer.className = "burst";
@@ -140,7 +223,7 @@ const FX = (() => {
       bit.style.background = colors[i % colors.length];
       layer.append(bit);
       const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
-      const distance = 40 + Math.random() * 60;
+      const distance = 50 + Math.random() * 80;
       const dx = Math.cos(angle) * distance;
       const dy = Math.sin(angle) * distance;
       bit.animate(
@@ -163,5 +246,5 @@ const FX = (() => {
     document.startViewTransition(update);
   }
 
-  return { tilt, giftBox, burst, transition, reduced };
+  return { tilt, giftBox, burst, transition, scene, coverflow, countUp, pauseAway, reduced, finePointer };
 })();

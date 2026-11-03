@@ -115,6 +115,7 @@ img { max-width: 100%; }
   height: 52vh;
   perspective: 340px;
   perspective-origin: 50% 0;
+  overflow: hidden;
 }
 .grid {
   position: absolute;
@@ -155,8 +156,7 @@ img { max-width: 100%; }
   position: absolute;
   inset: 0;
   border: 1.5px solid color-mix(in oklab, var(--c, var(--accent)) 75%, transparent);
-  background: color-mix(in oklab, var(--c, var(--accent)) 7%, transparent);
-  box-shadow: 0 0 18px -4px color-mix(in oklab, var(--c, var(--accent)) 70%, transparent) inset;
+  background: color-mix(in oklab, var(--c, var(--accent)) 9%, transparent);
 }
 .cube i:nth-child(1) { transform: translateZ(calc(var(--s) / 2)); }
 .cube i:nth-child(2) { transform: rotateY(180deg) translateZ(calc(var(--s) / 2)); }
@@ -175,9 +175,9 @@ img { max-width: 100%; }
   width: var(--s);
   height: calc(var(--s) * .9);
   transform-origin: 50% 100%;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
   border: 0;
-  background: linear-gradient(color-mix(in oklab, var(--c) 45%, transparent), color-mix(in oklab, var(--c) 8%, transparent));
+  box-shadow: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90' preserveAspectRatio='none'%3E%3Cpolygon points='50,0 100,90 0,90' fill='%23ffc94d' fill-opacity='.28' stroke='%23ffc94d' stroke-width='2'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
 }
 .pyramid i:nth-child(1) { transform: translateZ(calc(var(--s) / 2)) rotateX(30deg); }
 .pyramid i:nth-child(2) { transform: rotateY(90deg) translateZ(calc(var(--s) / 2)) rotateX(30deg); }
@@ -324,28 +324,12 @@ img { max-width: 100%; }
 .none, .empty { color: var(--muted); }
 .empty { text-align: center; padding: 28px 0; }
 
-/* Holographic edge: a gradient border drawn by a pseudo-element. */
-.holo { position: relative; isolation: isolate; }
-.holo::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  padding: 1px;
-  border-radius: inherit;
-  background: linear-gradient(var(--edge-a, 135deg), color-mix(in oklab, var(--c1, var(--pink)) 70%, transparent), transparent 40%, transparent 60%, color-mix(in oklab, var(--c3, var(--cyan)) 70%, transparent));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
 /* --- Home --------------------------------------------------------------------- */
 
 .home {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
-  grid-template-areas: "intro gift" "soon soon" "tftp tftp" "picker picker";
+  grid-template-areas: "intro gift" "soon soon" "picker picker" "tftp tftp";
   column-gap: 44px;
   padding-top: 18px;
 }
@@ -478,7 +462,7 @@ img { max-width: 100%; }
   transition: opacity .3s;
 }
 .gcard-art { position: absolute; right: -24px; bottom: -28px; font-size: 8.5rem; font-weight: 900; line-height: 1; letter-spacing: -.08em; color: color-mix(in oklab, var(--c1) 22%, transparent); transform: translateZ(10px); pointer-events: none; user-select: none; }
-.gcard > * { position: relative; }
+.gcard > :not(.gcard-art) { position: relative; }
 .picker.is-first .gcard { animation: rise .6s var(--spring) both; animation-delay: calc(var(--i) * 70ms); }
 @keyframes rise { from { opacity: 0; transform: translateY(26px) rotateX(-24deg); } }
 .gcard-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; transform: translateZ(40px); }
@@ -565,12 +549,6 @@ img { max-width: 100%; }
 .dirs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
 .dpill { --tone: var(--adjust); display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 99px; background: color-mix(in oklab, var(--tone) 14%, transparent); color: var(--tone); font-weight: 800; font-size: .82rem; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 35%, transparent); }
 .dpill b { font-variant-numeric: tabular-nums; }
-[data-dir="buff"] { --tone: var(--buff); }
-[data-dir="nerf"] { --tone: var(--nerf); }
-[data-dir="adjust"], [data-dir="mixed"] { --tone: var(--adjust); }
-[data-dir="new"] { --tone: var(--fresh); }
-[data-dir="removed"] { --tone: var(--gone); }
-[data-dir="fix"] { --tone: var(--fix); }
 
 /* A spinning hexagonal prism: the TFT board hex, in 3D. */
 .hexstage { --r: 62px; --hh: 70px; position: relative; width: calc(var(--r) * 2.6); height: calc(var(--hh) * 2.4); perspective: 700px; }
@@ -593,17 +571,20 @@ img { max-width: 100%; }
   backface-visibility: hidden;
 }
 .hexprism > i:nth-child(even) { background: linear-gradient(180deg, #fff1c4, #ffd36b 45%, #d99512); }
+/* Caps are hexagon pictures, not clip-paths: a clip on a turning 3D face would be re-masked every frame. */
 .hexprism > .cap {
   position: absolute;
+  backface-visibility: hidden;
   left: calc(var(--r) * -1);
-  top: calc(var(--r) * -1);
+  top: calc(var(--r) * -.866);
   width: calc(var(--r) * 2);
-  height: calc(var(--r) * 2);
-  clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0 50%);
-  background: radial-gradient(circle, #fff6d6, var(--gold) 55%, #b46d00);
+  height: calc(var(--r) * 1.732);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 173.2'%3E%3Cdefs%3E%3CradialGradient id='g'%3E%3Cstop offset='0' stop-color='%23fff6d6'/%3E%3Cstop offset='.55' stop-color='%23ffc94d'/%3E%3Cstop offset='1' stop-color='%23b46d00'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpolygon points='50,0 150,0 200,86.6 150,173.2 50,173.2 0,86.6' fill='url(%23g)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
 }
-.hexprism > .cap.top { transform: rotateX(90deg) translateZ(calc(var(--hh) / 2)) rotateZ(30deg); }
-.hexprism > .cap.bottom { transform: rotateX(-90deg) translateZ(calc(var(--hh) / 2)) rotateZ(30deg); background: #7a4300; }
+.hexprism > .cap {
+  transform: rotateX(90deg) translateZ(calc(var(--hh) / 2));
+}
+.hexprism > .cap.top { transform: rotateX(90deg) translateZ(calc(var(--hh) / 2)); }
 .hexstage::after {
   content: "";
   position: absolute;
@@ -792,7 +773,7 @@ img { max-width: 100%; }
   transition: transform .5s var(--ease);
 }
 .ghead-art { position: absolute; right: 12px; top: -30px; font-size: 10rem; font-weight: 900; letter-spacing: -.08em; color: color-mix(in oklab, var(--c1) 16%, transparent); pointer-events: none; user-select: none; }
-.ghead > * { position: relative; }
+.ghead > :not(.ghead-art) { position: relative; }
 .ghead-main { display: flex; align-items: center; gap: 18px; min-width: 0; }
 .ghead-text { min-width: 0; }
 .ghead-title { margin: 0; font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.05; font-weight: 900; letter-spacing: -.04em; }
@@ -880,7 +861,7 @@ img { max-width: 100%; }
   overflow: hidden;
 }
 .tft-hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: .16; pointer-events: none; }
-.tft-hero > * { position: relative; }
+.tft-hero-text { position: relative; min-width: 0; }
 .tft-kicker { margin: 0 0 8px; color: var(--gold); font-size: .8rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .tft-title { margin: 0 0 8px; font-size: clamp(1.9rem, 5vw, 3.2rem); line-height: 1.02; font-weight: 900; letter-spacing: -.045em; }
 .tft-title .ver {
@@ -928,6 +909,7 @@ img { max-width: 100%; }
 .seasons { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; margin: 0 0 4px; }
 .season {
   flex: none;
+  text-decoration: none;
   display: grid;
   gap: 1px;
   padding: 10px 16px;
@@ -949,6 +931,7 @@ img { max-width: 100%; }
 /* Patch cards on a 3D carousel: fx.js turns each toward the center. */
 .pflow { position: relative; margin: 0 -16px 10px; }
 .pflow-track {
+  position: relative; /* offsetLeft of the cards is measured from here */
   display: flex;
   gap: 14px;
   overflow-x: auto;
@@ -1049,7 +1032,8 @@ img { max-width: 100%; }
   position: relative;
 }
 .note::before { content: "💬"; position: absolute; left: 14px; top: 11px; }
-.note.is-clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; cursor: pointer; }
+.note.is-clamped { cursor: pointer; }
+.note.is-clamped span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 14px; align-items: start; perspective: 1400px; }
 .sc {
@@ -1088,6 +1072,10 @@ span.av { display: grid; place-items: center; color: var(--text); font-weight: 9
 .ln-vals s { color: var(--faint); text-decoration-thickness: 1.5px; overflow-wrap: anywhere; }
 .ln-vals b { padding: 1px 7px; border-radius: 7px; color: var(--tone); background: color-mix(in oklab, var(--tone) 14%, transparent); overflow-wrap: anywhere; }
 .ln-vals .arr { color: var(--faint); }
+.ln-vals.long { display: grid; gap: 3px; font: 600 .82rem/1.45 var(--font); }
+.ln-vals.long .arr { display: none; }
+.ln-vals.long s::before { content: "Trước: "; text-decoration: none; display: inline-block; margin-right: 4px; }
+.ln-vals.long b { justify-self: start; }
 .ln-text { color: var(--muted); overflow-wrap: anywhere; }
 .ln mark { padding: 0 2px; border-radius: 3px; background: color-mix(in oklab, var(--gold) 40%, transparent); color: inherit; }
 
@@ -1142,6 +1130,14 @@ dialog.lightbox button { padding: 8px 14px; border: 0; border-radius: 10px; back
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .32s; }
 ::view-transition-group(*) { animation-duration: .42s; animation-timing-function: var(--ease); }
 
+/* Tone of anything marked with a change direction (after the components, so it wins). */
+[data-dir="buff"] { --tone: var(--buff); }
+[data-dir="nerf"] { --tone: var(--nerf); }
+[data-dir="adjust"], [data-dir="mixed"] { --tone: var(--adjust); }
+[data-dir="new"] { --tone: var(--fresh); }
+[data-dir="removed"] { --tone: var(--gone); }
+[data-dir="fix"] { --tone: var(--fix); }
+
 /* --- Smaller screens ------------------------------------------------------------- */
 
 @media (max-width: 900px) {
@@ -1175,7 +1171,10 @@ dialog.lightbox button { padding: 8px 14px; border: 0; border-radius: 10px; back
   .tftp-card { grid-template-columns: minmax(0, 1fr); padding: 20px; }
   .tftp-card .hexstage { display: none; }
   .tft-hero { grid-template-columns: minmax(0, 1fr); padding: 22px 18px; }
-  .tft-hero .hexstage { position: absolute; right: -14px; top: -10px; opacity: .55; }
+  .tft-hero > .hexstage { position: absolute; right: -18px; top: -6px; opacity: .5; scale: .7; transform-origin: 100% 0; }
+  .tft-title { padding-right: 70px; }
+  /* On phones the hex turns once on arrival, then rests: it is only decoration there. */
+  .hexprism { animation-duration: 7s; animation-iteration-count: 1; }
   .movers { grid-template-columns: minmax(0, 1fr); }
   .ghead { padding: 20px; }
   .ghead-actions, .ghead-actions .btn { width: 100%; }

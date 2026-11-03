@@ -230,7 +230,7 @@ def cmd_tft(args: argparse.Namespace) -> int:
             print(f"  [{section['kind']}] {section['title']} — {len(section['changes'])} thay đổi")
             for change in section["changes"][: args.show]:
                 who = change["subject"] or "·"
-                print(f"     {change['dir']:7} {who} | {change['stat']} | {change['before']} -> {change['after']} || {change['text'][:110]}")
+                print(f"     {change['dir']:7} {who} | {change['stat']} | {change['before']} -> {change['after']} || {(change.get('text') or '')[:110]}")
     if args.save:
         save_history(args.data, result.history)
     for error in result.errors:

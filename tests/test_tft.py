@@ -187,3 +187,16 @@ def test_vietnamese_article_structure():
     assert big["Mũ Thích Nghi"]["kind"] == "items" and big["Mũ Thích Nghi"]["dir"] == "nerf"
     augment = [c for c in big.values() if c["kind"] == "augments"]
     assert augment and augment[0]["dir"] == "nerf"
+
+
+def test_new_parser_version_reads_listed_patches_again():
+    listing = "https://t.test/en-us/news/tags/patch-notes/"
+    article = "https://t.test/en-us/news/game-updates/teamfight-tactics-patch-16-5-notes/"
+    fetcher = FakeFetcher({
+        listing: f'<a href="{article}">Teamfight Tactics patch 16.5 notes</a>',
+        article: (FIXTURES / "tft_patch_sample.html").read_text(encoding="utf-8"),
+    })
+    stale = {"version": "16.5", "set": 16, "sections": [], "fetched_at": "2099-01-01T00:00:00Z"}
+    result = update_history(TftConfig(listings=[listing]), {"parser": 0, "patches": [stale]}, fetcher, log=lambda *_: None)
+    assert article in fetcher.calls
+    assert result.history["patches"][0]["sections"] and result.history["parser"] > 0

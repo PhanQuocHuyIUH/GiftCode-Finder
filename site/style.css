@@ -1369,6 +1369,108 @@ dialog.lightbox button { padding: 8px 14px; border: 0; border-radius: 10px; back
 .foot { position: relative; border-top: 0; }
 .foot::before { content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--pink), var(--violet), var(--cyan), transparent); box-shadow: 0 0 18px var(--violet); }
 
+
+/* --- TFT: kinds get their own colors, stat sheets, lookup ------------------- */
+
+.sc[data-kind] { --k: var(--faint); }
+.sc[data-kind="champions"] { --k: #ff7a45; }
+.sc[data-kind="traits"] { --k: #a78bfa; }
+.sc[data-kind="items"] { --k: #60a5fa; }
+.sc[data-kind="augments"] { --k: #22d3ee; }
+.sc[data-kind="mechanics"] { --k: #f472b6; }
+.sc[data-kind="modes"] { --k: #facc15; }
+.sc[data-kind="fixes"] { --k: #2dd4bf; }
+.sc[data-kind]::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: var(--k); box-shadow: 0 0 12px var(--k); }
+.sc-head.has-sheet { cursor: pointer; border-radius: 12px; margin: -4px -6px 8px; padding: 4px 6px; transition: background .2s; }
+.sc-head.has-sheet:hover { background: color-mix(in oklab, var(--k, var(--tone)) 12%, transparent); }
+.sc-head.has-sheet h3::after { content: " ⓘ"; color: var(--faint); font-size: .8em; }
+
+.vswitch { display: inline-flex; gap: 6px; margin: 0 0 14px; padding: 5px; border-radius: 16px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); }
+.vswitch a { padding: 9px 16px; border-radius: 11px; color: var(--muted); font-weight: 800; font-size: .9rem; text-decoration: none; white-space: nowrap; transition: background .2s, color .2s; }
+.vswitch a:hover { color: var(--text); }
+.vswitch a.is-on { color: #2a1a00; background: linear-gradient(160deg, #fff1c4, var(--gold) 60%, #e0a10c); box-shadow: 0 4px 0 #8a5600, 0 10px 20px -10px var(--gold); }
+
+dialog.sheet {
+  width: min(760px, calc(100vw - 24px));
+  max-height: min(88vh, 900px);
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  color: var(--text);
+  background:
+    radial-gradient(90% 60% at 100% 0%, color-mix(in oklab, var(--gold) 14%, transparent), transparent 60%),
+    var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line-2), 0 40px 90px -20px rgba(0, 0, 0, .85);
+  overflow: auto;
+}
+dialog.sheet[open] { animation: sheet-in .45s var(--spring); }
+@keyframes sheet-in { from { opacity: 0; transform: perspective(900px) rotateX(-14deg) translateY(30px) scale(.96); } }
+dialog.sheet::backdrop { background: rgba(5, 3, 15, .78); }
+.sheet-close { position: sticky; top: 0; z-index: 2; display: flex; justify-content: flex-end; height: 0; }
+.sheet-close button { margin: 12px 12px 0 0; width: 38px; height: 38px; border: 0; border-radius: 50%; background: var(--surface-3); color: var(--text); font-weight: 900; cursor: pointer; box-shadow: inset 0 0 0 1px var(--line-2); }
+.sheet-in { padding: 24px 24px 28px; }
+.sheet-head { --tone: var(--gold); display: flex; align-items: center; gap: 16px; margin: 0 0 18px; padding-right: 40px; }
+.sheet-head .av { width: 84px; height: 84px; border-radius: 22px; font-size: 1.5rem; box-shadow: 0 0 0 3px var(--tone), 0 8px 0 color-mix(in oklab, var(--tone) 40%, #000), 0 20px 30px -12px var(--tone); }
+.sheet-title small { color: var(--muted); font-weight: 700; font-size: .78rem; }
+.sheet-title h2 { margin: 2px 0 4px; font-size: 1.7rem; font-weight: 900; letter-spacing: -.03em; line-height: 1.1; }
+.sheet-title p { margin: 0 0 6px; color: var(--tone); font-weight: 800; font-size: .88rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.stiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 18px; perspective: 700px; }
+.stile { display: grid; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line), 0 5px 0 -1px var(--depth); transform: rotateX(10deg); transform-origin: 50% 100%; }
+.stile-ico { font-size: .95rem; }
+.stile b { font-size: 1.2rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.stile small { color: var(--muted); font-size: .72rem; font-weight: 700; }
+.sheet-sec { margin: 18px 0 0; }
+.sheet-sec h3 { margin: 0 0 10px; font-size: 1rem; font-weight: 900; }
+.sheet-desc { margin: 0 0 12px; color: var(--muted); font-size: .92rem; white-space: pre-line; }
+.sheet-desc.small { font-size: .82rem; margin: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+.sheet-desc .num { color: var(--gold); font-weight: 800; }
+.vars { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.vars th, .vars td { padding: 7px 10px; text-align: left; border-bottom: 1px dashed var(--line-2); }
+.vars th { color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .05em; }
+.vars td:last-child { font: 700 .82rem var(--mono); color: var(--gold); }
+.bps { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.bps li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); color: var(--muted); font-size: .9rem; }
+.bp-n { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 9px; color: #1a1030; font-weight: 900; background: linear-gradient(145deg, #e8dcff, #a78bfa); box-shadow: 0 3px 0 #5b3fb0; }
+.bps li[data-style="3"] .bp-n { background: linear-gradient(145deg, #fff1c4, #ffc94d); box-shadow: 0 3px 0 #8a5600; }
+.bps li[data-style="4"] .bp-n, .bps li[data-style="5"] .bp-n, .bps li[data-style="6"] .bp-n { background: linear-gradient(145deg, #fde2ff, #e879f9); box-shadow: 0 3px 0 #86198f; }
+.mini-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.mini { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border: 0; border-radius: 99px; background: var(--surface-2); color: var(--text); font-weight: 700; font-size: .82rem; cursor: pointer; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 40%, var(--line)); }
+.mini .av { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 0 0 2px var(--tone); font-size: .6rem; }
+.recipe { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.recipe .plus { color: var(--faint); font-weight: 900; }
+
+.champ-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; perspective: 1000px; }
+.champ {
+  --tone: var(--gold);
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 14px 10px 12px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--text);
+  text-align: center;
+  cursor: pointer;
+  background: linear-gradient(170deg, color-mix(in oklab, var(--tone) 22%, var(--surface)), var(--surface) 70%);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 35%, var(--line)), 0 6px 0 -1px color-mix(in oklab, var(--tone) 30%, var(--depth));
+  transition: transform .3s var(--spring);
+}
+.champ:hover { transform: translateY(-4px) rotateX(8deg); }
+.champ .av { width: 64px; height: 64px; border-radius: 18px; box-shadow: 0 0 0 3px var(--tone), 0 10px 18px -8px var(--tone); }
+.champ b { font-size: .95rem; font-weight: 900; }
+.champ small { color: var(--muted); font-size: .72rem; line-height: 1.3; }
+.champ-stats { margin-top: 2px; color: var(--faint); font-size: .7rem; font-weight: 700; }
+.db-card { cursor: pointer; }
+.db-hero .tft-meta { max-width: 60ch; }
+
+@media (max-width: 640px) {
+  .stiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sheet-in { padding: 20px 16px 24px; }
+  .sheet-head .av { width: 64px; height: 64px; }
+  .champ-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+
 /* Tone of anything marked with a change direction (after the components, so it wins). */
 [data-dir="buff"] { --tone: var(--buff); }
 [data-dir="nerf"] { --tone: var(--nerf); }

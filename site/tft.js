@@ -155,10 +155,14 @@ const TFT = (() => {
     const meta = [KINDS[first.kind] && first.kind !== "other" ? KINDS[first.kind][0] : null, first.group, first.date].filter(Boolean);
     return el(
       "article",
-      { class: "sc", "data-dir": dir, style: `--i:${index}` },
+      { class: "sc", "data-dir": dir, "data-kind": first.kind, style: `--i:${index}` },
       el(
         "header",
-        { class: "sc-head" },
+        {
+          class: `sc-head${subject && NAMED.has(first.kind) ? " has-sheet" : ""}`,
+          "data-sheet": subject && NAMED.has(first.kind) ? subject : null,
+          title: subject && NAMED.has(first.kind) ? `Xem thông số ${subject}` : null,
+        },
         avatar(subject, subject ? icons[subject] : null, first.kind),
         el("div", { class: "sc-name" }, el("h3", {}, subject || title || "Thay đổi chung"), meta.length > 0 && el("small", {}, meta.join(" · "))),
         dpill(dir),
@@ -452,7 +456,7 @@ const TFT = (() => {
     const out = [];
     const intro = patch.sections.filter((s) => !s.changes.length).flatMap((s) => s.notes);
     if (plain) {
-      intro.slice(0, 2).forEach((text) => out.push(note(text)));
+      intro.forEach((text) => out.push(note(text)));
       for (const section of patch.sections) {
         if (!section.changes.length) continue;
         const kind = KINDS[section.kind] ? section.kind : "other";
@@ -461,7 +465,7 @@ const TFT = (() => {
             "section",
             { class: "tsec" },
             el("div", { class: "tsec-head" }, el("span", { class: "ico", "aria-hidden": "true" }, KINDS[kind][1]), el("h2", {}, section.title), el("small", {}, `${section.changes.length}`)),
-            section.notes.slice(0, 2).map(note),
+            section.notes.map(note),
             cards(section.changes.map((c) => ({ ...c, section: section.title })), patch.icons, section.title),
           ),
         );
@@ -526,6 +530,409 @@ const TFT = (() => {
     ];
   }
 
+
+  // --- Stat sheets (data/tft_db/<set>.json) -----------------------------------
+
+  const dbs = {};
+  const COST_COLORS = { 1: "#9aa4b8", 2: "#34d399", 3: "#3b82f6", 4: "#c026d3", 5: "#ffc94d", 6: "#ff6a3d", 7: "#ff4fd8" };
+  const TIERS = { 1: ["Bạc", "#c0c8d8"], 2: ["Vàng", "#ffc94d"], 3: ["Kim cương", "#c084fc"] };
+  const TYPES = { champions: ["Tướng", "🦸"], traits: ["Tộc/Hệ", "🧬"], items: ["Trang bị", "🗡️"], augments: ["Nâng cấp", "💠"] };
+  let summaryRef = null;
+
+  function dbSets() {
+    return (summaryRef && summaryRef.db_sets) || [];
+  }
+
+  function loadDb(set) {
+    if (!dbs[set]) {
+      const v = encodeURIComponent((summaryRef && summaryRef.version) || "");
+      dbs[set] = fetch(`tft-db-${set}.json?v=${v}`)
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.json();
+        })
+        .then((db) => {
+          db.index = new Map();
+          for (const type of Object.keys(TYPES)) {
+            for (const entry of db[type] || []) {
+              const key = fold(entry.name);
+              // Champions win over same-named items (an emblem named after a trait...).
+              if (entry.name && !db.index.has(key)) db.index.set(key, { type, entry });
+            }
+          }
+          return db;
+        })
+        .catch((error) => {
+          delete dbs[set];
+          throw error;
+        });
+    }
+    return dbs[set];
+  }
+
+  function bare(name) {
+    return fold(String(name || "").replace(/\s*\([^)]*\)\s*$/, ""));
+  }
+
+  // Every change of the season about ``name``, newest patch first.
+  function seasonHistory(set, name) {
+    const key = bare(name);
+    const out = [];
+    for (const patch of (data && data.patches) || []) {
+      if (patch.set !== set) continue;
+      const found = changesOf(patch).filter((c) => c.subject && bare(c.subject) === key);
+      if (found.length) out.push({ patch, found });
+    }
+    return out;
+  }
+
+  function richText(text) {
+    // Numbers stand out; text stays text (never HTML).
+    const parts = String(text || "").split(/(\d+(?:[.,]\d+)?(?:\/\d+(?:[.,]\d+)?)*%?)/);
+    return parts.map((part, i) => (i % 2 ? el("b", { class: "num" }, part) : part));
+  }
+
+  function statTile(label, value, icon) {
+    return el("div", { class: "stile" }, el("span", { class: "stile-ico", "aria-hidden": "true" }, icon), el("b", {}, value ?? "—"), el("small", {}, label));
+  }
+
+  const fmt = (n, digits = 2) => (typeof n === "number" ? String(Math.round(n * 10 ** digits) / 10 ** digits).replace(".", ",") : "—");
+
+  function sheetBody(set, db, hit, open) {
+    const { type, entry } = hit;
+    const parts = [];
+    const tone = type === "champions" ? COST_COLORS[entry.cost] || GOLD : type === "augments" ? (TIERS[entry.tier] || [, GOLD])[1] : type === "traits" ? "#a78bfa" : "#60a5fa";
+    const subtitle = [];
+    if (type === "champions") subtitle.push(`${entry.cost} vàng`);
+    if (type === "augments" && TIERS[entry.tier]) subtitle.push(`Nâng cấp ${TIERS[entry.tier][0]}`);
+    if (type === "items" && entry.from && entry.from.length) subtitle.push("Trang bị ghép");
+    parts.push(
+      el(
+        "header",
+        { class: "sheet-head", style: `--tone:${tone}` },
+        avatar(entry.name, entry.icon, type),
+        el(
+          "div",
+          { class: "sheet-title" },
+          el("small", {}, `${TYPES[type][1]} ${TYPES[type][0]} · Mùa ${set}`),
+          el("h2", {}, entry.name),
+          subtitle.length > 0 && el("p", {}, subtitle.join(" · ")),
+          type === "champions" &&
+            el("div", { class: "chips" }, entry.traits.map((t) => el("button", { type: "button", class: "chipbtn", onclick: () => open(t) }, `🧬 ${t}`))),
+        ),
+      ),
+    );
+    if (type === "champions") {
+      const st = entry.stats || {};
+      parts.push(
+        el(
+          "div",
+          { class: "stiles" },
+          statTile("Máu", fmt(st.hp, 0), "❤️"),
+          statTile("Sức mạnh công kích", fmt(st.damage, 0), "⚔️"),
+          statTile("Tốc độ đánh", fmt(st.attackSpeed), "⚡"),
+          statTile("Giáp", fmt(st.armor, 0), "🛡️"),
+          statTile("Kháng phép", fmt(st.magicResist, 0), "🔮"),
+          statTile("Năng lượng", st.mana != null ? `${fmt(st.initialMana, 0)}/${fmt(st.mana, 0)}` : "—", "💧"),
+          statTile("Tầm đánh (ô)", fmt(st.range, 0), "🎯"),
+          statTile("Chí mạng", st.critChance != null ? `${fmt(st.critChance * 100, 0)}% · x${fmt(st.critMultiplier)}` : "—", "💥"),
+        ),
+      );
+      const ab = entry.ability || {};
+      parts.push(
+        el(
+          "section",
+          { class: "sheet-sec" },
+          el("h3", {}, "✨ Kỹ năng", ab.name ? `: ${ab.name}` : ""),
+          ab.desc && el("p", { class: "sheet-desc" }, richText(ab.desc)),
+          ab.variables && ab.variables.length
+            ? el(
+                "table",
+                { class: "vars" },
+                el("thead", {}, el("tr", {}, el("th", {}, "Chỉ số kỹ năng"), el("th", {}, "1★ / 2★ / 3★"))),
+                el("tbody", {}, ab.variables.map((v) => el("tr", {}, el("td", {}, v.name), el("td", {}, v.value)))),
+              )
+            : el("p", { class: "none" }, "Dữ liệu game chưa có bảng chỉ số chi tiết cho kỹ năng này."),
+        ),
+      );
+    }
+    if (type === "traits") {
+      if (entry.desc) parts.push(el("p", { class: "sheet-desc" }, richText(entry.desc)));
+      parts.push(
+        el(
+          "section",
+          { class: "sheet-sec" },
+          el("h3", {}, "📶 Các mốc kích hoạt"),
+          el(
+            "ol",
+            { class: "bps" },
+            entry.breakpoints.map((b) => el("li", { "data-style": b.style }, el("span", { class: "bp-n" }, b.min), el("span", {}, richText(b.text.replace(/^\(\d+\)\s*/, "") || "—")))),
+          ),
+        ),
+      );
+      const members = db.champions.filter((c) => c.traits.includes(entry.name));
+      if (members.length)
+        parts.push(
+          el(
+            "section",
+            { class: "sheet-sec" },
+            el("h3", {}, `🦸 Tướng (${members.length})`),
+            el("div", { class: "mini-grid" }, members.map((c) => miniChamp(c, open))),
+          ),
+        );
+    }
+    if (type === "items" || type === "augments") {
+      if (entry.stats && entry.stats.length)
+        parts.push(el("div", { class: "chips" }, entry.stats.map((x) => el("span", { class: "dpill", "data-dir": "new" }, `${x.label} `, el("b", {}, x.value)))));
+      if (entry.desc) parts.push(el("p", { class: "sheet-desc" }, richText(entry.desc)));
+      if (entry.from && entry.from.length) {
+        parts.push(
+          el(
+            "section",
+            { class: "sheet-sec" },
+            el("h3", {}, "🧩 Công thức"),
+            el(
+              "div",
+              { class: "recipe" },
+              entry.from.map((name, i) => {
+                const part = db.index.get(fold(name));
+                return [i > 0 && el("span", { class: "plus" }, "+"), el("button", { type: "button", class: "mover", onclick: () => open(name) }, avatar(name, part && part.entry.icon, "items"), name)];
+              }),
+            ),
+          ),
+        );
+      }
+    }
+    const history = seasonHistory(set, entry.name);
+    parts.push(
+      el(
+        "section",
+        { class: "sheet-sec" },
+        el("h3", {}, `🕰️ Thay đổi trong mùa ${set}`),
+        history.length
+          ? el(
+              "ol",
+              { class: "timeline" },
+              history.map(({ patch, found }) =>
+                el(
+                  "li",
+                  { class: "tl-item" },
+                  el("div", { class: "tl-head" }, el("a", { href: `#/tft/${encodeURIComponent(patch.version)}` }, `Bản ${patch.version}`), dpill(overall(found))),
+                  el("ul", { class: "lines" }, found.map(line)),
+                ),
+              ),
+            )
+          : el("p", { class: "none" }, "Chưa có thay đổi nào trong các bản cập nhật của mùa."),
+      ),
+    );
+    return parts;
+  }
+
+  function miniChamp(c, open) {
+    return el(
+      "button",
+      { type: "button", class: "mini", style: `--tone:${COST_COLORS[c.cost] || GOLD}`, onclick: () => open(c.name), title: c.name },
+      avatar(c.name, c.icon, "champions"),
+      el("span", {}, c.name),
+    );
+  }
+
+  let sheetDialog = null;
+  function openSheet(set, name) {
+    if (!dbSets().includes(set)) {
+      toast(`Chưa có bảng thông số mùa ${set}`);
+      return;
+    }
+    if (!sheetDialog) {
+      sheetDialog = el("dialog", { class: "sheet", "aria-label": "Thông số" });
+      sheetDialog.addEventListener("click", (event) => event.target === sheetDialog && sheetDialog.close());
+      document.body.append(sheetDialog);
+    }
+    const dialog = sheetDialog;
+    const show = (content) => {
+      dialog.replaceChildren(
+        el("form", { method: "dialog", class: "sheet-close" }, el("button", { type: "submit", "aria-label": "Đóng" }, "✕")),
+        el("div", { class: "sheet-in" }, content),
+      );
+      if (!dialog.open) dialog.showModal();
+      dialog.scrollTop = 0;
+    };
+    show(el("div", { class: "skeleton" }, el("i"), el("i")));
+    Promise.all([loadDb(set), data ? Promise.resolve(data) : load(summaryRef)])
+      .then(([db]) => {
+        const hit = db.index.get(fold(name)) || db.index.get(bare(name));
+        if (!hit) {
+          show([el("h2", {}, name), el("p", { class: "none" }, "Không tìm thấy thông số trong dữ liệu game (có thể là cơ chế, không phải tướng/trang bị)."), ...sheetHistoryOnly(set, name)]);
+          return;
+        }
+        show(sheetBody(set, db, hit, (other) => openSheet(set, other)));
+      })
+      .catch((error) => show(el("p", { class: "empty" }, `Không tải được thông số: ${error.message}`)));
+  }
+
+  function sheetHistoryOnly(set, name) {
+    const history = seasonHistory(set, name);
+    if (!history.length) return [];
+    return [
+      el("h3", {}, `🕰️ Thay đổi trong mùa ${set}`),
+      el("ol", { class: "timeline" }, history.map(({ patch, found }) => el("li", { class: "tl-item" }, el("div", { class: "tl-head" }, el("a", { href: `#/tft/${patch.version}` }, `Bản ${patch.version}`)), el("ul", { class: "lines" }, found.map(line))))),
+    ];
+  }
+
+  // --- The lookup page: #/tft/tra-cuu[/<set>] --------------------------------
+
+  const dbState = { type: "champions", query: "" };
+
+  function renderDb(view, appData, set) {
+    const sets = dbSets();
+    const current = sets.includes(set) ? set : sets[0];
+    const patch = ((data && data.patches) || []).find((p) => p.set === current);
+    const setName = patch && patch.set_name;
+    document.title = `Tra cứu thông số ĐTCL mùa ${current} – GiftCode Finder`;
+    const body = el("div", { class: "db-body" }, el("div", { class: "skeleton" }, el("i"), el("i")));
+    const search = el("input", { class: "search", type: "search", placeholder: "Tìm tướng, tộc hệ, trang bị, nâng cấp…", value: dbState.query, "aria-label": "Tìm trong bảng thông số" });
+    const tabs = el(
+      "nav",
+      { class: "kind-tabs", "aria-label": "Loại" },
+      Object.entries(TYPES).map(([type, [label, icon]]) =>
+        el("button", { type: "button", class: `chipbtn${dbState.type === type ? " is-on" : ""}`, "data-type": type, "aria-pressed": String(dbState.type === type) }, `${icon} ${label}`),
+      ),
+    );
+    view.replaceChildren(
+      el(
+        "section",
+        { class: "tft-hero db-hero" },
+        el(
+          "div",
+          { class: "tft-hero-text" },
+          el("p", { class: "tft-kicker" }, "📚 Đấu Trường Chân Lý · Tra cứu thông số"),
+          el("h1", { class: "tft-title" }, "Mùa ", el("span", { class: "ver" }, current), setName ? ` · ${setName}` : ""),
+          el("p", { class: "tft-meta" }, "Chỉ số gốc của mọi tướng, mốc tộc/hệ, trang bị và nâng cấp theo dữ liệu game mới nhất. Bấm vào một ô để xem đầy đủ và lịch sử tăng/giảm trong mùa."),
+        ),
+        hexPrism(`S${current}`),
+      ),
+      viewSwitch("db", current),
+      el(
+        "nav",
+        { class: "seasons", "aria-label": "Chọn mùa" },
+        sets.map((n) => el("a", { class: `season${n === current ? " is-on" : ""}`, href: `#/tft/tra-cuu/${n}` }, el("b", {}, `Mùa ${n}`), el("small", {}, "thông số"))),
+      ),
+      el("div", { class: "tft-tools" }, el("div", { class: "tools-row" }, search), tabs),
+      body,
+    );
+    loadDb(current)
+      .then((db) => {
+        const paint = () => {
+          const q = fold(dbState.query);
+          for (const b of tabs.querySelectorAll("[data-type]")) {
+            const on = b.dataset.type === dbState.type;
+            b.classList.toggle("is-on", on);
+            b.setAttribute("aria-pressed", String(on));
+          }
+          body.replaceChildren(...dbGrid(db, current, dbState.type, q));
+        };
+        tabs.addEventListener("click", (event) => {
+          const b = event.target.closest("[data-type]");
+          if (!b) return;
+          dbState.type = b.dataset.type;
+          paint();
+        });
+        let timer;
+        search.addEventListener("input", () => {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            dbState.query = search.value.trim();
+            paint();
+          }, 120);
+        });
+        paint();
+      })
+      .catch((error) => body.replaceChildren(el("p", { class: "empty" }, `Không tải được thông số: ${error.message}`)));
+  }
+
+  function dbGrid(db, set, type, q) {
+    const open = (name) => openSheet(set, name);
+    const hit = (e) => !q || fold([e.name, e.desc, (e.traits || []).join(" "), (e.ability && e.ability.name) || ""].join(" ")).includes(q);
+    const list = (db[type] || []).filter(hit);
+    if (!list.length) return [el("p", { class: "empty" }, "Không có mục nào khớp.")];
+    if (type === "champions") {
+      const byCost = new Map();
+      for (const c of list) byCost.set(c.cost, [...(byCost.get(c.cost) || []), c]);
+      return [...byCost.entries()].map(([cost, champs]) =>
+        el(
+          "section",
+          { class: "tsec" },
+          el("div", { class: "tsec-head" }, el("span", { class: "ico", style: `background:${COST_COLORS[cost] || GOLD};color:#111` }, cost), el("h2", {}, `Tướng ${cost} vàng`), el("small", {}, champs.length)),
+          el(
+            "div",
+            { class: "champ-grid" },
+            champs.map((c) =>
+              el(
+                "button",
+                { type: "button", class: "champ", style: `--tone:${COST_COLORS[c.cost] || GOLD}`, onclick: () => open(c.name) },
+                avatar(c.name, c.icon, "champions"),
+                el("b", {}, c.name),
+                el("small", {}, c.traits.join(" · ")),
+                el("span", { class: "champ-stats" }, `❤️${fmt(c.stats.hp, 0)} ⚔️${fmt(c.stats.damage, 0)} 💧${fmt(c.stats.initialMana, 0)}/${fmt(c.stats.mana, 0)}`),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    if (type === "traits") {
+      return [
+        el(
+          "div",
+          { class: "cards" },
+          list.map((t, i) =>
+            el(
+              "article",
+              { class: "sc db-card", "data-dir": "new", style: `--i:${i}`, tabindex: "0", role: "button", onclick: () => open(t.name), onkeydown: (e) => e.key === "Enter" && open(t.name) },
+              el("header", { class: "sc-head" }, avatar(t.name, t.icon, "traits"), el("div", { class: "sc-name" }, el("h3", {}, t.name), el("small", {}, `Mốc: ${t.breakpoints.map((b) => b.min).join(" / ")}`))),
+              el("p", { class: "sheet-desc small" }, richText(t.desc || "")),
+            ),
+          ),
+        ),
+      ];
+    }
+    const groups = new Map();
+    for (const e of list) {
+      const key = type === "augments" ? (TIERS[e.tier] ? `Nâng cấp ${TIERS[e.tier][0]}` : "Khác") : e.from && e.from.length ? "Trang bị ghép" : /ấn |emblem/i.test(e.name) ? "Ấn" : "Thành phần & đặc biệt";
+      groups.set(key, [...(groups.get(key) || []), e]);
+    }
+    return [...groups.entries()].map(([label, entries]) =>
+      el(
+        "section",
+        { class: "tsec" },
+        el("div", { class: "tsec-head" }, el("span", { class: "ico" }, TYPES[type][1]), el("h2", {}, label), el("small", {}, entries.length)),
+        el(
+          "div",
+          { class: "cards" },
+          entries.slice(0, 400).map((e, i) =>
+            el(
+              "article",
+              { class: "sc db-card", "data-dir": type === "augments" ? "fix" : "new", style: `--i:${i}`, tabindex: "0", role: "button", onclick: () => open(e.name), onkeydown: (ev) => ev.key === "Enter" && open(e.name) },
+              el("header", { class: "sc-head" }, avatar(e.name, e.icon, type), el("div", { class: "sc-name" }, el("h3", {}, e.name), e.stats && e.stats.length > 0 && el("small", {}, e.stats.map((x) => `${x.label} ${x.value}`).join(" · ")))),
+              el("p", { class: "sheet-desc small" }, richText(e.desc || "")),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // "Patch notes" | "Stat lookup" switch shown on both pages.
+  function viewSwitch(active, set) {
+    const has = dbSets().length > 0;
+    return el(
+      "nav",
+      { class: "vswitch", "aria-label": "Chế độ xem" },
+      el("a", { class: active === "notes" ? "is-on" : "", href: "#/tft" }, "📰 Bản cập nhật"),
+      has && el("a", { class: active === "db" ? "is-on" : "", href: `#/tft/tra-cuu/${set || dbSets()[0]}` }, "📚 Tra cứu thông số"),
+    );
+  }
+
   // --- The page -------------------------------------------------------------
 
   function render(view, appData, version, options = {}) {
@@ -544,6 +951,7 @@ const TFT = (() => {
       );
       return;
     }
+    summaryRef = appData.tft;
     if (!data) {
       view.replaceChildren(el("div", { class: "skeleton", "aria-label": "Đang tải" }, el("i"), el("i"), el("i")));
       load(appData.tft)
@@ -553,6 +961,12 @@ const TFT = (() => {
         .catch((error) => {
           view.replaceChildren(el("p", { class: "empty" }, `Không tải được dữ liệu TFT: ${error.message}. `, el("a", { href: location.href, onclick: () => location.reload() }, "Thử lại")));
         });
+      return;
+    }
+    const lookup = String(version || "").match(/^tra-cuu(?:\/(\d+))?$/);
+    if (lookup) {
+      renderDb(view, appData, lookup[1] ? Number(lookup[1]) : (data.patches[0] || {}).set);
+      if (!options.keepScroll) window.scrollTo(0, 0);
       return;
     }
     const patches = data.patches || [];
@@ -585,14 +999,11 @@ const TFT = (() => {
       body.replaceChildren(...(state.wide && (query || state.kind !== "all" || state.dir !== "all") ? historyView(patches, patch, query) : sectionView(patch, query)));
     };
     controls = tools(patch, repaint);
-    const pick = (name) => {
-      state.query = name;
-      controls.search.value = name;
-      state.kind = "all";
-      state.dir = "all";
-      repaint();
-      controls.node.scrollIntoView({ behavior: FX.reduced.matches ? "auto" : "smooth", block: "start" });
-    };
+    const pick = (name) => openSheet(patch.set, name);
+    body.addEventListener("click", (event) => {
+      const head = event.target.closest("[data-sheet]");
+      if (head) openSheet(patch.set, head.dataset.sheet);
+    });
     const flow = carousel(patches, patch, latest);
     const top = hero(patch, latest);
     top.addEventListener("click", (event) => {
@@ -608,6 +1019,7 @@ const TFT = (() => {
         : null;
     view.replaceChildren(
       top,
+      viewSwitch("notes", patch.set),
       seasons(patches, patch),
       flow.wrap,
       movers(patch, pick),
@@ -659,5 +1071,5 @@ const TFT = (() => {
     );
   }
 
-  return { render, promo, load };
+  return { render, promo, load, openSheet };
 })();

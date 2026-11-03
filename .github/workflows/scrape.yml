@@ -108,17 +108,6 @@ jobs:
           done
           exit 1
 
-      # TEMP: đưa dữ liệu TFT thật về nhánh dev để làm giao diện.
-      - name: Lưu dữ liệu TFT (nhánh dev)
-        if: github.ref_name == 'dev'
-        run: |
-          git add data/tft.json
-          git diff --cached --quiet && exit 0
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Dữ liệu TFT thử nghiệm"
-          git push
-
       - name: Kiểm tra GitHub Pages
         id: pages
         if: env.PUBLISH == 'true'

@@ -352,6 +352,18 @@ def describe(data: dict, set_number: int) -> str:
             for key in ("items", "augments"):
                 if isinstance(entry.get(key), list):
                     lines.append(f"  {key}: {len(entry[key])} e.g. {entry[key][:3]}")
+    def summary(where, entry):
+        champs = [c for c in entry.get("champions") or [] if isinstance(c, dict)]
+        with_vars = [c for c in champs if (c.get("ability") or {}).get("variables")]
+        lines.append(f"{where}: number={entry.get('number')} name={entry.get('name')} mutator={entry.get('mutator')} champions={len(champs)} with variables={len(with_vars)} e.g. {[c.get('apiName') for c in champs[:4]]}")
+        if with_vars:
+            lines.append(f"    with-vars sample: {json.dumps(with_vars[-1], ensure_ascii=False)[:900]}")
+    for entry in data.get("setData") or []:
+        if isinstance(entry, dict) and entry.get("number") in (set_number, set_number - 1):
+            summary("setData", entry)
+    for key, entry in (data.get("sets") or {}).items():
+        if isinstance(entry, dict):
+            summary(f"sets[{key}]", entry)
     items = data.get("items") or []
     sample_item = next((i for i in items if "TFT_Item_" in str(i.get("apiName"))), None)
     sample_aug = next((i for i in items if "Augment" in str(i.get("apiName")) and f"TFT{set_number}" in str(i.get("apiName"))), None)

@@ -52,3 +52,23 @@ def test_build_db_fills_stats_breakpoints_recipes():
     assert [a["name"] for a in db["augments"]] == ["Kho Vàng"] and db["augments"][0]["tier"] == 2
     assert db["augments"][0]["desc"] == "Nhận 10 vàng."
     assert build_db(GAME, 99, "https://cd.test/") is None
+
+
+def test_hashed_keys_and_champion_data_files():
+    from giftcode_finder.tft_db import fnv1a, spell_values
+
+    assert fnv1a("StonebarkTreeBonusHealth") == "{b027c2f9}"
+    game = {"setData": [{"number": 19, "champions": [
+        {"apiName": "DA_19_Akali", "name": "Akali", "cost": 1, "traits": ["X"], "squareIcon": "assets/characters/tft19_akali/hud/a.tex",
+         "stats": {}, "ability": {"desc": "Gây @ModifiedDamage@ sát thương, @Hidden@ giây.", "variables": []}}],
+        "traits": [{"name": "Rừng", "desc": "<row>(@MinUnits@) +@StonebarkTreeBonusHealth@ Máu</row>",
+                    "effects": [{"minUnits": 3, "variables": {"{b027c2f9}": 200.0}}]}]}], "items": []}
+    bin_data = {"Characters/TFT19_Akali/Spells/A": {"mSpell": {
+        "mDataValues": [{"mName": "Damage", "mValues": [0, 100, 150, 225, 0, 0, 0]}, {"mName": fnv1a("Hidden"), "mValues": [2, 2, 2, 2]}],
+        "mSpellCalculations": {"ModifiedDamage": {"mFormulaParts": [{"mDataValue": "Damage"}]}}}}}
+    assert spell_values(bin_data)[1] == {"modifieddamage": "Damage"}
+    asked = []
+    db = build_db(game, 19, "https://cd.test/", lambda name: asked.append(name) or bin_data)
+    assert asked == ["tft19_akali"]
+    assert db["champions"][0]["ability"]["desc"] == "Gây 100/150/225 sát thương, 2 giây."
+    assert db["traits"][0]["breakpoints"][0]["text"] == "(3) +200 Máu"

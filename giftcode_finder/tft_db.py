@@ -16,6 +16,7 @@ import json
 import re
 from pathlib import Path
 
+DB_VERSION = 2  # bump to rebuild every season's sheets on the next run
 PLACEHOLDER = re.compile(r"@([A-Za-z0-9_{}.:]+?)(\*100)?@")
 ICON_TEXT = {
     "scaleap": "SMPT",
@@ -51,6 +52,14 @@ ITEM_STATS = {
 }
 
 
+def fnv1a(name: str) -> str:
+    """The "{xxxxxxxx}" key Community Dragon shows for a field it has no name for."""
+    h = 0x811C9DC5
+    for byte in name.lower().encode("utf-8"):
+        h = ((h ^ byte) * 0x01000193) & 0xFFFFFFFF
+    return "{%08x}" % h
+
+
 def _num(value) -> str:
     if isinstance(value, bool) or value is None:
         return "?"
@@ -82,7 +91,12 @@ def clean(text: str | None) -> str:
         return ""
     text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
     text = re.sub(r"</?(?:li|row|expandRow)[^>]*>", "\n", text, flags=re.I)
-    text = re.sub(r"%i:([A-Za-z]+)%", lambda m: ICON_TEXT.get(m[1].lower(), ""), text)
+    # Stat icons to words; "(%i:scaleAD%%i:scaleAP%)" reads "(SMCK+SMPT)".
+    text = re.sub(
+        r"(?:%i:[A-Za-z]+%)+",
+        lambda m: "+".join(filter(None, (ICON_TEXT.get(w.lower(), "") for w in re.findall(r"%i:([A-Za-z]+)%", m[0])))),
+        text,
+    )
     text = re.sub(r"<[^>]+>", "", text)
     text = text.replace("&nbsp;", " ").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
     lines = [" ".join(line.split()) for line in text.split("\n")]
@@ -114,18 +128,26 @@ def _variables(entries) -> dict:
     return out
 
 
-def _ability_lookup(variables: dict):
+def _ability_lookup(variables: dict, calcs: dict | None = None):
+    calcs = calcs or {}
+
     def lookup(name: str, times100: bool):
         key = name.lower()
         candidates = [key]
+        # A calculation ("ModifiedDamage") points at the data value it scales.
+        if key in calcs:
+            candidates.insert(0, calcs[key].lower())
+        if fnv1a(key) in calcs:
+            candidates.insert(0, calcs[fnv1a(key)].lower())
         # "ModifiedDamage" is computed by the game from "Damage" (and AP/AD).
         for prefix in ("modified", "total", "tooltip", "base", "calculated", "displayed"):
             if key.startswith(prefix):
                 candidates.append(key[len(prefix):])
         candidates += [f"base{key}", f"{key}base"]
         for candidate in candidates:
-            if candidate in variables:
-                return _per_star(variables[candidate], times100)
+            for variant in (candidate, fnv1a(candidate)):
+                if variant in variables:
+                    return _per_star(variables[variant], times100)
         return None
 
     return lookup
@@ -139,8 +161,9 @@ def _flat_lookup(effects: dict, extra: dict | None = None):
     def lookup(name: str, times100: bool):
         key = name.lower()
         for candidate in (key, key.replace("modified", ""), key.replace("total", "")):
-            if candidate in lowered:
-                return _num(_scaled(lowered[candidate], times100))
+            for variant in (candidate, fnv1a(candidate)):
+                if variant in lowered:
+                    return _num(_scaled(lowered[variant], times100))
         return None
 
     return lookup
@@ -155,11 +178,74 @@ def _asset(path, base: str) -> str | None:
     return base + re.sub(r"\.(tex|dds)$", ".png", path).lstrip("/")
 
 
-def _champion(raw: dict, base: str) -> dict:
+def _character(raw: dict) -> str | None:
+    for key in ("characterName", "apiName"):
+        value = str(raw.get(key) or "")
+        if re.fullmatch(r"TFT\d*_[A-Za-z0-9]+", value):
+            return value
+    for key in ("squareIcon", "tileIcon", "icon"):
+        match = re.search(r"characters/([^/]+)/", str(raw.get(key) or ""), re.I)
+        if match:
+            return match[1]
+    return None
+
+
+def spell_values(bin_data: dict) -> tuple[list[dict], dict]:
+    """Data values and calculation targets from a champion's .bin.json."""
+    values, calcs = [], {}
+
+    def first_value(node):
+        if isinstance(node, dict):
+            if isinstance(node.get("mDataValue"), str):
+                return node["mDataValue"]
+            for child in node.values():
+                found = first_value(child)
+                if found:
+                    return found
+        elif isinstance(node, list):
+            for child in node:
+                found = first_value(child)
+                if found:
+                    return found
+        return None
+
+    def walk(node):
+        if isinstance(node, dict):
+            spell = node.get("mDataValues")
+            if isinstance(spell, list):
+                for entry in spell:
+                    if isinstance(entry, dict) and isinstance(entry.get("mName"), str):
+                        values.append({"name": entry["mName"], "value": entry.get("mValues") or []})
+            calc = node.get("mSpellCalculations")
+            if isinstance(calc, dict):
+                for name, formula in calc.items():
+                    target = first_value(formula)
+                    if target:
+                        calcs[str(name).lower()] = target
+            for child in node.values():
+                walk(child)
+        elif isinstance(node, list):
+            for child in node:
+                walk(child)
+
+    walk(bin_data)
+    return values, calcs
+
+
+def _champion(raw: dict, base: str, fetch_bin=None) -> dict:
     stats = raw.get("stats") or {}
-    ability = raw.get("ability") or {}
+    ability = dict(raw.get("ability") or {})
+    calcs = {}
+    if not ability.get("variables") and fetch_bin:
+        # Newer sets ship abilities without numbers; the champion's own data file has them.
+        character = _character(raw)
+        bin_data = fetch_bin(character) if character else None
+        if bin_data:
+            found, calcs = spell_values(bin_data)
+            if found:
+                ability["variables"] = found
     variables = _variables(ability.get("variables"))
-    desc = clean(fill(ability.get("desc"), _ability_lookup(variables)))
+    desc = clean(fill(ability.get("desc"), _ability_lookup(variables, calcs)))
     return {
         "id": raw.get("apiName"),
         "name": raw.get("name"),
@@ -267,7 +353,7 @@ def _is_augment(raw: dict) -> bool:
     return "augment" in api or "/augments/" in str(raw.get("icon") or "").lower()
 
 
-def build_db(data: dict, set_number: int, base: str) -> dict | None:
+def build_db(data: dict, set_number: int, base: str, fetch_bin=None) -> dict | None:
     """The stat sheets of one season, or None when the game data lacks it."""
     sets = list(data.get("setData") or [])
     if isinstance(data.get("sets"), dict):
@@ -278,7 +364,7 @@ def build_db(data: dict, set_number: int, base: str) -> dict | None:
         return None
     entry = max(candidates, key=lambda s: len(s.get("champions") or []))
     champions = [
-        _champion(c, base)
+        _champion(c, base, fetch_bin)
         for c in entry.get("champions") or []
         if isinstance(c, dict) and c.get("traits") and isinstance(c.get("cost"), int) and c.get("cost", 0) <= 7
     ]
@@ -317,6 +403,7 @@ def build_db(data: dict, set_number: int, base: str) -> dict | None:
             seen.add(key)
             unique_items.append(item)
     return {
+        "version": DB_VERSION,
         "set": set_number,
         "name": entry.get("name"),
         "champions": sorted(champions, key=lambda c: (c["cost"] or 0, c["name"] or "")),

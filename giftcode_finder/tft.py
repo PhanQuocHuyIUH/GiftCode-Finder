@@ -849,10 +849,17 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
 def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, result) -> None:
     """Stat sheets of every season shown: rebuilt when a patch came in, a
     season has none yet, or once a day (the game data changes with hotfixes)."""
-    from .tft_db import build_db, save_db
+    from .tft_db import DB_VERSION, build_db, save_db
+
+    def outdated(number: int) -> bool:
+        path = Path(db_dir) / f"{number}.json"
+        try:
+            return json.loads(path.read_text(encoding="utf-8")).get("version") != DB_VERSION
+        except (OSError, ValueError):
+            return True
 
     sets = sorted({p["set"] for p in patches}, reverse=True)
-    missing = [s for s in sets if not (Path(db_dir) / f"{s}.json").exists()]
+    missing = [s for s in sets if outdated(s)]
     if not (parsed_any or missing or now.hour in config.db_hours) or not config.names_url:
         return
     url = config.names_url.replace("{locale}", config.db_locale)
@@ -864,17 +871,34 @@ def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, r
             result.errors.append(f"thông số tướng/trang bị: {exc}")
     if cache[url] is None:
         return
+    bins: dict = {}
+    misses = []
+
+    def fetch_bin(character: str):
+        key = character.lower()
+        if key not in bins:
+            try:
+                bins[key] = json.loads(fetcher.fetch(f"{config.asset_base}data/characters/{key}/{key}.bin.json").text)
+            except Exception as exc:  # the stat sheet just lacks the ability numbers
+                bins[key] = None
+                misses.append(f"{key}: {exc}")
+        return bins[key]
+
     for number in sets:
-        db = build_db(cache[url], number, config.asset_base)
+        db = build_db(cache[url], number, config.asset_base, fetch_bin if number == sets[0] else None)
         if db is None:
             log(f"  thông số mùa {number}: không có trong dữ liệu game")
             continue
+        missing_numbers = sum(1 for c in db["champions"] if "?" in c["ability"]["desc"])
+        log(f"  thông số mùa {number}: {missing_numbers}/{len(db['champions'])} kỹ năng còn thiếu số liệu")
         written = save_db(db_dir, db)
         result.db_sets.append(number)
         log(
             f"  thông số mùa {number}: {len(db['champions'])} tướng, {len(db['traits'])} tộc/hệ, "
             f"{len(db['items'])} trang bị, {len(db['augments'])} nâng cấp{' (mới)' if written else ''}"
         )
+    if misses:
+        log(f"  không đọc được {len(misses)} file tướng, vd: {misses[:2]}")
 
 
 def source_hash(html: str) -> str:

@@ -214,8 +214,12 @@ function codeRow(game, item) {
         if (!(await copyCode(game, item.code, event))) return;
         button.classList.add("copied");
         action.textContent = "✓ Đã chép";
+        button.classList.remove("flip");
+        void button.offsetWidth; // restart the flip
+        button.classList.add("flip");
       },
     },
+    el("span", { class: "code-stub", "aria-hidden": "true" }, "🎟️"),
     el(
       "span",
       { class: "code-main" },
@@ -281,6 +285,20 @@ function sourceLine(source) {
   );
 }
 
+// A section heading with its icon on a small 3D tile.
+function heading(icon, text, tone = "violet", extra = "") {
+  return el("h2", { class: `section-title ${extra}`.trim() }, el("span", { class: `st-ico tone-${tone}`, "aria-hidden": "true" }, icon), el("span", {}, text));
+}
+
+// A CSS cube showing ``label`` on its sides (game badge on cards and pages).
+function labelCube(label, size = "") {
+  return el(
+    "span",
+    { class: `lcube ${size}`, "aria-hidden": "true" },
+    el("span", { class: "lcube-in" }, ["f", "b", "r", "l", "t", "d"].map((side) => el("i", { class: `lc-${side}` }, side === "t" || side === "d" ? "🎁" : label))),
+  );
+}
+
 function initials(name) {
   return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase() || "?";
 }
@@ -288,16 +306,6 @@ function initials(name) {
 // The game's initials in its colors: its badge on its page.
 function monogram(game, size = "") {
   return el("span", { class: `mono ${size}`, style: `view-transition-name: mono-${game.id}`, "aria-hidden": "true" }, initials(game.name));
-}
-
-// On cards: a coin that flips to show the gift when hovered.
-function coin(game) {
-  return el(
-    "span",
-    { class: "coin", style: `view-transition-name: mono-${game.id}`, "aria-hidden": "true" },
-    el("span", { class: "coin-front" }, initials(game.name)),
-    el("span", { class: "coin-back" }, "🎁"),
-  );
 }
 
 function countText(game) {
@@ -336,7 +344,7 @@ function soonStrip(entries) {
   return el(
     "section",
     { class: "soon", "aria-label": "Code sắp hết hạn" },
-    el("h2", { class: "section-title" }, "🔥 Sắp hết hạn"),
+    heading("🔥", "Sắp hết hạn — chép ngay kẻo lỡ", "hot"),
     el(
       "div",
       { class: "soon-list" },
@@ -375,11 +383,12 @@ function gameTile(game, index) {
       "data-search": search,
       "aria-label": `${game.name}: ${codes} code`,
     },
+    el("span", { class: "gcard-pattern", "aria-hidden": "true" }),
     el("span", { class: "gcard-art", "aria-hidden": "true" }, initials(game.name)),
+    labelCube(initials(game.name)),
     el(
       "span",
       { class: "gcard-head" },
-      coin(game),
       el("span", { class: "gcard-count" }, el("b", {}, codes), locked ? `code · 🔒 ${locked}` : "code"),
       items.some(isNew) && el("span", { class: "badge" }, "MỚI"),
       el("span", { class: "gcard-go", "aria-hidden": "true" }, "→"),
@@ -421,14 +430,14 @@ function picker(data, first) {
   return el(
     "section",
     { class: `picker${first ? " is-first" : ""}`, id: "chon-game" },
-    el("h2", { class: "section-title" }, "🎮 Chọn game"),
+    heading("🎮", "Chọn game", "cyan"),
     search,
     cards.length ? el("div", { class: "gcards" }, cards) : el("p", { class: "empty" }, "Chưa có game nào trong cấu hình."),
     empty,
   );
 }
 
-function giftScene(latest) {
+function giftScene(latest, games = []) {
   const faces = () => ["front", "back", "right", "left", "top", "bottom"].map((side) => el("span", { class: `face f-${side}` }));
   const bow = (plane) =>
     el("span", { class: `bow ${plane}` }, el("span", { class: "loop l" }), el("span", { class: "loop r" }), el("span", { class: "knot" }));
@@ -449,7 +458,7 @@ function giftScene(latest) {
   return el(
     "section",
     { class: "gift", "aria-label": "Hộp quà code mới nhất" },
-    el("h2", { class: "section-title gift-title" }, "🎁 Hộp quà code mới"),
+    heading("🎁", "Hộp quà code mới", "pink", "gift-title"),
     el(
       "div",
       { class: "gift-area" },
@@ -461,6 +470,8 @@ function giftScene(latest) {
           "span",
           { class: "orbit-in" },
           ["#ffc94d", "#ff4fd8", "#22d3ee", "#b18cff", "#ffc94d", "#34d399", "#ff4fd8", "#22d3ee"].map((c, k) => el("i", { style: `--k:${k};--c:${c}` })),
+          // Every game circles the box as a little planet with its initials.
+          games.slice(0, 4).map((game, k) => el("b", { class: "planet", style: `${themeStyle(game)};--k:${k};--n:${Math.min(games.length, 4)}` }, initials(game.name))),
         ),
       ),
       el("span", { class: "gift-glow", "aria-hidden": "true" }),
@@ -491,6 +502,40 @@ function giftScene(latest) {
   );
 }
 
+// A strip of the newest codes (and the TFT patch) running across the page.
+function ticker(data) {
+  const items = latestCodes(data, 12).map(({ game, item }) =>
+    el("span", { class: "tk-item", style: themeStyle(game) }, el("i", { class: "tk-dot" }), el("b", {}, item.code), el("small", {}, game.name)),
+  );
+  const tft = data.tft && data.tft.latest;
+  if (tft) {
+    const counts = tft.counts || {};
+    items.unshift(el("span", { class: "tk-item tk-gold" }, "⚔️ ĐTCL ", el("b", {}, tft.version), el("small", {}, `▲${counts.buff || 0} ▼${counts.nerf || 0}`)));
+  }
+  items.push(el("span", { class: "tk-item" }, "⏱ ", el("small", {}, "tự cập nhật mỗi giờ")));
+  if (items.length < 2) return null;
+  const run = () => el("div", { class: "tk-run" }, items.map((node) => node.cloneNode(true)));
+  return el("div", { class: "ticker", "aria-hidden": "true" }, el("div", { class: "tk-track" }, run(), run()));
+}
+
+function steps() {
+  const list = [
+    ["1", "Chọn game", "Mỗi game có trang riêng — lưu ra màn hình chính điện thoại để mở nhanh.", "pink"],
+    ["2", "Bấm vào code", "Code được chép ngay (kèm pháo giấy 🎉). Code đã chép được đánh dấu.", "cyan"],
+    ["3", "Nhập trong game", "Xem mục “Cách nhập code” ở trang game. Code livestream có đếm ngược.", "gold"],
+  ];
+  return el(
+    "section",
+    { class: "steps" },
+    heading("✨", "Dùng thế nào?", "gold"),
+    el(
+      "div",
+      { class: "steps-grid" },
+      list.map(([n, title, text, tone]) => el("div", { class: `step tone-${tone}` }, el("span", { class: "step-n" }, n), el("h3", {}, title), el("p", {}, text))),
+    ),
+  );
+}
+
 function renderHome(data, first) {
   document.title = "GiftCode Finder – Chọn game";
   setTheme(null);
@@ -500,14 +545,17 @@ function renderHome(data, first) {
   view.removeAttribute("style");
   view.replaceChildren(
     ...[
+      ticker(data),
       intro(data, soon.length),
       soon.length > 0 && soonStrip(soon),
       picker(data, first),
       TFT.promo(data.tft),
-      giftScene(latestCodes(data, LATEST_IN_BOX)),
+      giftScene(latestCodes(data, LATEST_IN_BOX), data.games),
+      steps(),
     ].filter(Boolean),
   );
   FX.giftBox(view.querySelector(".gift"));
+  FX.reveal(view.querySelectorAll(".soon, .picker, .tftp, .steps, .gift"));
   view.querySelectorAll(".gcard").forEach(FX.tilt);
   const promo = view.querySelector(".tftp-card");
   if (promo) FX.pauseAway(promo);
@@ -542,7 +590,9 @@ function renderGame(data, game) {
   const head = el(
     "header",
     { class: "ghead" },
+    el("span", { class: "ghead-pattern", "aria-hidden": "true" }),
     el("span", { class: "ghead-art", "aria-hidden": "true" }, initials(game.name)),
+    labelCube(initials(game.name), "lcube-lg"),
     el(
       "div",
       { class: "ghead-main" },
@@ -559,7 +609,7 @@ function renderGame(data, game) {
   const list = el(
     "section",
     { class: "gmain" },
-    el("h2", { class: "section-title" }, "Code đang dùng được"),
+    heading("🎟️", "Code đang dùng được", "pink"),
     items.length
       ? el("ul", { class: "codes" }, items.map((i, n) => {
           const row = i.code ? codeRow(game, i) : lockedRow(i);
@@ -572,8 +622,8 @@ function renderGame(data, game) {
     "aside",
     { class: "gside" },
     game.redeem_note &&
-      el("section", { class: "panel" }, el("h2", { class: "panel-title" }, "Cách nhập code"), el("p", { class: "redeem" }, game.redeem_note)),
-    el("section", { class: "panel" }, el("h2", { class: "panel-title" }, "Nguồn"), el("ul", { class: "sources" }, game.sources.map(sourceLine))),
+      el("section", { class: "panel tone-gold" }, el("h2", { class: "panel-title" }, "📝 Cách nhập code"), el("p", { class: "redeem" }, game.redeem_note)),
+    el("section", { class: "panel tone-cyan" }, el("h2", { class: "panel-title" }, "📡 Nguồn"), el("ul", { class: "sources" }, game.sources.map(sourceLine))),
     old.length > 0 &&
       el(
         "details",

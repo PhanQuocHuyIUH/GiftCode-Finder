@@ -148,6 +148,15 @@ const FX = (() => {
       shape.append(inner);
       holder.append(shape);
     }
+    if (!small) {
+      // Drifting aurora blobs behind everything (gradients only, moved by transform).
+      for (const name of ["b1", "b2", "b3"]) {
+        const blob = document.createElement("i");
+        blob.className = `blob ${name}`;
+        root.querySelector(".sky").after(blob);
+      }
+    }
+    spotlight();
     const still = () => root.classList.toggle("is-still", document.hidden || reduced.matches);
     document.addEventListener("visibilitychange", still);
     reduced.addEventListener?.("change", still);
@@ -202,6 +211,54 @@ const FX = (() => {
     requestAnimationFrame(step);
   }
 
+  // Sections fly in (a short 3D swing) the first time they scroll into view.
+  function reveal(nodes) {
+    if (reduced.matches || !("IntersectionObserver" in window)) return;
+    const seen = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-in");
+          seen.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px" },
+    );
+    for (const node of nodes) {
+      const box = node.getBoundingClientRect();
+      if (box.top < window.innerHeight) continue; // already on screen: no flash
+      node.classList.add("reveal");
+      seen.observe(node);
+    }
+  }
+
+  // A soft light that follows the mouse (desktop only, one transform per frame).
+  function spotlight() {
+    if (!finePointer.matches || reduced.matches) return;
+    const spot = document.createElement("div");
+    spot.className = "spot";
+    spot.setAttribute("aria-hidden", "true");
+    document.body.append(spot);
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    window.addEventListener(
+      "pointermove",
+      (event) => {
+        x = event.clientX;
+        y = event.clientY;
+        if (!frame)
+          frame = requestAnimationFrame(() => {
+            frame = 0;
+            spot.style.transform = `translate(${x - 300}px, ${y - 300}px)`;
+            spot.classList.add("on");
+          });
+      },
+      { passive: true },
+    );
+    document.addEventListener("pointerleave", () => spot.classList.remove("on"));
+  }
+
   // Pause looping decorations (gift box, hex prism) while they are off screen.
   function pauseAway(node, target = node) {
     if (!("IntersectionObserver" in window)) return;
@@ -246,5 +303,5 @@ const FX = (() => {
     document.startViewTransition(update);
   }
 
-  return { tilt, giftBox, burst, transition, scene, coverflow, countUp, pauseAway, reduced, finePointer };
+  return { tilt, giftBox, burst, transition, scene, coverflow, countUp, pauseAway, reveal, reduced, finePointer };
 })();

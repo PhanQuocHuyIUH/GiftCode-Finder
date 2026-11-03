@@ -82,7 +82,7 @@ jobs:
       - name: Thử dữ liệu thông số TFT
         if: github.ref_name == 'dev'
         continue-on-error: true
-        run: python -m giftcode_finder tft --describe-db 18 | cut -c1-2500
+        run: python -m giftcode_finder tft --describe-db 18 | grep -E "^## |^   " | cut -c1-1500
 
       - name: Lấy giftcode
         id: scrape

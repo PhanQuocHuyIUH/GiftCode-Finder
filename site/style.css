@@ -1134,6 +1134,241 @@ dialog.lightbox button { padding: 8px 14px; border: 0; border-radius: 10px; back
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .32s; }
 ::view-transition-group(*) { animation-duration: .42s; animation-timing-function: var(--ease); }
 
+
+/* ===========================================================================
+   Whole-site look, round 2: color everywhere, posters, tickets, a ticker.
+   =========================================================================== */
+
+/* Aurora blobs drifting behind the page (desktop) and a light under the mouse. */
+.blob {
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--bc), transparent 70%);
+  opacity: .5;
+  animation: drift 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.blob.b1 { --bc: color-mix(in oklab, var(--pink) 30%, transparent); left: -18vmax; top: 10vh; }
+.blob.b2 { --bc: color-mix(in oklab, var(--cyan) 26%, transparent); right: -22vmax; top: 30vh; animation-duration: 32s; animation-delay: -8s; }
+.blob.b3 { --bc: color-mix(in oklab, var(--b1) 30%, transparent); left: 30vw; top: -30vmax; animation-duration: 38s; animation-delay: -15s; }
+@keyframes drift { 50% { transform: translate(8vw, 6vh) scale(1.08); } to { transform: translate(-6vw, 12vh) scale(.94); } }
+.scene.is-still .blob { animation-play-state: paused; }
+.spot {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--b1) 16%, transparent), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .4s;
+}
+.spot.on { opacity: 1; }
+
+/* Section headings: the icon sits on a pressable 3D tile. */
+.st-ico {
+  --tone: var(--violet);
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  font-size: 1.05rem;
+  background: linear-gradient(145deg, color-mix(in oklab, var(--tone) 92%, #fff 8%), color-mix(in oklab, var(--tone) 70%, #000));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 4px 0 color-mix(in oklab, var(--tone) 45%, #000), 0 10px 18px -8px var(--tone);
+  transform: rotate(-6deg);
+}
+.tone-violet { --tone: var(--violet); }
+.tone-pink { --tone: var(--pink); }
+.tone-cyan { --tone: var(--cyan); }
+.tone-gold { --tone: var(--gold); }
+.tone-hot { --tone: #ff6a3d; }
+.tone-green { --tone: var(--buff); }
+
+/* The running ticker under the top bar, tilted like a banner. */
+.home { grid-template-areas: "ticker ticker" "intro gift" "soon soon" "picker picker" "tftp tftp" "steps steps"; }
+.ticker {
+  grid-area: ticker;
+  position: relative;
+  width: 100vw;
+  margin: 10px 0 0 calc(50% - 50vw);
+  padding: 9px 0;
+  overflow: hidden;
+  transform: rotate(-1.4deg);
+  background: linear-gradient(90deg, #ff4fd8, #8b5cf6 45%, #22d3ee);
+  box-shadow: 0 10px 30px -12px var(--pink), inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+.tk-track { display: flex; width: max-content; animation: tk 46s linear infinite; }
+.ticker:hover .tk-track { animation-play-state: paused; }
+@keyframes tk { to { transform: translateX(-50%); } }
+.tk-run { display: flex; gap: 34px; padding-right: 34px; }
+.tk-item { display: inline-flex; align-items: center; gap: 8px; color: #fff; font-weight: 800; font-size: .9rem; white-space: nowrap; text-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
+.tk-item b { font: 700 .92rem var(--mono); letter-spacing: .04em; }
+.tk-item small { opacity: .85; font-weight: 600; }
+.tk-dot { width: 10px; height: 10px; border-radius: 3px; background: linear-gradient(135deg, var(--c1, #fff), var(--c2, #fff)); box-shadow: 0 0 0 2px rgba(255, 255, 255, .7); transform: rotate(45deg); }
+.tk-gold b { color: #fff3b0; }
+
+/* "Expiring soon" sits on a hot panel. */
+.soon {
+  margin: 8px 0 10px;
+  padding: 18px 18px 8px;
+  border-radius: 24px;
+  background:
+    radial-gradient(70% 140% at 0% 0%, rgba(255, 106, 61, .26), transparent 60%),
+    radial-gradient(60% 120% at 100% 100%, rgba(255, 201, 77, .14), transparent 60%),
+    var(--surface);
+  box-shadow: inset 0 0 0 1px rgba(255, 120, 80, .28), 0 20px 40px -30px #ff6a3d;
+}
+
+/* Game cards become posters in the game's own colors, with a 3D badge cube. */
+.gcard {
+  min-height: 220px;
+  color: #fff;
+  background:
+    linear-gradient(160deg, color-mix(in oklab, var(--c1) 78%, #000), color-mix(in oklab, var(--c2) 62%, #000) 70%, color-mix(in oklab, var(--c2) 40%, #000));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 6px 0 color-mix(in oklab, var(--c2) 30%, #000), 0 30px 50px -28px var(--c1);
+}
+.gcard-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, .07) 0 2px, transparent 2px 14px),
+    radial-gradient(circle at 85% 20%, color-mix(in oklab, var(--c3) 45%, transparent), transparent 45%);
+}
+.gcard-art { display: none; }
+.gcard-count, .gcard-latest { color: rgba(255, 255, 255, .78); }
+.gcard-count b, .gcard-latest b, .gcard-title { color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+.gcard-title { font-size: 1.7rem; margin-top: 26px; }
+.gcard-go { background: rgba(255, 255, 255, .16); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3); }
+.gcard .expiry { background: rgba(0, 0, 0, .25); padding: 3px 10px; border-radius: 99px; color: #fff; }
+.gcard .expiry[data-level="soon"], .gcard .expiry[data-level="urgent"] { background: #ff6a3d; }
+.gcard .lcube { position: absolute; right: 26px; bottom: 30px; transform: translateZ(60px); }
+
+.lcube { --cs: 58px; position: relative; display: block; width: var(--cs); height: var(--cs); perspective: 500px; }
+.lcube-in { position: absolute; inset: 0; transform-style: preserve-3d; transform: rotateX(-22deg) rotateY(-34deg); transition: transform 1s var(--spring); }
+.lcube-in i {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #fff;
+  font: 900 calc(var(--cs) * .32) / 1 var(--font);
+  font-style: normal;
+  letter-spacing: -.03em;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .25);
+  background: linear-gradient(135deg, var(--c1, var(--pink)), var(--c2, var(--violet)));
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35), inset 0 -8px 16px rgba(0, 0, 0, .2);
+}
+.lc-f { transform: translateZ(calc(var(--cs) / 2)); }
+.lc-b { transform: rotateY(180deg) translateZ(calc(var(--cs) / 2)); }
+.lc-r { transform: rotateY(90deg) translateZ(calc(var(--cs) / 2)); background: linear-gradient(135deg, color-mix(in oklab, var(--c1, var(--pink)) 78%, #000), color-mix(in oklab, var(--c2, var(--violet)) 78%, #000)) !important; }
+.lc-l { transform: rotateY(-90deg) translateZ(calc(var(--cs) / 2)); background: linear-gradient(135deg, color-mix(in oklab, var(--c1, var(--pink)) 78%, #000), color-mix(in oklab, var(--c2, var(--violet)) 78%, #000)) !important; }
+.lc-t { transform: rotateX(90deg) translateZ(calc(var(--cs) / 2)); background: linear-gradient(135deg, var(--c3, var(--gold)), var(--c1, var(--pink))) !important; }
+.lc-d { transform: rotateX(-90deg) translateZ(calc(var(--cs) / 2)); }
+.lcube-lg { --cs: 92px; }
+@media (hover: hover) and (pointer: fine) {
+  .gcard:hover .lcube-in { transform: rotateX(-30deg) rotateY(-214deg); }
+}
+
+/* Planets: each game circles the gift box. */
+.orbit-in .planet {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin: -17px;
+  border-radius: 50%;
+  color: #fff;
+  font: 900 .72rem/1 var(--font);
+  background: radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--c1) 60%, #fff), var(--c1) 45%, var(--c2));
+  box-shadow: 0 0 16px -2px var(--c1);
+  transform: rotateZ(calc(var(--k) * 360deg / var(--n) + 20deg)) translateX(178px) rotateX(-72deg);
+}
+
+/* "How to use" tiles with extruded 3D numbers. */
+.steps { grid-area: steps; padding: 22px 0 30px; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.step {
+  position: relative;
+  padding: 22px 20px 18px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, color-mix(in oklab, var(--tone) 22%, var(--surface)), var(--surface) 70%);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 30%, var(--line)), 0 20px 34px -26px var(--tone);
+  overflow: hidden;
+}
+.step::after { content: ""; position: absolute; right: -40px; top: -40px; width: 120px; height: 120px; border-radius: 50%; background: color-mix(in oklab, var(--tone) 18%, transparent); }
+.step h3 { margin: 14px 0 6px; font-size: 1.12rem; font-weight: 900; }
+.step p { margin: 0; color: var(--muted); font-size: .9rem; }
+.step-n {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  color: #fff;
+  font: 900 1.6rem/1 var(--font);
+  background: linear-gradient(145deg, color-mix(in oklab, var(--tone) 90%, #fff 10%), color-mix(in oklab, var(--tone) 65%, #000));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 2px 0 color-mix(in oklab, var(--tone) 55%, #000), 0 4px 0 color-mix(in oklab, var(--tone) 48%, #000), 0 6px 0 color-mix(in oklab, var(--tone) 40%, #000), 0 16px 24px -10px var(--tone);
+  transform: rotate(-8deg);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .25);
+}
+
+/* Sections fly in. */
+.reveal { opacity: 0; transform: perspective(1100px) rotateX(14deg) translateY(36px); transition: opacity .7s ease, transform .9s var(--spring); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* Game page: a poster header in the game's colors with a spinning cube. */
+.ghead {
+  color: #fff;
+  min-height: 190px;
+  background: linear-gradient(130deg, color-mix(in oklab, var(--c1) 80%, #000), color-mix(in oklab, var(--c2) 60%, #000) 65%, color-mix(in oklab, var(--c2) 38%, #000));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 8px 0 color-mix(in oklab, var(--c2) 30%, #000), 0 40px 60px -40px var(--c1);
+}
+.ghead-pattern { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .07) 0 2px, transparent 2px 16px), radial-gradient(circle at 80% 30%, color-mix(in oklab, var(--c3) 40%, transparent), transparent 50%); }
+.ghead-art { display: none; }
+.ghead > .lcube { position: absolute; right: 36px; top: 50%; margin-top: -46px; }
+.ghead .lcube-in { animation: lcube-spin 16s linear infinite; }
+@keyframes lcube-spin { from { transform: rotateX(-22deg) rotateY(0); } to { transform: rotateX(-22deg) rotateY(360deg); } }
+.ghead .mono { display: none; }
+.ghead-title { text-shadow: 0 3px 0 rgba(0, 0, 0, .25); }
+.ghead-meta { color: rgba(255, 255, 255, .8); }
+.ghead-main { padding-right: 130px; }
+.ghead .btn-ghost { background: rgba(255, 255, 255, .14); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3); }
+.ghead .btn-primary { background: #fff; color: color-mix(in oklab, var(--c2) 70%, #000); box-shadow: 0 5px 0 rgba(0, 0, 0, .25); }
+
+/* Codes as tickets: a stub, a perforation, and a flip when copied. */
+.codes { perspective: 900px; }
+.code {
+  padding-left: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 58px 0, var(--bg-2) 9px, transparent 9.5px),
+    radial-gradient(circle at 58px 100%, var(--bg-2) 9px, transparent 9.5px),
+    linear-gradient(100deg, color-mix(in oklab, var(--c1, var(--accent)) 22%, var(--surface)), var(--surface) 60%);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--c1, var(--accent)) 25%, var(--line)), 0 12px 24px -18px var(--c1, var(--accent));
+}
+.code-stub { display: grid; place-items: center; flex: none; align-self: stretch; width: 58px; margin: -16px 0; border-right: 2px dashed color-mix(in oklab, var(--c1, var(--accent)) 45%, transparent); background: linear-gradient(180deg, color-mix(in oklab, var(--c1, var(--accent)) 40%, transparent), color-mix(in oklab, var(--c2, var(--accent)) 30%, transparent)); font-size: 1.3rem; }
+.code.locked .code-stub, .old .code-stub { display: none; }
+.code.locked, .old .code { padding-left: 18px; }
+.code.flip { animation: ticket-flip .7s var(--spring); }
+@keyframes ticket-flip { 0% { transform: rotateX(0); } 45% { transform: rotateX(-100deg) scale(.96); } 100% { transform: rotateX(0); } }
+.code.copied .code-stub { background: color-mix(in oklab, var(--ok) 30%, transparent); }
+
+.panel.tone-gold, .panel.tone-cyan { background: linear-gradient(165deg, color-mix(in oklab, var(--tone) 14%, var(--surface)), var(--surface) 60%); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 28%, var(--line)), inset 0 3px 0 var(--tone); }
+
+/* Footer: a glowing rule and the brand. */
+.foot { position: relative; border-top: 0; }
+.foot::before { content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--pink), var(--violet), var(--cyan), transparent); box-shadow: 0 0 18px var(--violet); }
+
 /* Tone of anything marked with a change direction (after the components, so it wins). */
 [data-dir="buff"] { --tone: var(--buff); }
 [data-dir="nerf"] { --tone: var(--nerf); }
@@ -1145,7 +1380,8 @@ dialog.lightbox button { padding: 8px 14px; border: 0; border-radius: 10px; back
 /* --- Smaller screens ------------------------------------------------------------- */
 
 @media (max-width: 900px) {
-  .home { grid-template-columns: minmax(0, 1fr); grid-template-areas: "intro" "soon" "picker" "tftp" "gift"; padding-top: 6px; }
+  .home { grid-template-columns: minmax(0, 1fr); grid-template-areas: "ticker" "intro" "soon" "picker" "tftp" "gift" "steps"; padding-top: 6px; }
+  .steps-grid { grid-template-columns: minmax(0, 1fr); }
   .intro { padding: 18px 0 18px; }
   .gift { padding: 22px 0 10px; }
   .gift-title { display: flex; }
@@ -1191,6 +1427,11 @@ dialog.lightbox button { padding: 8px 14px; border: 0; border-radius: 10px; back
   .pflow-track { padding-inline: max(16px, calc(50% - 75px)); }
   .pflow-nav { display: none; }
   .stat { min-width: 0; flex: 1 1 90px; }
+  .ghead > .lcube { right: 18px; top: 22px; margin-top: 0; --cs: 64px; }
+  .ghead .lcube-in { animation-iteration-count: 1; animation-duration: 6s; }
+  .ghead-main { padding-right: 70px; }
+  .gcard .lcube { --cs: 48px; right: 18px; bottom: 22px; }
+  .ticker { transform: rotate(-2deg); }
   .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 

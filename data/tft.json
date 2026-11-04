@@ -1,17 +1,17 @@
 {
- "updated_at": "2026-11-03T21:07:52Z",
+ "updated_at": "2026-11-04T01:28:06Z",
  "patches": [
   {
    "version": "18.6",
    "set": 18,
    "set_name": "Đại Ngàn Kỳ Bí",
-   "title": "Teamfight Tactics patch 18.6",
-   "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-6",
-   "locale": "en-us",
+   "title": "Đấu Trường Chân Lý - Bản Cập Nhật 18.6",
+   "url": "https://teamfighttactics.leagueoflegends.com/vi-vn/news/game-updates/teamfight-tactics-patch-18-6",
+   "locale": "vi-vn",
    "published_at": "2026-11-03T19:00:00Z",
    "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/7aaebca3079aebd84cd6c257a16beeb8a8ff31fb-1920x1080.jpg?accountingTag=TFT",
-   "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4009f3a70bc82d07e6ac7d6ba3598a8fd83eb236-1920x1080.jpg",
-   "description": "Small buffs & a standalone client that we’ll be iterating on in future patches. 18.6 is a big download!",
+   "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9e1e5f17b55576b74673f82979c30b919072a437-2400x1350.png",
+   "description": "Bản Cập Nhật 18.6 mang đến một số thay đổi tăng sức mạnh nhỏ cho Đại Ngàn Kỳ Bí và ra mắt phiên bản đầu tiên của client ĐTCL độc lập. Chúng tôi sẽ tiếp tục hoàn thiện và cải tiến client này trong các bản cập nhật sau. Bản cập nhật này sẽ có dung lượng tải về lớn hơn thông thường.",
    "counts": {
     "buff": 16,
     "nerf": 6,
@@ -21,85 +21,75 @@
     "fix": 23
    },
    "icons": {
-    "Blossom": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_blossom.png",
-    "Elderwood": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
-    "Sprykin": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_sprykin.png",
+    "Hoa Linh": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_blossom.png",
+    "Thần Rừng": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+    "Tinh Nghịch": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_sprykin.png",
     "Kobuko": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_kobuko/skins/base/images/tft18_kobuko_splash_tile_2.png",
     "Rek'Sai": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_reksai/skins/base/images/tft18_reksai_splash_tile_17.png",
-    "Murkwolf": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_murkwolf/skins/base/images/t_18_murkwolf_teamplannersplash.png",
+    "Sói Hắc Ám": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_murkwolf/skins/base/images/t_18_murkwolf_teamplannersplash.png",
     "Malphite": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_malphite/skins/base/images/tft18_malphite_splash_tile_27.png",
-    "Sentinel": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_sentinel/skins/base/images/t_18_sentinel_teamplannersplash.png",
-    "Clockwork Accelerator": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/clockworkaccelerator_ii.png",
-    "Embiggen": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t2.png",
-    "Plot Armor": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/plotarmor_ii.png",
-    "Shopping Spree": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/silver-ticket-iii.png",
-    "Unrivaled": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t2.png",
-    "Curio Cart": "https://raw.communitydragon.org/latest/game/assets/ux/tft/hud/zaps/wands/set18_mechanicicon.png",
-    "Middle Path": "https://raw.communitydragon.org/latest/game/assets/ux/tft/hud/zaps/wands/set18_mechanicicon.png",
-    "Blighting Jewel": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_artifact_blightingjewel.png",
-    "Calculated Loss": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/calculatedloss2.png",
-    "Slightly Magic Roll": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/slightlymagicroll_i.png",
-    "Cooking Pot": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/cookingpot_ii.png",
-    "Flexible": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/flexible_ii.png",
-    "Gambler's Blade": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft7_item_shimmerscalegamblersblade.png",
-    "Hard Commit": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/hardcommit_iii.png",
-    "Moonrise": "https://raw.communitydragon.org/latest/game/assets/ux/tft/hud/zaps/wands/set18_mechanicicon.png",
-    "Worth the Wait": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/worththewait_ii.png",
-    "Clear Mind": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/clearmind2.png",
-    "Cluttered Mind": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/dizzy-ii.png",
-    "Nesting Anvils": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t3.png"
+    "Người Đá": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_sentinel/skins/base/images/t_18_sentinel_teamplannersplash.png",
+    "Động Cơ Tăng Tốc": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/clockworkaccelerator_ii.png",
+    "Hóa Lớn": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t2.png",
+    "Hào Quang Nhân Vật Chính": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/plotarmor_ii.png",
+    "Tín Đồ Mua Sắm": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/silver-ticket-iii.png",
+    "Không Đối Thủ": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t2.png",
+    "Xe Đồ Lạ": "https://raw.communitydragon.org/latest/game/assets/ux/tft/hud/zaps/wands/set18_mechanicicon.png",
+    "Chơi Đường Giữa": "https://raw.communitydragon.org/latest/game/assets/ux/tft/hud/zaps/wands/set18_mechanicicon.png",
+    "Đá Hắc Hóa": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft_item_artifact_blightingjewel.png",
+    "Thua Có Tính Toán": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/calculatedloss2.png",
+    "Quay Trúng Thưởng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/slightlymagicroll_i.png",
+    "Nồi Nấu Ăn": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/cookingpot_ii.png",
+    "Linh Hoạt": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/flexible_ii.png",
+    "Kiếm Của Tay Bạc": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/items/hexcore/tft7_item_shimmerscalegamblersblade.png",
+    "Chỉ Một Con Đường": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/hardcommit_iii.png",
+    "Chờ Đợi Xứng Đáng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/worththewait_ii.png",
+    "Thông Thoáng": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/clearmind2.png",
+    "Bừa Bộn": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/dizzy-ii.png",
+    "Gói Trang Bị Bất Ngờ": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/missing-t3.png"
    },
    "sections": [
     {
-     "title": "Tổng quan",
+     "title": "",
      "kind": "other",
      "notes": [
-      "It's the Tactician's Crown Patch! With our dedicated client launching this patch, the deploy is expected to take longer than normal across both PC & mobile. We'll follow up with a more specific release time as the patch goes live across regions. The patch where we play the biggest tournament in the set is here, but you don't have to be competing for the crown to enjoy this one. With our 18.5 mid-patch updates last week that widened the meta by nerfing the dominant strategies (Kha'Zix and Brambleback) we're looking at small buffs to the Wilds for our 4-cost lines to keep them feeling Enchanted. Past balance changes, 18.6 has some huge changes, notably our move to a TFT standalone client, and some quality of life changes to in-game chat and more from our Follow the Fix efforts. For more details on the around-game changes to 18.6, including a small spoiler for Set 19 click it here , and for more info on Follow the Fix click here to check the site out which is still being updated each patch (note it gets updated after the patch deploys). Onto the notes!"
+      "Đây là Bản Cập Nhật Tactician's Crown! Với việc client độc lập chính thức ra mắt trong bản cập nhật này, quá trình triển khai trên cả PC lẫn thiết bị di động dự kiến sẽ kéo dài hơn bình thường. Chúng tôi sẽ cập nhật thời gian phát hành cụ thể hơn khi bản cập nhật bắt đầu được triển khai tại từng khu vực. Bản cập nhật dành cho giải đấu lớn nhất mùa đã chính thức cập bến, nhưng bạn không nhất thiết phải tranh tài vì chiếc vương miện thì mới có thể tận hưởng những thay đổi lần này. Sau bản cập nhật giữa phiên bản 18.5 vào tuần trước, nơi chúng tôi mở rộng meta bằng cách giảm sức mạnh các chiến thuật đang thống trị (Kha'Zix và Bụi Gai Đỏ), lần này chúng tôi sẽ tăng nhẹ sức mạnh cho Đại Ngàn, tập trung vào nhóm tướng 4 vàng để họ tiếp tục giữ được chất \"Kỳ Bí\". Ngoài các thay đổi cân bằng, bản 18.6 còn mang đến một số cập nhật lớn, nổi bật là việc chuyển sang client ĐTCL độc lập, cùng một số cải thiện trải nghiệm cho chat trong trận và nhiều thay đổi khác từ những nỗ lực Follow the Fix. Để biết thêm chi tiết về các thay đổi xoay quanh trải nghiệm ĐTCL trong 18.6, bao gồm một chút \"nhá hàng\" về Mùa 19, hãy nhấp vào đây . Còn nếu muốn tìm hiểu thêm về Follow the Fix, hãy nhấp vào đây để truy cập trang thông tin vẫn đang được cập nhật sau mỗi bản cập nhật (lưu ý rằng trang này sẽ được cập nhật sau khi bản cập nhật được triển khai). Giờ thì đến với thông tin cập nhật thôi!"
      ],
      "changes": []
     },
     {
-     "title": "NEW STANDALONE CLIENT",
+     "title": "CLIENT ĐỘC LẬP MỚI",
      "kind": "other",
      "notes": [
-      "Our standalone TFT client launches with this Patch! This initial release lays the foundation for improvements we'll roll out in 18.7 and beyond, leading up to Set 19. With this release, there are also some changes to cosmetics coming down the line. New cosmetics that have historically been usable across both TFT & LoL—namely Little Legends & Emotes—will not be shared cross-game as a result of being developed in different engines moving forward. Full details: Starting in Patch 19.1 with Set 19's release, you won't be able to use newly-released Little Legends as followers in ARAM. If you're currently using a Little Legend, you can still take them with you to the Howling Abyss, along with the rest of the Little Legend catalogue released before 19.1. Starting in Patch 19.2, TFT emotes will also be split from ones acquired in League of Legends. As with Little Legends, anything released prior to that patch will still be usable across both games. For more details on this, and the next two sections check out this link ."
+      "Client ĐTCL độc lập sẽ chính thức ra mắt trong bản cập nhật này! Đợt phát hành đầu tiên này sẽ đặt nền móng cho những cải tiến được triển khai trong bản cập nhật 18.7 trở đi, trên hành trình hướng đến Mùa 19. Cùng với lần ra mắt này, một số thay đổi liên quan đến vật phẩm trang trí cũng sẽ được áp dụng trong thời gian tới. Các vật phẩm trang trí mới trước đây có thể dùng chung giữa ĐTCL và LMHT - cụ thể là Linh Thú và Biểu Cảm - sẽ không còn được chia sẻ giữa hai trò chơi do từ nay chúng sẽ được phát triển trên các engine khác nhau. Chi tiết như sau: Bắt đầu từ Bản Cập Nhật 19.1, cùng thời điểm Mùa 19 ra mắt, bạn sẽ không thể sử dụng các Linh Thú mới phát hành làm bạn đồng hành trong ARAM. Nếu đang sử dụng một Linh Thú, bạn vẫn có thể mang chúng theo đến Vực Gió Hú, cùng với toàn bộ các Linh Thú đã được phát hành trước Bản Cập Nhật 19.1. Bắt đầu từ Bản Cập Nhật 19.2, biểu cảm ĐTCL cũng sẽ được tách riêng khỏi các biểu cảm nhận được trong Liên Minh Huyền Thoại. Tương tự như Linh Thú, mọi nội dung được phát hành trước bản cập nhật đó vẫn có thể sử dụng được trong cả hai trò chơi. Để biết thêm chi tiết về nội dung này và hai mục tiếp theo, hãy xem tại liên kết này."
      ],
      "changes": []
     },
     {
-     "title": "APPRECIATION MISSIONS",
+     "title": "NHIỆM VỤ TRI ÂN",
      "kind": "other",
      "notes": [
-      "We know the transition to Unreal has had its bumps, and we appreciate your patience and support. To say thanks and kick off Set 19, we're introducing a series of simple missions in Patch 19.1 and additional compensation for players who have purchased cosmetic content."
+      "Chúng tôi hiểu rằng quá trình chuyển đổi sang Unreal vẫn còn một số trở ngại, và chúng tôi vô cùng trân trọng sự kiên nhẫn cũng như ủng hộ của các bạn. Để gửi lời cảm ơn và chào mừng Mùa 19, chúng tôi sẽ giới thiệu một loạt nhiệm vụ đơn giản trong Bản Cập Nhật 19.1, cùng các phần quà bù đắp dành cho những người chơi đã mua vật phẩm trang trí."
      ],
      "changes": [
       {
-       "subject": "All Players",
+       "subject": "Tất Cả Người Chơi",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "adjust",
        "kind": "other",
-       "text": "Play 1 game in Set 19 to earn 500 Treasure Tokens"
+       "text": "Chơi 1 trận trong Mùa 19 để nhận 500 Kỉ Vật Kho Báu"
       },
       {
-       "subject": "Play 20 games in Set 19 to earn one random Mythic Chibi",
+       "subject": "Chơi 20 trận trong Mùa 19 để nhận 1 Tí Nị Thần Thoại ngẫu nhiên",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "adjust",
        "kind": "other",
-       "text": "To get specific: you'll earn a token that can be used on a new banner that contains only Mythic Chibis - no Unbound Tacticians or Mythic Little Legends.",
-       "group": "All Players"
-      },
-      {
-       "subject": null,
-       "stat": null,
-       "before": null,
-       "after": null,
-       "dir": "adjust",
-       "kind": "other",
-       "text": "Players who own a Mythic Tactician or Arena before Patch 18.7 will receive 2 Mythic Medallions"
+       "text": "Cụ thể hơn, bạn sẽ nhận được một kỉ vật quy đổi có thể sử dụng trong vòng quay mới chỉ chứa các Tí Nị Thần Thoại - không có Linh Thú Đột Phá hay Linh Thú Thần Thoại.",
+       "group": "Tất Cả Người Chơi"
       },
       {
        "subject": null,
@@ -108,48 +98,57 @@
        "after": null,
        "dir": "adjust",
        "kind": "other",
-       "text": "Players who own a Prestige Tactician before Patch 18.7 will receive an Unannounced Mythic Chibi"
+       "text": "Người chơi sở hữu Linh Thú Thần Thoại hoặc Sân Đấu Thần Thoại trước Bản Cập Nhật 18.7 sẽ nhận 2 Huy Chương Thần Thoại"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "other",
+       "text": "Người chơi sở hữu Linh Thú Hàng Hiệu trước Bản Cập Nhật 18.7 sẽ nhận một Tí Nị Thần Thoại chưa được công bố"
       }
      ]
     },
     {
-     "title": "LARGE CHANGES",
+     "title": "THAY ĐỔI LỚN",
      "kind": "mechanics",
      "notes": [
-      "Large, like this patch's download size. Don't worry, future patches will return to normal size.",
-      "Blossom and Sprykin: Buffing the verticals here that you typically play with an Emblem so you don't feel like you need a reforger when you get a Blossom/Sprykin Emblem. For Spykin, we're also buffing the backline option as most players opt to buff their melee tank or an Emblem-toting Rengar.",
-      "Elderwood: Elderwood (9) continues to outperform our other verticals even while being Emblem and skill-dependent.",
-      "Kobuko and Rek'Sai: Ideally all our 1-costs have spots in various boards in the early and mid-game, but these two are often dropped from boards before we even get there. With these buffs we also expect the power floors of reroll Teemo and Veigar comps to be slightly higher as they often keep these champs around for longer.",
-      "Murkwolf: Brambleback's nerf hurt this puppy's comp. And since he's never been the primary carry on reroll Ravager or Riftbeast boards, there's plenty of room to buff pup in the ruff to be worth the chase.",
-      "Malphite: Malphite's getting a better AP ratio on his shield and his ability's damage. While the ability damage shouldn't be too impactful, it might allow him to actually clean up a fight if your backliners got wrapped by a rogue Brambleback that's just made it out with a sliver of health.",
-      "Nidalee: AD Nidaless dies pretty fast to Ahri/Zyra boards, so increasing her survivability should allow her to cycle through casts more effectively. A stronger third cast should help get through those pesky frontliners she gets stuck on like the cat-nip stuffed punching bags they tend to be. Nidalee's AP form has yet to really emerge as a primary carry in a comp this set. This is our bigger buff for the patch (although it's still relatively small) with buffs to her javelin attacks and a bigger one to the final javelin. Keep a look out for AP Nidalee/Juggernaut comps in lobbies near you.",
-      "Sentinel: If you're not running Malphite, you're likely running Sentinel in AP flex lines. Both are in a tough spot to play as primary tanks, so for Sentinel we're increasing the shield HP ratio making item's like Warmog's that much better.",
-      "A lot of our combat Augments are strong, but Clockwork Accelerator and Plot Armor are not up to par with them.",
-      "Currently, Shopping Spree is our worst performing econ Prismatic on 2-1. Not by that much, but maybe by just one gold?",
-      "Unrivaled was hit hard by our Kha'Zix nerfs and it wasn't exactly meta before either. So we've got a real game changer of a buff for the duo here.",
-      "Emblems, especially when you can get multiple, can become powerful albeit situational win conditions. We're increasing the cost of Emblems with the Curio Cart to make them a bit bigger of an econ trade off.",
-      "Middle Path, which provides a shop full of two-star 3-costs is a situational yet high-powered Wisp. It's either great for your comp, or not worth the click already, but when it is great, it provides too much consistency for its cost."
+      "Lớn như dung lượng tải xuống của bản cập nhật này vậy. Đừng lo, các bản cập nhật sau sẽ trở lại kích thước bình thường.",
+      "Hoa Linh và Tinh Nghịch: Chúng tôi sẽ tăng sức mạnh cho các mốc cao của hai Tộc này, vốn thường được chơi khi có Ấn, để bạn không còn cảm thấy mình cần đến búa rèn mỗi khi nhận được Ấn Hoa Linh/Tinh Nghịch. Riêng với Tinh Nghịch, chúng tôi cũng sẽ tăng sức mạnh cho lựa chọn hàng sau, bởi phần lớn người chơi hiện thường ưu tiên cường hóa tướng chống chịu cận chiến hoặc Rengar cầm Ấn.",
+      "Thần Rừng: Thần Rừng (9) vẫn tiếp tục vượt trội so với các tộc/hệ mốc cao khác, dù vừa phụ thuộc vào Ấn vừa đòi hỏi kỹ năng triển khai.",
+      "Kobuko và Rek'Sai: Lý tưởng nhất là mọi tướng 1 vàng đều có chỗ đứng trong nhiều đội hình khác nhau ở đầu và giữa trận, nhưng hai cái tên này thường bị bỏ qua từ rất sớm. Với những đợt tăng sức mạnh này, chúng tôi cũng kỳ vọng ngưỡng sức mạnh sàn của các đội hình reroll Teemo và Veigar sẽ được nâng lên đôi chút, bởi những đội hình này thường giữ Kobuko và Rek'Sai lại lâu hơn.",
+      "Sói Hắc Ám: Đợt giảm sức mạnh của Bụi Gai Đỏ đã ảnh hưởng khá nhiều đến đội hình của chú cún này. Và vì Sói Hắc Ám chưa bao giờ là chủ lực chính trong các đội hình reroll Tàn Phá hay Quái Rừng, chúng tôi càng có nhiều lý do để tăng sức mạnh cho \"chú cún đang sa sút\", giúp việc theo đuổi chú ta trở nên xứng đáng hơn.",
+      "Malphite: Malphite sẽ được tăng tỉ lệ SMPT cho cả lá chắn lẫn sát thương kỹ năng. Phần sát thương kỹ năng có lẽ sẽ không tạo ra quá nhiều khác biệt, nhưng ít nhất có thể giúp hắn tự tay dọn nốt giao tranh nếu hàng sau của bạn vừa bị một Bụi Gai Đỏ lạc đàn quậy tung và hắn chỉ còn sót lại một chút máu.",
+      "Nidalee: Nidalee SMCK hiện bị hạ gục khá nhanh trước các đội hình Ahri/Zyra, vì vậy tăng khả năng sống sót sẽ giúp cô xoay vòng kỹ năng hiệu quả hơn. Lần thi triển thứ ba mạnh hơn cũng sẽ giúp Nidalee xử lý những tướng tuyến trước khó chịu mà cô thường bị mắc kẹt vào - chẳng khác nào những bao cát nhồi đầy cỏ mèo chờ cô vồ vậy. Dạng SMPT của Nidalee vẫn chưa thực sự nổi lên với vai trò chủ lực chính trong bất kỳ đội hình nào mùa này. Đây sẽ là đợt tăng sức mạnh lớn hơn của chúng tôi trong bản này (dù xét tổng thể vẫn khá nhỏ), với việc tăng sức mạnh cho các đòn phóng lao và đặc biệt là cú lao cuối cùng. Hãy để mắt đến các đội hình Nidalee SMPT/Dũng Sĩ trong những sảnh chờ sắp tới nhé.",
+      "Người Đá: Nếu không dùng Malphite, nhiều khả năng bạn sẽ dùng Người Đá trong các đội hình flex SMPT. Cả hai hiện đều khá khó đảm nhiệm vai trò chống chịu chính, vì vậy với Người Đá, chúng tôi sẽ tăng tỉ lệ Máu của lá chắn, qua đó giúp những trang bị như Giáp Máu Warmog trở nên hiệu quả hơn đáng kể.",
+      "Rất nhiều Nâng Cấp giao tranh của chúng tôi hiện đang khá mạnh, nhưng Động Cơ Tăng Tốc và Hào Quang Nhân Vật Chính vẫn chưa theo kịp phần còn lại.",
+      "Tín Đồ Mua Sắm hiện là Nâng Cấp kinh tế bậc Kim Cương kém hiệu quả nhất khi xuất hiện ở 2-1. Cũng không kém quá nhiều đâu - có khi chỉ thiếu đúng... 1 vàng thôi?",
+      "Không Đối Thủ chịu ảnh hưởng khá nặng từ những đợt giảm sức mạnh Kha'Zix, mà trước đó cũng đâu có thực sự nằm trong meta. Vì vậy, chúng tôi sẽ tung ra một đợt tăng sức mạnh đủ sức thay đổi cuộc chơi cho bộ đôi này.",
+      "Ấn, đặc biệt là khi bạn có thể sở hữu nhiều Ấn cùng lúc, có thể trở thành điều kiện thắng rất mạnh dù mang tính tình huống. Chúng tôi sẽ tăng giá Ấn trong Xe Đồ Lạ để khiến việc mua chúng phải đánh đổi kinh tế nhiều hơn đôi chút.",
+      "Chơi Đường Giữa, vốn cho bạn một cửa hàng toàn tướng 3 vàng 2 sao, là một Tinh Linh mang tính tình huống nhưng có sức mạnh rất cao. Hoặc nó cực kỳ phù hợp với đội hình của bạn, hoặc chẳng đáng để bấm lấy ngay từ đầu; nhưng khi thực sự phù hợp, nó lại mang đến độ ổn định quá lớn so với mức giá hiện tại."
      ],
      "changes": [
       {
-       "subject": "Blossom",
-       "stat": "AD/AP",
+       "subject": "Hoa Linh",
+       "stat": "SMCK/SMPT",
        "before": "12/30/50/55%",
        "after": "12/30/55/65%",
        "dir": "buff",
        "kind": "traits"
       },
       {
-       "subject": "Elderwood",
-       "stat": "9 Piece HP Bonus",
+       "subject": "Thần Rừng",
+       "stat": "9 Tướng - Thưởng Máu",
        "before": "25%",
        "after": "10%",
        "dir": "nerf",
        "kind": "traits"
       },
       {
-       "subject": "Sprykin",
-       "stat": "BFF Ranged AD/AP",
+       "subject": "Tinh Nghịch",
+       "stat": "LXKL - SMCK/SMPT Đánh Xa",
        "before": "15/28/33%",
        "after": "15/30/38%",
        "dir": "buff",
@@ -157,176 +156,176 @@
       },
       {
        "subject": "Kobuko",
-       "stat": "Spell Healing (AP)",
+       "stat": "Kỹ Năng - Hồi Máu (SMPT)",
        "before": "285/335/480",
        "after": "300/350/550",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 1"
+       "group": "Tướng 1 vàng"
       },
       {
        "subject": "Rek'Sai",
-       "stat": "Spell Healing (AP)",
+       "stat": "Kỹ Năng - Hồi Máu (SMPT)",
        "before": "10/14/20",
        "after": "10/16/24",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 1"
+       "group": "Tướng 1 vàng"
       },
       {
-       "subject": "Murkwolf",
-       "stat": "Empowered Attack Damage",
-       "before": "65/100/160 AD",
-       "after": "65/100/180 AD",
+       "subject": "Sói Hắc Ám",
+       "stat": "Sát Thương Đòn Đánh Cường Hóa",
+       "before": "65/100/160 SMCK",
+       "after": "65/100/180 SMCK",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 2"
+       "group": "Tướng 2 vàng"
       },
       {
        "subject": "Malphite",
-       "stat": "Shield",
-       "before": "735/885/2000 (AP)",
-       "after": "750/925/2000 (AP)",
+       "stat": "Lá Chắn",
+       "before": "735/885/2.000 (SMPT)",
+       "after": "750/925/2.000 (SMPT)",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 4"
+       "group": "Tướng 4 vàng"
       },
       {
        "subject": "Malphite",
-       "stat": "Spell Damage (AP)",
-       "before": "40/60/2000",
-       "after": "100/150/2000",
+       "stat": "Sát Thương Kỹ Năng (SMPT)",
+       "before": "40/60/2.000",
+       "after": "100/150/2.000",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 4"
+       "group": "Tướng 4 vàng"
       },
       {
-       "subject": "AD Form",
-       "stat": "Heal",
-       "before": "300/450/2000 (AP)",
-       "after": "325/550/2000 (AP)",
+       "subject": "Dạng SMCK",
+       "stat": "Hồi máu",
+       "before": "300/450/2.000 (SMPT)",
+       "after": "325/550/2.000 (SMPT)",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 4 · Nidalee"
+       "group": "Tướng 4 vàng · Nidalee"
       },
       {
-       "subject": "AD Form",
-       "stat": "Third Cast Bonus Damage",
+       "subject": "Dạng SMCK",
+       "stat": "Sát Thương Cộng Thêm Lần Tung Chiêu Thứ Ba",
        "before": "125%",
        "after": "140%",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 4 · Nidalee"
+       "group": "Tướng 4 vàng · Nidalee"
       },
       {
-       "subject": "AP Form",
-       "stat": "Empowered Attack Damage",
-       "before": "185/275/2000 (AP)",
-       "after": "195/295/2000 (AP)",
+       "subject": "Dạng SMPT",
+       "stat": "Sát Thương Đòn Đánh Cường Hóa",
+       "before": "185/275/2.000 (SMPT)",
+       "after": "195/295/2.000 (SMPT)",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 4 · Nidalee"
+       "group": "Tướng 4 vàng · Nidalee"
       },
       {
-       "subject": "AP Form",
-       "stat": "Third Attack Damage",
-       "before": "330/500/3000 (AP)",
-       "after": "350/525/3000 (AP)",
+       "subject": "Dạng SMPT",
+       "stat": "Sát Thương Đòn Đánh Thứ Ba",
+       "before": "330/500/3.000 (SMPT)",
+       "after": "350/525/3.000 (SMPT)",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 4 · Nidalee"
+       "group": "Tướng 4 vàng · Nidalee"
       },
       {
-       "subject": "Sentinel",
-       "stat": "Shield HP Ratio",
+       "subject": "Người Đá",
+       "stat": "Tỉ Lệ Máu Của Lá Chắn",
        "before": "10%",
        "after": "12%",
        "dir": "buff",
        "kind": "champions",
-       "group": "Tier 4"
+       "group": "Tướng 4 vàng"
       },
       {
-       "subject": "Clockwork Accelerator",
-       "stat": "AS per Proc",
+       "subject": "Động Cơ Tăng Tốc",
+       "stat": "Tốc Đánh mỗi lần Kích Hoạt",
        "before": "10%",
        "after": "12%",
        "dir": "buff",
        "kind": "augments"
       },
       {
-       "subject": "Embiggen",
-       "stat": "Bonus Pixie AD/AP",
+       "subject": "Hóa Lớn",
+       "stat": "SMCK/SMPT cộng thêm từ Pixie",
        "before": "50%",
        "after": "35%",
        "dir": "nerf",
        "kind": "augments"
       },
       {
-       "subject": "Plot Armor",
-       "stat": "Base Resists",
+       "subject": "Hào Quang Nhân Vật Chính",
+       "stat": "Chống Chịu Cơ Bản",
        "before": "8",
        "after": "10",
        "dir": "buff",
        "kind": "augments"
       },
       {
-       "subject": "Shopping Spree",
-       "stat": "Initial Gold Granted",
+       "subject": "Tín Đồ Mua Sắm",
+       "stat": "Vàng Được Cho Khởi Đầu",
        "before": "6",
        "after": "7",
        "dir": "buff",
        "kind": "augments"
       },
       {
-       "subject": "Unrivaled",
-       "stat": "Rengar Heal Share",
+       "subject": "Không Đối Thủ",
+       "stat": "Rengar - Máu Chia Sẻ",
        "before": "25%",
        "after": "50%",
        "dir": "buff",
        "kind": "augments"
       },
       {
-       "subject": "Unrivaled",
-       "stat": "Kha'Zix Mana Share",
+       "subject": "Không Đối Thủ",
+       "stat": "Kha'Zix - Năng Lượng Chia Sẻ",
        "before": "50%",
        "after": "70%",
        "dir": "nerf",
        "kind": "augments"
       },
       {
-       "subject": "Curio Cart",
-       "stat": "Emblem Cost",
+       "subject": "Xe Đồ Lạ",
+       "stat": "Giá Ấn",
        "before": "15",
        "after": "17",
        "dir": "nerf",
        "kind": "items",
-       "group": "WISPS"
+       "group": "TINH LINH"
       },
       {
-       "subject": "Middle Path",
-       "stat": "Cost",
+       "subject": "Chơi Đường Giữa",
+       "stat": "Giá",
        "before": "4",
        "after": "5",
        "dir": "nerf",
        "kind": "items",
-       "group": "WISPS"
+       "group": "TINH LINH"
       },
       {
-       "subject": "Middle Path",
-       "stat": "Upgrade Cost",
+       "subject": "Chơi Đường Giữa",
+       "stat": "Giá Nâng Cấp",
        "before": "3",
        "after": "4",
        "dir": "nerf",
        "kind": "items",
-       "group": "WISPS"
+       "group": "TINH LINH"
       }
      ]
     },
     {
-     "title": "BUG FIXES AND FOLLOW THE FIX CHECK IN",
+     "title": "SỬA LỖI VÀ CẬP NHẬT FOLLOW THE FIX",
      "kind": "fixes",
      "notes": [
-      "While we'll still be listing our bug fixes for the patch here, be sure to check out the Follow the Fix (FTF) website for a broader look at fixes, quality of life improvements, cosmetics conversion process, and more scheduled for this patch, next patch, and beyond. Some big bug highlights here are from the FTF tracker, such as adjusting in-game chat to show more lines with better readability and the re-introduction of Streamer mode."
+      "Dù chúng tôi vẫn sẽ liệt kê các bản sửa lỗi của phiên bản này tại đây, đừng quên truy cập trang web Follow the Fix (FTF) để xem tổng quan đầy đủ hơn về các bản sửa lỗi, cải thiện trải nghiệm, tiến trình chuyển đổi vật phẩm trang trí và nhiều nội dung khác dự kiến triển khai trong bản này, bản tiếp theo và xa hơn nữa. Một số điểm sửa lỗi đáng chú ý dưới đây cũng được lấy từ bảng theo dõi FTF, chẳng hạn như điều chỉnh chat trong trận để hiển thị nhiều dòng hơn và dễ đọc hơn, cũng như đưa Chế Độ Streamer trở lại."
      ],
      "changes": [
       {
@@ -336,7 +335,7 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Adjusted in-game chat to show more lines of chat with better-sized text and a lighter, less intrusive chat window"
+       "text": "Đã điều chỉnh chat trong trận để hiển thị nhiều dòng chat hơn với cỡ chữ phù hợp và cửa sổ trò chuyện gọn nhẹ, ít gây cản trở tầm nhìn hơn."
       },
       {
        "subject": null,
@@ -345,88 +344,61 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Fixed an issue where some consumables would switch places on the item bench after being used"
+       "text": "Đã sửa một lỗi khiến một số vật phẩm tiêu hao đổi vị trí trên hàng chờ trang bị sau khi được sử dụng."
       },
       {
-       "subject": "Blighting Jewel",
+       "subject": "Đá Hắc Hóa",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Blighting Jewel no longer grants more AP than intended."
+       "text": "Đá Hắc Hóa không còn cho nhiều SMPT hơn dự kiến."
       },
       {
-       "subject": "Calculated Loss",
+       "subject": "Thua Có Tính Toán",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Calculated Loss now correctly grants gold at the beginning of the next planning phase."
+       "text": "Thua Có Tính Toán giờ trao vàng chính xác vào đầu giai đoạn dàn trận tiếp theo."
       },
       {
-       "subject": "Slightly Magic Roll",
+       "subject": "Quay Trúng Thưởng",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Slightly Magic Roll now correctly grants its HP and size."
+       "text": "Quay Trúng Thưởng giờ trao đúng lượng Máu và kích cỡ."
       },
       {
-       "subject": "Cooking Pot",
+       "subject": "Nồi Nấu Ăn",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Cooking Pot is properly excluded from Coronation and Spreading Roots"
+       "text": "Nồi Nấu Ăn giờ được loại trừ chính xác khỏi Lên Ngôi Vương và Cắm Rễ Phân Tán"
       },
       {
-       "subject": "Flexible",
+       "subject": "Linh Hoạt",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Flexible and U.R.F. should now be mutually exclusive."
+       "text": "Linh Hoạt và U.R.F. giờ không còn có thể xuất hiện cùng nhau."
       },
       {
-       "subject": "Gambler's Blade",
+       "subject": "Kiếm Của Tay Bạc",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Gambler's Blade no longer drops gold on PVE rounds."
-      },
-      {
-       "subject": null,
-       "stat": null,
-       "before": null,
-       "after": null,
-       "dir": "fix",
-       "kind": "fixes",
-       "text": "Streamer Mode has been returned"
-      },
-      {
-       "subject": "Hard Commit",
-       "stat": null,
-       "before": null,
-       "after": null,
-       "dir": "fix",
-       "kind": "fixes",
-       "text": "Hard Commit no longer grants ineligible emblems."
-      },
-      {
-       "subject": "Moonrise",
-       "stat": null,
-       "before": null,
-       "after": null,
-       "dir": "fix",
-       "kind": "fixes",
-       "text": "Moonrise and Solar Gift Wisp upgrades will no longer appear in the shop when Blossom is inactive."
+       "text": "Kiếm Của Tay Bạc không còn rơi vàng trong các vòng PvE."
       },
       {
        "subject": null,
@@ -435,7 +407,16 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Fixed various crashes"
+       "text": "Chế Độ Streamer đã trở lại."
+      },
+      {
+       "subject": "Chỉ Một Con Đường",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Chỉ Một Con Đường không còn trao các Ấn không đủ điều kiện."
       },
       {
        "subject": null,
@@ -444,7 +425,7 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Fixed an issue where tethers were not always connecting properly to the target (visual only)"
+       "text": "Các nâng cấp Tinh Linh Trăng Lên và Món Quà Mặt Trời không còn xuất hiện trong cửa hàng khi Hoa Linh không được kích hoạt."
       },
       {
        "subject": null,
@@ -453,16 +434,7 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Fixed an issue where projectiles were moving inconsistently if both units were moving at the same time"
-      },
-      {
-       "subject": "Worth the Wait",
-       "stat": null,
-       "before": null,
-       "after": null,
-       "dir": "fix",
-       "kind": "fixes",
-       "text": "Worth the Wait and Worth the Wait II now properly display the select champion's name in the Augment tooltip"
+       "text": "Đã sửa nhiều lỗi văng game"
       },
       {
        "subject": null,
@@ -471,7 +443,7 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Choncc or Treat: Solo Leveling has been disabled due to a trick (bug)"
+       "text": "Đã sửa một lỗi khiến các đường liên kết đôi khi không kết nối chính xác với mục tiêu (chỉ ảnh hưởng hình ảnh)"
       },
       {
        "subject": null,
@@ -480,7 +452,16 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Slightly shortened Carousel release wait time"
+       "text": "Đã sửa một lỗi khiến vật thể bay di chuyển không ổn định khi cả hai đơn vị cùng di chuyển"
+      },
+      {
+       "subject": "Chờ Đợi Xứng Đáng",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Chờ Đợi Xứng Đáng và Chờ Đợi Xứng Đáng II giờ hiển thị chính xác tên tướng đã chọn trong mô tả Nâng Cấp"
       },
       {
        "subject": null,
@@ -489,7 +470,7 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "In the shop, Buy XP and Reroll hover states are easier to see on PC."
+       "text": "Cho Kẹo Hay Gặp Choncc: Tôi Thăng Cấp Một Mình đã tạm thời bị vô hiệu hóa do một \"mánh\" (lỗi)"
       },
       {
        "subject": null,
@@ -498,7 +479,7 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Fixed some issues causing Item borders to go missing on Mobile"
+       "text": "Giảm nhẹ thời gian chờ được thả trong Vòng Đi Chợ"
       },
       {
        "subject": null,
@@ -507,39 +488,57 @@
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "/Deafen has been re-added as an in-chat command"
+       "text": "Trên PC, trạng thái khi di chuột qua nút Mua KN và Đổi Lại trong cửa hàng trở nên dễ nhận biết hơn."
       },
       {
-       "subject": "Clear Mind",
+       "subject": null,
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Clear Mind will no longer grant XP erroneously under certain circumstances."
+       "text": "Đã sửa một số lỗi khiến khung viền Vật Phẩm bị mất trên thiết bị di động"
       },
       {
-       "subject": "Cluttered Mind",
+       "subject": null,
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Cluttered mind will no longer grant XP erroneously under certain circumstances."
+       "text": "Lệnh /tatgiaotiep đã được thêm trở lại vào chat."
       },
       {
-       "subject": "Nesting Anvils",
+       "subject": "Thông Thoáng",
        "stat": null,
        "before": null,
        "after": null,
        "dir": "fix",
        "kind": "fixes",
-       "text": "Nesting Anvils will no longer fail to grant the component anvil and gold when the player has a full bench"
+       "text": "Thông Thoáng không còn trao XP sai trong một số trường hợp."
+      },
+      {
+       "subject": "Bừa Bộn",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Bừa Bộn không còn trao XP sai trong một số trường hợp."
+      },
+      {
+       "subject": "Gói Trang Bị Bất Ngờ",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Gói Trang Bị Bất Ngờ không còn gặp lỗi không trao gói trang bị thành phần và vàng khi hàng chờ của người chơi đã đầy."
       }
      ]
     }
    ],
-   "source_hash": "539464834a683801"
+   "source_hash": "9469ff697af77882"
   },
   {
    "version": "18.5",

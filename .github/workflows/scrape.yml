@@ -78,11 +78,6 @@ jobs:
           INSPECT_ARGS: ${{ inputs.inspect_args }}
         run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --render --text 200
 
-      - name: Dò bảng phần thưởng (tạm)
-        if: github.ref_name == 'dev'
-        continue-on-error: true
-        run: python -m giftcode_finder.probe "https://lolchess.gg/rewards/set18/blackthorn?hl=vi" "https://lolchess.gg/rewards/set18/primal?hl=vi" "https://lolchess.gg/rewards/set18/a-magic-roll?hl=vi" "https://lolchess.gg/rewards/set18/augment-chance?hl=vi" | cut -c1-220
-
       - name: Lấy giftcode
         id: scrape
         env:

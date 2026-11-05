@@ -25,8 +25,8 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup, Tag
 
 BASE = "https://lolchess.gg"
-REWARDS_VERSION = 1
-SKIP = {"augment-exclusive"}  # not a loot table
+REWARDS_VERSION = 2
+SKIP = {"augment-exclusive", "augment-chance", "blackthorn"}  # lists and calculators, not loot
 GAME_ID = re.compile(r"^(?:DA|TFT\d*)_[A-Za-z0-9_]+$")
 
 
@@ -87,25 +87,43 @@ def parse_table(html: str, slug: str, page_url: str) -> dict | None:
     desc = " ".join(_text(p) for p in box.select(".description p"))
     groups: list[dict] = []
     loose: list[dict] = []
+    for table in box.find_all("table"):
+        section = table.find_parent("section")
+        header = section.find("header") if section else None
+        note = header.find(attrs={"aria-label": True}) if header else None
+        rows = []
+        for tr in table.select("tbody tr"):
+            cells = tr.find_all("td", recursive=False)
+            items = [_item(n, page_url) for n in tr.select(".RewardItem")]
+            # The first cell is the chance ("25%") or the condition ("Dice 9, 10, 11").
+            lead = tr.select_one("td.probability") or (cells[0] if cells and not cells[0].select(".RewardItem") else None)
+            if not items:
+                text = " ".join(_text(c) for c in cells if c is not lead)
+                if text:
+                    items = [{"key": None, "name": text, "qty": None, "icon": None}]
+            if items:
+                rows.append({"chance": _text(lead) or None, "items": items})
+        if rows:
+            strong = header.find("strong") if header else None
+            heads = [_text(th) for th in table.select("thead th")]
+            group_title = _text(strong) or _text(header) or ""
+            groups.append({"title": group_title, "note": note["aria-label"] if note else None, "rows": rows, "columns": heads[:1]})
     for section in box.find_all("section"):
-        table = section.find("table")
-        if table is not None:
-            header = section.find("header")
-            note = header.find(attrs={"aria-label": True}) if header else None
-            rows = []
-            for tr in table.select("tbody tr"):
-                chance = tr.select_one("td.probability")
-                items = [_item(n, page_url) for n in tr.select(".RewardItem")]
-                if items:
-                    rows.append({"chance": _text(chance) or None, "items": items})
-            if rows:
-                strong = header.find("strong") if header else None
-                groups.append({"title": _text(strong) or _text(header), "note": note["aria-label"] if note else None, "rows": rows})
-        elif section.find_parent("section") is None and section.select(".RewardItem"):
+        if section.find("table") is None and section.find_parent("section") is None and section.select(".RewardItem"):
             # A plain list of outcomes (Expedition): one row per section.
             chance = section.find(string=re.compile(r"^\s*\d+(?:[.,]\d+)?\s*%\s*$"))
             items = [_item(n, page_url) for n in section.select(".RewardItem")]
             loose.append({"chance": " ".join(chance.split()) if chance else None, "items": items})
+    if not groups and not loose:
+        # A list of choices (Primal blessings): one row per choice.
+        for li in box.select("ul > li"):
+            head = li.find(["h3", "h4", "strong"])
+            if head is None:
+                continue
+            img = li.find("img")
+            body = " ".join(_text(p) for p in li.find_all("p"))
+            loose.append({"chance": None, "items": [{"key": None, "name": _text(head), "qty": None, "desc": body or None,
+                                                     "icon": urljoin(page_url, img["src"]) if img and img.get("src") else None}]})
     if loose:
         groups.insert(0, {"title": "", "note": None, "rows": loose})
     if not groups:

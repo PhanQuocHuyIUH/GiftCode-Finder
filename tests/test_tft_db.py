@@ -108,3 +108,16 @@ def test_items_listed_twice_are_merged():
     ])
     assert items[0] == {"name": "Huyết Kiếm", "desc": "Hút máu.", "stats": [{"label": "SMCK", "value": "15%"}], "from": ["a", "b"], "icon": "i", "kind": "completed"}
     assert items[1]["desc"] == "Người mang trang bị này được tính thêm tộc/hệ Gai Đen."
+
+
+def test_new_style_augments_without_tags_are_unknown():
+    game = {"setData": [{"number": 21, "champions": [], "traits": [],
+                         "augments": ["TFT21_Augment_Box", "DA_BoxI", "DA_Ladder"]}],
+            "items": [
+        {"apiName": "TFT21_Augment_Box", "name": "Hộp", "desc": "x", "tags": ["{b72bd3bf}", "{d11fd6d5}"]},
+        {"apiName": "DA_BoxI", "name": "Hộp I", "desc": "x", "tags": []},
+        {"apiName": "DA_Ladder", "name": "Thứ Hạng Tộc Hệ", "desc": "x", "tags": []},
+    ]}
+    db = build_db(game, 21, "https://cd.test/")
+    pools = {a["name"]: (a["pool"], a["stages"]) for a in db["augments"]}
+    assert pools == {"Hộp": (True, ["2-1", "3-2", "4-2"]), "Hộp I": (False, None), "Thứ Hạng Tộc Hệ": (None, None)}

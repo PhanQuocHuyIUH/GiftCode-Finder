@@ -16,7 +16,7 @@ import json
 import re
 from pathlib import Path
 
-DB_VERSION = 4  # bump to rebuild every season's sheets on the next run
+DB_VERSION = 5  # bump to rebuild every season's sheets on the next run
 PLACEHOLDER = re.compile(r"@([A-Za-z0-9_{}.:]+?)(\*100)?@")
 ICON_TEXT = {
     "scaleap": "SMPT",
@@ -313,8 +313,11 @@ def _augment(raw: dict, base: str) -> dict:
     entry.pop("kind", None)
     tags = set(raw.get("tags") or [])
     entry["pool"] = TAG_IN_POOL in tags
+    if not tags and str(raw.get("apiName") or "").startswith("DA_"):
+        # Newer "DA_" records carry no tags at all: offered or not, and when, is unknown.
+        entry["pool"] = None
     banned = {TAG_NOT_AT[t] for t in tags if t in TAG_NOT_AT}
-    entry["stages"] = [stage for stage in STAGES if stage not in banned]
+    entry["stages"] = [stage for stage in STAGES if stage not in banned] if entry["pool"] is not None else None
     icon = str(raw.get("icon") or "").lower()
     tier = next((TAG_TIER[t] for t in tags if t in TAG_TIER), None)
     for word, value in (("prismatic", 3), ("-iii", 3), ("_iii", 3), ("3.", 3), ("gold", 2), ("-ii", 2), ("_ii", 2), ("2.", 2), ("silver", 1), ("-i.", 1), ("_i.", 1), ("1.", 1)):
@@ -374,12 +377,18 @@ def build_db(data: dict, set_number: int, base: str) -> dict | None:
     if not any(a["pool"] for a in augments):  # data without the tag: treat all as offered
         for augment in augments:
             augment["pool"] = True
+            augment["stages"] = augment["stages"] or list(STAGES)
     # Variants share a name with the offered augment: keep the offered one.
     offered = {(a["name"], a["tier"]) for a in augments if a["pool"]}
+    offered_names = {a["name"] for a in augments if a["pool"]}
+    for augment in augments:
+        # "Hộp Pandora I" beside the offered "Hộp Pandora": a variant, not offered.
+        if augment["pool"] is None and re.sub(r"\s*(?:I{1,3}|\+{1,2})$", "", augment["name"]) in offered_names:
+            augment["pool"] = False
     kept, seen_aug = [], set()
     for augment in augments:
         key = (augment["name"], augment["tier"])
-        if (not augment["pool"] and key in offered) or (key, augment["pool"]) in seen_aug:
+        if (augment["pool"] is not True and key in offered) or (key, augment["pool"]) in seen_aug:
             continue
         seen_aug.add((key, augment["pool"]))
         kept.append(augment)
@@ -395,7 +404,7 @@ def build_db(data: dict, set_number: int, base: str) -> dict | None:
         "champions": sorted(champions, key=lambda c: (c["cost"] or 0, c["name"] or "")),
         "traits": sorted(traits, key=lambda t: t["name"] or ""),
         "items": unique_items,
-        "augments": sorted(augments, key=lambda a: (not a["pool"], a.get("tier") or 0, a["name"] or "")),
+        "augments": sorted(augments, key=lambda a: ({True: 0, None: 1, False: 2}[a["pool"]], a.get("tier") or 0, a["name"] or "")),
     }
 
 

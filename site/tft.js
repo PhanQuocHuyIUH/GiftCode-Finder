@@ -757,7 +757,7 @@ const TFT = (() => {
     const subtitle = [];
     if (type === "champions") subtitle.push(`${entry.cost} vàng`);
     if (type === "augments" && TIERS[entry.tier]) subtitle.push(`Nâng cấp ${TIERS[entry.tier][0]}`);
-    if (type === "augments") subtitle.push(entry.pool === false ? "Không có trong vòng chọn" : entry.stages && entry.stages.length ? `Xuất hiện ở ${entry.stages.join(", ")}` : "Không ra ở lượt chọn thường");
+    if (type === "augments") subtitle.push(entry.pool === false ? "Không có trong vòng chọn" : entry.pool === null ? "Chưa rõ giai đoạn" : entry.stages && entry.stages.length ? `Xuất hiện ở ${entry.stages.join(", ")}` : "Không ra ở lượt chọn thường");
     if (type === "items" && entry.kind) subtitle.push((ITEM_KINDS.find(([k]) => k === entry.kind) || [, "Trang bị"])[1]);
     if (type === "items" && entry.from && entry.from.length) subtitle.push("Trang bị ghép");
     parts.push(
@@ -858,7 +858,7 @@ const TFT = (() => {
         );
       }
     }
-    if (type === "augments" && entry.pool !== false) parts.push(el("div", { class: "sheet-sec" }, el("h3", {}, "⏱ Giai đoạn xuất hiện"), stagePills(entry.stages || [])));
+    if (type === "augments" && entry.pool !== false) parts.push(el("div", { class: "sheet-sec" }, el("h3", {}, "⏱ Giai đoạn xuất hiện"), stagePills(entry.stages)));
     const rewards =
       (type === "traits" && REWARD_RX.test([entry.desc, ...(entry.breakpoints || []).map((b) => b.text)].join(" "))) ||
       (type === "augments" && RANDOM_RX.test(entry.desc || ""));
@@ -1060,6 +1060,7 @@ const TFT = (() => {
 
   function dbGrid(db, set, type, q) {
     const open = (name) => openSheet(set, name);
+    currentSet = set;
     if (type === "rewards") return rewardsView(db, set, q, open);
     const hit = (e) => !q || fold([e.name, e.desc, (e.traits || []).join(" "), (e.ability && e.ability.name) || ""].join(" ")).includes(q);
     const list = (db[type] || []).filter(hit);
@@ -1134,6 +1135,7 @@ const TFT = (() => {
   }
 
   function stagePills(stages) {
+    if (!stages) return el("span", { class: "stages unknown", title: "Dữ liệu game chưa ghi giai đoạn của lõi kiểu mới này" }, STAGES.map((stage) => el("i", {}, "?")));
     return el(
       "span",
       { class: "stages", title: stages.length ? `Xuất hiện ở giai đoạn ${stages.join(", ")}` : "Không xuất hiện ở lượt chọn nâng cấp thường" },
@@ -1146,7 +1148,7 @@ const TFT = (() => {
     return el(
       "article",
       {
-        class: `sc db-card aug${a.pool ? "" : " is-gone"}`,
+        class: `sc db-card aug${a.pool === false ? " is-gone" : ""}${rewardTables(currentSet, a.name) ? " has-loot" : ""}`,
         style: `--i:${i};--tone:${tierColor}`,
         tabindex: "0",
         role: "button",
@@ -1158,7 +1160,7 @@ const TFT = (() => {
         { class: "sc-head" },
         avatar(a.name, a.icon, "augments"),
         el("div", { class: "sc-name" }, el("h3", {}, a.name), el("small", {}, `Nâng cấp ${tierName}`)),
-        a.pool ? stagePills(a.stages) : el("span", { class: "gone-tag" }, "Không có trong vòng chọn"),
+        a.pool === false ? el("span", { class: "gone-tag" }, "Không có trong vòng chọn") : stagePills(a.stages),
       ),
       el("p", { class: "sheet-desc small" }, richText(a.desc || "")),
       extra,
@@ -1167,8 +1169,8 @@ const TFT = (() => {
 
   function augmentPasses(a) {
     return (
-      (dbState.showGone || a.pool) &&
-      (dbState.stage === "all" || (a.pool && a.stages.includes(dbState.stage))) &&
+      (dbState.showGone || a.pool !== false) &&
+      (dbState.stage === "all" || (a.pool === true && a.stages.includes(dbState.stage))) &&
       (dbState.tier === "all" || String(a.tier) === dbState.tier)
     );
   }
@@ -1177,7 +1179,7 @@ const TFT = (() => {
   function augmentFilters(list, set, note = true) {
     const latest = ((data && data.patches) || []).find((p) => p.set === set);
     const newestSet = Math.max(...dbSets());
-    const gone = list.filter((a) => !a.pool).length;
+    const gone = list.filter((a) => a.pool === false).length;
     return el(
       "div",
       { class: "db-filters" },
@@ -1203,13 +1205,15 @@ const TFT = (() => {
     );
   }
 
+  let currentSet = null;
+
   function augmentGrid(db, set, list, open) {
     const shown = list.filter(augmentPasses);
     const filters = augmentFilters(list, set);
     if (!shown.length) return [filters, el("p", { class: "empty" }, "Không có lõi nào khớp bộ lọc.")];
     const groups = new Map();
     for (const a of shown) {
-      const key = a.pool ? a.tier || 0 : "gone";
+      const key = a.pool === true ? a.tier || 0 : a.pool === null ? "new" : "gone";
       groups.set(key, [...(groups.get(key) || []), a]);
     }
     return [
@@ -1221,8 +1225,8 @@ const TFT = (() => {
           el(
             "div",
             { class: "tsec-head" },
-            el("span", { class: "ico", style: key === "gone" ? "" : `background:${(TIERS[key] || [, "#94a3b8"])[1]};color:#111` }, key === "gone" ? "🚫" : "💠"),
-            el("h2", {}, key === "gone" ? "Không có trong vòng chọn" : `Nâng cấp ${(TIERS[key] || ["khác"])[0]}`),
+            el("span", { class: "ico", style: key === "gone" || key === "new" ? "" : `background:${(TIERS[key] || [, "#94a3b8"])[1]};color:#111` }, key === "gone" ? "🚫" : key === "new" ? "🆕" : "💠"),
+            el("h2", {}, key === "gone" ? "Không có trong vòng chọn" : key === "new" ? "Lõi kiểu mới — dữ liệu game chưa ghi giai đoạn" : `Nâng cấp ${(TIERS[key] || ["khác"])[0]}`),
             el("small", {}, entries.length),
           ),
           el("div", { class: "cards" }, entries.map((a, i) => augmentCard(a, i, open))),
@@ -1418,7 +1422,7 @@ const TFT = (() => {
       { class: `rchip loot-item${champ ? " champ" : ""}`, style: champ && cost ? `--ring:${COST_COLORS[cost] || GOLD}` : null, title: item.name },
       avatar(item.name, icon, champ ? "champions" : "items"),
       item.qty && item.qty > 1 && el("em", { class: "rchip-qty" }, `${item.qty}×`),
-      el("span", { class: "rchip-name" }, item.name),
+      el("span", { class: "rchip-name" }, item.name, item.desc && el("small", { class: "rchip-desc" }, item.desc)),
     );
   }
 
@@ -1446,7 +1450,7 @@ const TFT = (() => {
               el(
                 "div",
                 { class: `loot-row${best !== null && parseChance(row.chance) === best ? " top" : ""}` },
-                el("span", { class: `loot-chance${row.chance ? "" : " none"}` }, row.chance || "chắc chắn"),
+                el("span", { class: `loot-chance${row.chance ? (/%/.test(row.chance) ? "" : " cond") : " none"}` }, row.chance || "chắc chắn"),
                 el("span", { class: "rchips" }, row.items.map((item) => lootItem(item, set))),
               ),
             ),
@@ -1457,8 +1461,17 @@ const TFT = (() => {
     );
   }
 
+  // The trait a table is about wins; else an augment offered in choices.
+  function lootName(table, db) {
+    const links = table.links || [];
+    const entries = links.map((name) => db.index.get(fold(name))).filter(Boolean);
+    const trait = entries.find((e) => e.type === "traits");
+    const offered = entries.find((e) => e.type === "augments" && e.entry.pool !== false);
+    return (trait || offered || entries[0] || { entry: { name: links[0] || table.title } }).entry.name;
+  }
+
   function lootCard(table, set, db, open, i) {
-    const name = (table.links && table.links[0]) || table.title;
+    const name = lootName(table, db);
     const hit = db.index.get(fold(name));
     const aug = hit && hit.type === "augments" ? hit.entry : null;
     const [tierName, tierColor] = aug ? TIERS[aug.tier] || ["", GOLD] : ["", GOLD];
@@ -1470,7 +1483,7 @@ const TFT = (() => {
         { class: `sc-head${hit ? " has-sheet" : ""}`, onclick: hit ? () => open(name) : null },
         avatar(name, (hit && hit.entry.icon) || table.icon, hit ? hit.type : "augments"),
         el("div", { class: "sc-name" }, el("h3", {}, name), el("small", {}, [hit ? TYPES[hit.type][0] : "Bảng phần thưởng", aug && tierName ? ` · ${tierName}` : "", name !== table.title ? ` · ${table.title}` : ""].join(""))),
-        aug && aug.pool && stagePills(aug.stages),
+        aug && aug.pool !== false && stagePills(aug.stages),
       ),
       el("p", { class: "sheet-desc small" }, richText((hit && hit.entry.desc) || table.desc || "")),
       lootView(table, set),
@@ -1481,14 +1494,18 @@ const TFT = (() => {
     const hit = (e) => !q || fold([e.name, e.desc].join(" ")).includes(q);
     const rewards = rewardsLoaded[set];
     const augs = db.augments.filter(hit);
-    const passes = (name) => {
-      const entry = db.index.get(fold(name));
-      return !entry || entry.type !== "augments" || augmentPasses(entry.entry);
+    const filtering = dbState.stage !== "all" || dbState.tier !== "all";
+    // A table passes when what it is about does: a trait always, an augment by
+    // the stage/tier filters; tables about nothing in particular only unfiltered.
+    const passes = (t) => {
+      const entries = (t.links || []).map((n) => db.index.get(fold(n))).filter(Boolean);
+      if (!entries.length) return !filtering;
+      return entries.some((e) => e.type === "traits" ? !filtering || dbState.tier === "all" : e.type !== "augments" || augmentPasses(e.entry));
     };
     // Tables of the reward-table site: the main thing on this tab.
     const tables = ((rewards && rewards.tables) || []).filter((t) => {
-      const name = (t.links && t.links[0]) || t.title;
-      return (!q || fold(`${name} ${t.title} ${t.desc || ""}`).includes(q)) && passes(name);
+      const name = lootName(t, db);
+      return (!q || fold(`${name} ${(t.links || []).join(" ")} ${t.title} ${t.desc || ""}`).includes(q)) && passes(t);
     });
     const withLoot = new Set(tables.flatMap((t) => (t.links || []).map(fold)));
     const traits = db.traits.filter((t) => hit(t) && !withLoot.has(fold(t.name)) && REWARD_RX.test([t.desc, ...t.breakpoints.map((b) => b.text)].join(" ")));

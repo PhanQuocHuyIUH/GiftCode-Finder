@@ -1645,6 +1645,9 @@ dialog.sheet::backdrop { background: rgba(5, 3, 15, .78); }
 .loot-group { margin: 14px 0 4px; color: var(--gold); font-size: .85rem; font-weight: 900; }
 .loot-item.champ .av { box-shadow: 0 0 0 2px var(--ring, var(--gold)); }
 .loot-item .av { border-radius: 8px; }
+.loot-chance.cond { font-size: .72rem; line-height: 1.15; padding: 2px 4px; text-align: center; height: auto; min-height: 40px; }
+.rchip-desc { display: block; color: var(--muted); font-size: .74rem; font-weight: 500; }
+.stages.unknown i { text-decoration: none; opacity: .8; }
 .loot-group small { color: var(--muted); font-weight: 700; }
 .loot-box { margin-top: 10px; }
 .loot-src { margin: 8px 0 0; color: var(--faint); font-size: .74rem; }

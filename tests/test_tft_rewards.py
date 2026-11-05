@@ -40,3 +40,17 @@ def test_plain_list_and_links_to_the_season_data():
     row = expedition["groups"][0]["rows"][0]
     assert row["chance"] is None and [(i["name"], i["qty"]) for i in row["items"]] == [("Tướng 5 vàng", 2), ("Vàng", 15)]
     assert row["items"][0]["icon"] == "https://lolchess.gg/5cost.png"
+
+
+def test_dice_tables_and_choice_lists():
+    dice = """<div class="RewardContainer"><h2 class="title">A Magic Roll</h2><table><thead><tr><th class="dice">Dice Total</th><th>Rewards</th></tr></thead><tbody>
+    <tr><td class="dice"><span>4, 5, 6</span></td><td class="inline"><p>Your units gain 250 max HP</p></td></tr>
+    <tr><td class="dice"><span>9, 10</span></td><td><div class="RewardItem PortraitReward"><div class="champion"><div class="portrait"><img src="/c.png"/><div class="amount">x2</div></div></div><span class="name">Tướng 2 vàng</span></div></td></tr>
+    </tbody></table></div>"""
+    table = parse_table(dice, "a-magic-roll", "https://lolchess.gg/x")
+    rows = table["groups"][0]["rows"]
+    assert rows[0]["chance"] == "4, 5, 6" and rows[0]["items"][0]["name"] == "Your units gain 250 max HP"
+    assert (rows[1]["items"][0]["name"], rows[1]["items"][0]["qty"]) == ("Tướng 2 vàng", 2)
+    choices = """<div class="RewardContainer"><h2 class="title">Primal</h2><ul><li><div><img src="/b.png"/><h3>Phước Lành Của Gấu</h3></div><p>Hành quyết dưới 12% Máu</p></li></ul></div>"""
+    item = parse_table(choices, "primal", "https://lolchess.gg/x")["groups"][0]["rows"][0]["items"][0]
+    assert (item["name"], item["desc"]) == ("Phước Lành Của Gấu", "Hành quyết dưới 12% Máu")

@@ -78,6 +78,13 @@ jobs:
           INSPECT_ARGS: ${{ inputs.inspect_args }}
         run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --render --text 200
 
+      # TEMP: dò cấu trúc trang bảng phần thưởng (chỉ nhánh dev).
+      - name: Dò bảng phần thưởng
+        if: github.ref_name == 'dev'
+        continue-on-error: true
+        run: |
+          python -m giftcode_finder.probe "https://lolchess.gg/rewards/set18?hl=vi" "https://lolchess.gg/rewards/set18/expedition?hl=vi" "https://tftflow.com/tables/set18" "https://tftflow.com/tables/set18/expedition" | cut -c1-3000
+
       - name: Lấy giftcode
         id: scrape
         env:

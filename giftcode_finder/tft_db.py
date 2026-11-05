@@ -16,7 +16,7 @@ import json
 import re
 from pathlib import Path
 
-DB_VERSION = 6  # bump to rebuild every season's sheets on the next run
+DB_VERSION = 7  # bump to rebuild every season's sheets on the next run
 PLACEHOLDER = re.compile(r"@([A-Za-z0-9_{}.:]+?)(\*100)?@")
 ICON_TEXT = {
     "scaleap": "SMPT",
@@ -100,7 +100,12 @@ def clean(text: str | None) -> str:
     )
     text = re.sub(r"<[^>]+>", "", text)
     text = text.replace("&nbsp;", " ").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
+    # In-game progress counters ("Đòn Đánh: ?", "(Hiện tại: ?)") only have a
+    # value during a game: drop them rather than show a "?".
+    text = re.sub(r"\(\s*(?:hiện tại|current|đã nhận|tiến độ)[^()]*\?\s*\)", "", text, flags=re.I)
     lines = [" ".join(line.split()) for line in text.split("\n")]
+    lines = ["" if re.fullmatch(r"\?|[^.!?:]{1,60}:\s*\?(?:\s*/\s*\?)*", line) else line for line in lines]
+    lines = [re.sub(r"(?<=[.!])\s*\?$", "", line) for line in lines]
     out = []
     for line in lines:
         if line or (out and out[-1]):

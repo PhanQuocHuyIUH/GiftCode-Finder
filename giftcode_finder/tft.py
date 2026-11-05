@@ -981,14 +981,51 @@ def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, r
         if db is None:
             log(f"  thông số mùa {number}: không có trong dữ liệu game")
             continue
-        missing_numbers = sum(1 for c in db["champions"] if "?" in c["ability"]["desc"])
-        log(f"  thông số mùa {number}: {missing_numbers}/{len(db['champions'])} kỹ năng còn thiếu số liệu")
+        if not _fill_from_lolchess(db, number, Path(db_dir) / f"{number}.json", fetcher, log):
+            result.db_sets.append(number)
+            continue
         written = save_db(db_dir, db)
         result.db_sets.append(number)
         log(
             f"  thông số mùa {number}: {len(db['champions'])} tướng, {len(db['traits'])} tộc/hệ, "
             f"{len(db['items'])} trang bị, {len(db['augments'])} nâng cấp{' (mới)' if written else ''}"
         )
+
+
+def _unknowns(db: dict) -> dict:
+    """How many descriptions still have a "?" in them, per kind."""
+    def desc(entry):
+        return (entry.get("ability") or {}).get("desc") if "ability" in entry else entry.get("desc")
+    return {kind: sum(1 for e in db.get(kind) or [] if "?" in (desc(e) or "")) for kind in ("champions", "augments", "items")}
+
+
+def _fill_from_lolchess(db: dict, number: int, path: Path, fetcher, log) -> bool:
+    """Fill the numbers the game data leaves as "?" from LoLCHESS.GG. False when
+    the site could not be read and the saved sheet already had them filled, so
+    the fuller sheet is kept."""
+    from .tft_lolchess import enrich, fetch_lists
+
+    before = _unknowns(db)
+    hint = None
+    if db.get("champions"):
+        hint = re.sub(r"^tft\d*_", "", str(db["champions"][0].get("id") or "").lower()) or None
+    try:
+        lists = fetch_lists(number, lambda url: fetcher.fetch(url).text, hint, log)
+    except Exception as exc:
+        log(f"  thông số mùa {number}: không đọc được LoLCHESS.GG ({exc})")
+        lists = {}
+    if not lists:
+        try:
+            if json.loads(path.read_text(encoding="utf-8")).get("filled_from"):
+                log(f"  thông số mùa {number}: giữ bản đã bổ sung số liệu")
+                return False
+        except (OSError, ValueError):
+            pass
+        log(f"  thông số mùa {number}: còn thiếu số liệu {before}")
+        return True
+    counts = enrich(db, lists)
+    log(f"  thông số mùa {number}: LoLCHESS.GG {{k: len(v) for k, v in lists.items()}}, bổ sung {counts}, còn \"?\" {_unknowns(db)} (trước {before})")
+    return True
 
 
 def source_hash(html: str) -> str:

@@ -121,3 +121,10 @@ def test_new_style_augments_without_tags_are_unknown():
     db = build_db(game, 21, "https://cd.test/")
     pools = {a["name"]: (a["pool"], a["stages"]) for a in db["augments"]}
     assert pools == {"Hộp": (True, ["2-1", "3-2", "4-2"]), "Hộp I": (False, None), "Thứ Hạng Tộc Hệ": (None, None)}
+
+
+def test_in_game_counters_are_dropped_missing_numbers_stay():
+    assert clean("Nhận 1 Cung Gỗ.<br><br>Đòn Đánh: ?") == "Nhận 1 Cung Gỗ."
+    assert clean("Nhận 1 tướng.<br>(Hiện tại: ?)") == "Nhận 1 tướng."
+    assert clean("Nhận ngay 1 tướng 3 vàng. ?") == "Nhận ngay 1 tướng 3 vàng."
+    assert clean("Sau khi hơn ? Máu tối đa.") == "Sau khi hơn ? Máu tối đa."

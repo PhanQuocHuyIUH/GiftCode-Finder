@@ -1135,7 +1135,7 @@ const TFT = (() => {
   }
 
   function stagePills(stages) {
-    if (!stages) return el("span", { class: "stages unknown", title: "Dữ liệu game chưa ghi giai đoạn của lõi kiểu mới này" }, STAGES.map((stage) => el("i", {}, "?")));
+    if (!stages) return el("span", { class: "stages unknown", title: "Dữ liệu game chưa ghi giai đoạn của lõi kiểu mới này" }, el("i", {}, "Giai đoạn chưa rõ"));
     return el(
       "span",
       { class: "stages", title: stages.length ? `Xuất hiện ở giai đoạn ${stages.join(", ")}` : "Không xuất hiện ở lượt chọn nâng cấp thường" },

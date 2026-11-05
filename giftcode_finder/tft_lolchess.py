@@ -104,6 +104,11 @@ def _stages(entry: dict) -> list[str] | None:
                     walk(child, k)
 
     walk(entry)
+    # The augment list flags the rounds as booleans: "isRound21": true.
+    for key, value in entry.items():
+        match = re.fullmatch(r"isRound([2-5])([1-7])", key)
+        if match and value is True:
+            found.add(f"{match[1]}-{match[2]}")
     stages = [s for s in STAGES if s in found]
     return stages or None
 

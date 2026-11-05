@@ -1024,7 +1024,8 @@ def _fill_from_lolchess(db: dict, number: int, path: Path, fetcher, log) -> bool
         log(f"  thông số mùa {number}: còn thiếu số liệu {before}")
         return True
     counts = enrich(db, lists)
-    log(f"  thông số mùa {number}: LoLCHESS.GG {{k: len(v) for k, v in lists.items()}}, bổ sung {counts}, còn \"?\" {_unknowns(db)} (trước {before})")
+    sizes = {k: len(v) for k, v in lists.items()}
+    log(f"  thông số mùa {number}: LoLCHESS.GG {sizes}, bổ sung {counts}, còn \"?\" {_unknowns(db)} (trước {before})")
     return True
 
 

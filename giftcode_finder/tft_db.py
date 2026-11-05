@@ -104,7 +104,7 @@ def clean(text: str | None) -> str:
     # value during a game: drop them rather than show a "?".
     text = re.sub(r"\(\s*(?:hiện tại|current|đã nhận|tiến độ)[^()]*\?\s*\)", "", text, flags=re.I)
     lines = [" ".join(line.split()) for line in text.split("\n")]
-    lines = ["" if re.fullmatch(r"\?|[^.!?:]{1,60}:\s*\?(?:\s*/\s*\?)*", line) else line for line in lines]
+    lines = ["" if re.fullmatch(r"\?|[^.!?:]{1,60}:\s*\?(?:\s*[,/]\s*\?)*", line) else line for line in lines]
     lines = [re.sub(r"(?<=[.!])\s*\?$", "", line) for line in lines]
     out = []
     for line in lines:

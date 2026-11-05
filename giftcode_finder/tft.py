@@ -914,7 +914,41 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
         history["updated_at"] = _stamp(now)
     if db_dir:
         _update_dbs(config, patches, db_dir, parsed_any, now, names_cache, fetcher, log, result)
+        _update_rewards(config, patches, db_dir, now, fetcher, log, result)
     return result
+
+
+def _update_rewards(config, patches, db_dir, now, fetcher, log, result) -> None:
+    """Loot tables (LoLCHESS.GG) next to the stat sheets: the newest season once
+    a day, older ones when they have none yet."""
+    from .tft_rewards import REWARDS_VERSION, build_rewards, save_rewards
+
+    out_dir = Path(db_dir).parent / "tft_rewards"
+    sets = sorted({p["set"] for p in patches}, reverse=True)
+    for number in sets:
+        path = out_dir / f"{number}.json"
+        try:
+            current = json.loads(path.read_text(encoding="utf-8")).get("version") == REWARDS_VERSION
+        except (OSError, ValueError):
+            current = False
+        if current and not (number == sets[0] and now.hour in config.db_hours):
+            continue
+        try:
+            db = json.loads((Path(db_dir) / f"{number}.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            db = None
+        try:
+            rewards = build_rewards(number, lambda url: fetcher.fetch(url).text, db, log)
+        except Exception as exc:  # the site keeps the tables it had
+            result.errors.append(f"bảng phần thưởng mùa {number}: {exc}")
+            log(f"  bảng phần thưởng mùa {number}: lỗi {exc}")
+            continue
+        if rewards is None:
+            log(f"  bảng phần thưởng mùa {number}: không có")
+            continue
+        written = save_rewards(out_dir, rewards)
+        linked = sum(1 for t in rewards["tables"] if t["links"])
+        log(f"  bảng phần thưởng mùa {number}: {len(rewards['tables'])} bảng, {linked} gắn với lõi/tộc hệ{' (mới)' if written else ''}")
 
 
 def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, result) -> None:

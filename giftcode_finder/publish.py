@@ -81,14 +81,19 @@ def build_site(
     payload = json.dumps(data, ensure_ascii=False, indent=2)
     (out_dir / "codes.json").write_text(payload + "\n", encoding="utf-8")
     # TFT patch notes are large: the page loads them only when they are opened.
-    db_sets = []
+    db_sets, reward_sets = [], []
     if tft_db_dir and Path(tft_db_dir).is_dir():
         for path in sorted(Path(tft_db_dir).glob("*.json")):
             if path.stem.isdigit():
                 shutil.copyfile(path, out_dir / f"tft-db-{path.stem}.json")
                 db_sets.append(int(path.stem))
+        rewards_dir = Path(tft_db_dir).parent / "tft_rewards"
+        for path in sorted(rewards_dir.glob("*.json")) if rewards_dir.is_dir() else []:
+            if path.stem.isdigit():
+                shutil.copyfile(path, out_dir / f"tft-rewards-{path.stem}.json")
+                reward_sets.append(int(path.stem))
     if tft is not None:
-        data = {**data, "tft": _tft_summary(tft, db_sets)}
+        data = {**data, "tft": _tft_summary(tft, db_sets, reward_sets)}
         (out_dir / "tft.json").write_text(json.dumps(tft, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     index = out_dir / "index.html"
     # "</" would let the data close the <script> tag it is embedded in.
@@ -103,7 +108,7 @@ def build_site(
     return out_dir
 
 
-def _tft_summary(tft: dict | None, db_sets: list[int] | None = None) -> dict | None:
+def _tft_summary(tft: dict | None, db_sets: list[int] | None = None, reward_sets: list[int] | None = None) -> dict | None:
     """What the home page shows of the TFT data without loading all of it."""
     if not tft or not tft.get("patches"):
         return None
@@ -116,6 +121,7 @@ def _tft_summary(tft: dict | None, db_sets: list[int] | None = None) -> dict | N
         "errors": tft.get("errors") or [],
         "version": (tft.get("updated_at") or "")[:19],
         "db_sets": sorted(db_sets or [], reverse=True),
+        "reward_sets": sorted(reward_sets or [], reverse=True),
     }
 
 

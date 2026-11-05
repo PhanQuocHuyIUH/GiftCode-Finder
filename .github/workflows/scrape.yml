@@ -78,13 +78,6 @@ jobs:
           INSPECT_ARGS: ${{ inputs.inspect_args }}
         run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --render --text 200
 
-      # TEMP: dò cấu trúc trang bảng phần thưởng (chỉ nhánh dev).
-      - name: Dò bảng phần thưởng
-        if: github.ref_name == 'dev'
-        continue-on-error: true
-        run: |
-          python -m giftcode_finder.probe "https://lolchess.gg/rewards/set18/expedition?hl=vi" "https://lolchess.gg/rewards/set18/coven?hl=vi" | grep -A2 CONTAINER | cut -c1-9500
-
       - name: Lấy giftcode
         id: scrape
         env:
@@ -114,6 +107,17 @@ jobs:
             git pull --rebase
           done
           exit 1
+
+      # TEMP: đưa dữ liệu TFT về nhánh dev để làm giao diện.
+      - name: Lưu dữ liệu TFT (nhánh dev)
+        if: github.ref_name == 'dev'
+        run: |
+          git add data/tft_rewards data/tft_db data/tft.json
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Dữ liệu TFT thử nghiệm"
+          git push
 
       - name: Kiểm tra GitHub Pages
         id: pages

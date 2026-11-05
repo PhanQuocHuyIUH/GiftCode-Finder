@@ -16,7 +16,7 @@ import json
 import re
 from pathlib import Path
 
-DB_VERSION = 7  # bump to rebuild every season's sheets on the next run
+DB_VERSION = 8  # bump to rebuild every season's sheets on the next run
 PLACEHOLDER = re.compile(r"@([A-Za-z0-9_{}.:]+?)(\*100)?@")
 ICON_TEXT = {
     "scaleap": "SMPT",

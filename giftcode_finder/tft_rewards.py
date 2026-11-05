@@ -159,8 +159,16 @@ def link_to_db(table: dict, db: dict | None) -> None:
 
 def build_rewards(set_number: int, fetch, db: dict | None, log=print) -> dict | None:
     """All loot tables of a season (``fetch(url) -> html``)."""
-    first = fetch(index_url(set_number))
-    slugs = list_tables(first, set_number)
+    slugs = []
+    # The season index redirects to the newest season once a season is over;
+    # any of the season's own tables carries the same menu.
+    for url in (index_url(set_number), table_url(set_number, "expedition"), table_url(set_number, "callto-chaos")):
+        try:
+            slugs = list_tables(fetch(url), set_number)
+        except Exception:
+            continue
+        if slugs:
+            break
     tables = []
     for slug in slugs:
         url = table_url(set_number, slug)

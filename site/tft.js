@@ -862,8 +862,10 @@ const TFT = (() => {
     const rewards =
       (type === "traits" && REWARD_RX.test([entry.desc, ...(entry.breakpoints || []).map((b) => b.text)].join(" "))) ||
       (type === "augments" && RANDOM_RX.test(entry.desc || ""));
+    const loot = rewardTables(set, entry.name);
+    if (loot) parts.push(el("section", { class: "sheet-sec" }, el("h3", {}, "🎰 Phần thưởng & tỉ lệ"), loot.map((t) => lootView(t, set))));
     if (rewards) {
-      const table = rewardTable(set, entry.name, true);
+      const table = rewardTable(set, entry.name, !loot);
       if (table) parts.push(el("section", { class: "sheet-sec" }, table));
     } else if (type !== "champions") {
       const values = latestValues(set, entry.name, false);
@@ -957,7 +959,7 @@ const TFT = (() => {
       dialog.scrollTop = 0;
     };
     show(el("div", { class: "skeleton" }, el("i"), el("i")));
-    Promise.all([loadDb(set), data ? Promise.resolve(data) : load(summaryRef)])
+    Promise.all([loadDb(set), data ? Promise.resolve(data) : load(summaryRef), loadRewards(set)])
       .then(([db]) => {
         const hit = db.index.get(fold(name)) || db.index.get(bare(name));
         if (!hit) {
@@ -1019,8 +1021,8 @@ const TFT = (() => {
       el("div", { class: "tft-tools" }, el("div", { class: "tools-row" }, search), tabs),
       body,
     );
-    loadDb(current)
-      .then((db) => {
+    Promise.all([loadDb(current), loadRewards(current)])
+      .then(([db]) => {
         const paint = () => {
           const q = fold(dbState.query);
           for (const b of tabs.querySelectorAll("[data-type]")) {
@@ -1374,12 +1376,124 @@ const TFT = (() => {
     );
   }
 
+  // --- Loot tables (LoLCHESS.GG), one file per season --------------------------
+
+  const rewardFiles = {};
+  const rewardsLoaded = {};
+
+  function loadRewards(set) {
+    if (!((summaryRef && summaryRef.reward_sets) || []).includes(set)) return Promise.resolve(null);
+    if (!rewardFiles[set]) {
+      const v = encodeURIComponent((summaryRef && summaryRef.version) || "");
+      rewardFiles[set] = fetch(`tft-rewards-${set}.json?v=${v}`)
+        .then((response) => (response.ok ? response.json() : null))
+        .then((rewards) => {
+          if (rewards) {
+            rewards.byName = new Map();
+            for (const table of rewards.tables) {
+              for (const name of table.links || []) rewards.byName.set(fold(name), [...(rewards.byName.get(fold(name)) || []), table]);
+            }
+          }
+          rewardsLoaded[set] = rewards;
+          return rewards;
+        })
+        .catch(() => null);
+    }
+    return rewardFiles[set];
+  }
+
+  function rewardTables(set, name) {
+    const rewards = rewardsLoaded[set];
+    return (rewards && rewards.byName.get(fold(name))) || null;
+  }
+
+  function lootItem(item, set) {
+    const db = dbLoaded[set];
+    const known = db && db.index.get(fold(item.name));
+    const icon = (known && known.entry.icon) || item.icon;
+    const champ = item.kind === "champions" || (known && known.type === "champions");
+    const cost = item.cost || (known && known.entry.cost);
+    return el(
+      "span",
+      { class: `rchip loot-item${champ ? " champ" : ""}`, style: champ && cost ? `--ring:${COST_COLORS[cost] || GOLD}` : null, title: item.name },
+      avatar(item.name, icon, champ ? "champions" : "items"),
+      item.qty && item.qty > 1 && el("em", { class: "rchip-qty" }, `${item.qty}×`),
+      el("span", { class: "rchip-name" }, item.name),
+    );
+  }
+
+  function parseChance(text) {
+    const match = String(text || "").match(/(\d+(?:[.,]\d+)?)/);
+    return match ? Number(match[1].replace(",", ".")) : null;
+  }
+
+  // One loot table: milestones, then one row per outcome with its chance.
+  function lootView(table, set) {
+    return el(
+      "div",
+      { class: "loot-box" },
+      table.groups.map((group) => {
+        const chances = group.rows.map((r) => parseChance(r.chance)).filter((x) => x !== null);
+        const best = chances.length && new Set(chances).size > 1 ? Math.max(...chances) : null;
+        return el(
+          "div",
+          { class: "loot-group-box" },
+          (group.title || group.note) && el("p", { class: "loot-group" }, group.title ? `🎯 ${group.title}` : "", group.note && el("small", {}, ` · ${group.note}`)),
+          el(
+            "div",
+            { class: "loot" },
+            group.rows.map((row) =>
+              el(
+                "div",
+                { class: `loot-row${best !== null && parseChance(row.chance) === best ? " top" : ""}` },
+                el("span", { class: `loot-chance${row.chance ? "" : " none"}` }, row.chance || "chắc chắn"),
+                el("span", { class: "rchips" }, row.items.map((item) => lootItem(item, set))),
+              ),
+            ),
+          ),
+        );
+      }),
+      el("p", { class: "loot-src" }, "Tỉ lệ & phần thưởng theo ", el("a", { href: table.url, target: "_blank", rel: "noopener" }, "LoLCHESS.GG ↗"), table.updated ? ` · cập nhật ${table.updated}` : ""),
+    );
+  }
+
+  function lootCard(table, set, db, open, i) {
+    const name = (table.links && table.links[0]) || table.title;
+    const hit = db.index.get(fold(name));
+    const aug = hit && hit.type === "augments" ? hit.entry : null;
+    const [tierName, tierColor] = aug ? TIERS[aug.tier] || ["", GOLD] : ["", GOLD];
+    return el(
+      "article",
+      { class: "sc db-card reward-card has-loot", style: `--i:${i};--tone:${tierColor}` },
+      el(
+        "header",
+        { class: `sc-head${hit ? " has-sheet" : ""}`, onclick: hit ? () => open(name) : null },
+        avatar(name, (hit && hit.entry.icon) || table.icon, hit ? hit.type : "augments"),
+        el("div", { class: "sc-name" }, el("h3", {}, name), el("small", {}, [hit ? TYPES[hit.type][0] : "Bảng phần thưởng", aug && tierName ? ` · ${tierName}` : "", name !== table.title ? ` · ${table.title}` : ""].join(""))),
+        aug && aug.pool && stagePills(aug.stages),
+      ),
+      el("p", { class: "sheet-desc small" }, richText((hit && hit.entry.desc) || table.desc || "")),
+      lootView(table, set),
+    );
+  }
+
   function rewardsView(db, set, q, open) {
     const hit = (e) => !q || fold([e.name, e.desc].join(" ")).includes(q);
-    const traits = db.traits.filter((t) => hit(t) && REWARD_RX.test([t.desc, ...t.breakpoints.map((b) => b.text)].join(" ")));
+    const rewards = rewardsLoaded[set];
     const augs = db.augments.filter(hit);
+    const passes = (name) => {
+      const entry = db.index.get(fold(name));
+      return !entry || entry.type !== "augments" || augmentPasses(entry.entry);
+    };
+    // Tables of the reward-table site: the main thing on this tab.
+    const tables = ((rewards && rewards.tables) || []).filter((t) => {
+      const name = (t.links && t.links[0]) || t.title;
+      return (!q || fold(`${name} ${t.title} ${t.desc || ""}`).includes(q)) && passes(name);
+    });
+    const withLoot = new Set(tables.flatMap((t) => (t.links || []).map(fold)));
+    const traits = db.traits.filter((t) => hit(t) && !withLoot.has(fold(t.name)) && REWARD_RX.test([t.desc, ...t.breakpoints.map((b) => b.text)].join(" ")));
     const pool = augs.filter(augmentPasses);
-    const random = pool.filter((a) => RANDOM_RX.test(a.desc || "") || rewardTables(set, a.name));
+    const random = pool.filter((a) => !withLoot.has(fold(a.name)) && RANDOM_RX.test(a.desc || ""));
     const traitNames = db.traits.map((t) => t.name).filter((n) => n && n.length > 2);
     const byTrait = new Map();
     for (const a of pool) {
@@ -1388,14 +1502,27 @@ const TFT = (() => {
     }
     const out = [
       augmentFilters(augs, set, false),
-      el("p", { class: "db-note" }, "Tộc/hệ “nổ hũ”, lõi cho phần thưởng ngẫu nhiên hoặc cần điều kiện, lõi theo tộc/hệ. Bộ lọc giai đoạn và bậc áp dụng cho các lõi. Bấm vào thẻ để xem đầy đủ."),
+      el("p", { class: "db-note" }, "Bảng phần thưởng có tỉ lệ (từ LoLCHESS.GG), tộc/hệ “nổ hũ”, lõi cho phần thưởng ngẫu nhiên hoặc cần điều kiện, lõi theo tộc/hệ. Bộ lọc giai đoạn và bậc áp dụng cho các lõi."),
     ];
+    if (tables.length) {
+      const linked = tables.filter((t) => t.links && t.links.length);
+      const other = tables.filter((t) => !(t.links && t.links.length));
+      const block = (title, icon, list) =>
+        el(
+          "section",
+          { class: "tsec" },
+          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, icon), el("h2", {}, title), el("small", {}, list.length)),
+          el("div", { class: "cards wide-cards" }, list.map((t, i) => lootCard(t, set, db, open, i))),
+        );
+      if (linked.length) out.push(block("Bảng phần thưởng của lõi & tộc/hệ", "🎰", linked));
+      if (other.length) out.push(block("Bảng phần thưởng khác (Tinh Linh, sự kiện, PvE…)", "🗃️", other));
+    }
     if (traits.length)
       out.push(
         el(
           "section",
           { class: "tsec" },
-          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "💰"), el("h2", {}, "Tộc/hệ nổ hũ & phần thưởng"), el("small", {}, traits.length)),
+          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "💰"), el("h2", {}, "Tộc/hệ có phần thưởng (theo patch notes)"), el("small", {}, traits.length)),
           el(
             "div",
             { class: "cards wide-cards" },
@@ -1429,17 +1556,17 @@ const TFT = (() => {
           el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "🧬"), el("h2", {}, "Lõi theo tộc/hệ"), el("small", {}, [...byTrait.values()].reduce((n, l) => n + l.length, 0))),
           [...byTrait.entries()]
             .sort((x, y) => x[0].localeCompare(y[0]))
-            .map(([trait, augs]) =>
+            .map(([trait, list]) =>
               el(
                 "div",
                 { class: "trait-augs" },
-                el("p", { class: "hf-block-head" }, el("b", {}, trait), ` · ${augs.length} lõi`),
-                el("div", { class: "cards" }, augs.map((a, i) => augmentCard(a, i, open))),
+                el("p", { class: "hf-block-head" }, el("b", {}, trait), ` · ${list.length} lõi`),
+                el("div", { class: "cards" }, list.map((a, i) => augmentCard(a, i, open))),
               ),
             ),
         ),
       );
-    if (out.length === 1) out.push(el("p", { class: "empty" }, "Không có mục nào khớp."));
+    if (out.length === 2) out.push(el("p", { class: "empty" }, "Không có mục nào khớp."));
     return out;
   }
 

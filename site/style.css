@@ -1643,6 +1643,10 @@ dialog.sheet::backdrop { background: rgba(5, 3, 15, .78); }
 .loot-chance { display: grid; place-items: center; height: 40px; border-radius: 10px; font: 900 .95rem/1 var(--font); color: #2a1a00; background: linear-gradient(160deg, #fff1c4, var(--gold) 60%, #d48806); box-shadow: 0 3px 0 #8a5600; }
 .loot-chance.none { color: var(--muted); background: var(--surface-3); box-shadow: none; font-size: .7rem; }
 .loot-group { margin: 14px 0 4px; color: var(--gold); font-size: .85rem; font-weight: 900; }
+.loot-item.champ .av { box-shadow: 0 0 0 2px var(--ring, var(--gold)); }
+.loot-item .av { border-radius: 8px; }
+.loot-group small { color: var(--muted); font-weight: 700; }
+.loot-box { margin-top: 10px; }
 .loot-src { margin: 8px 0 0; color: var(--faint); font-size: .74rem; }
 .loot-src a { color: var(--muted); }
 .reward-card, .sc.aug.has-loot { box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--gold) 50%, var(--line)), inset 0 3px 0 var(--gold), 0 18px 34px -22px var(--gold); }

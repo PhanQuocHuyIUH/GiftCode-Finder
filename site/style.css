@@ -1425,6 +1425,7 @@ dialog.sheet::backdrop { background: rgba(5, 3, 15, .78); }
 .sheet-desc { margin: 0 0 12px; color: var(--muted); font-size: .92rem; white-space: pre-line; }
 .sheet-desc.small { font-size: .82rem; margin: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
 .sheet-desc .num { color: var(--gold); font-weight: 800; }
+.sheet-desc .num.unk { display: inline-block; min-width: 1.3em; padding: 0 5px; border-radius: 6px; text-align: center; color: var(--faint); background: var(--surface-2); border: 1px dashed color-mix(in oklab, var(--faint) 60%, transparent); cursor: help; }
 .vars { width: 100%; border-collapse: collapse; font-size: .85rem; }
 .vars th, .vars td { padding: 7px 10px; text-align: left; border-bottom: 1px dashed var(--line-2); }
 .vars th { color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .05em; }

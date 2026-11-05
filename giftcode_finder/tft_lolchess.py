@@ -123,10 +123,28 @@ def _item_stats(from_desc: str | None) -> list[dict]:
     return rows
 
 
+def _norm(text: str) -> str:
+    return re.sub(r"\W+", "", text.lower())
+
+
 def enrich(db: dict, lists: dict) -> dict:
     """Fill "?" and missing stages of ``db`` in place; returns counts of what changed."""
     counts = {"champions": 0, "augments": 0, "stages": 0, "items": 0}
     by_key = {kind: {str(e.get("ingameKey")).lower(): e for e in lists.get(kind) or [] if e.get("ingameKey")} for kind in lists}
+    # The site sometimes keys an entry by another season's id: fall back to the
+    # name, using only an entry whose description has every number.
+    by_name: dict[str, dict] = {}
+    for kind in ("augments", "items"):
+        names = by_name.setdefault(kind, {})
+        for e in lists.get(kind) or []:
+            if e.get("name") and e.get("desc") and "?" not in clean(e["desc"]):
+                names.setdefault(_norm(e["name"]), e)
+
+    def match(kind: str, entry: dict):
+        other = by_key.get(kind, {}).get(str(entry.get("id")).lower())
+        if other and "?" not in clean(other.get("desc")):
+            return other
+        return by_name.get(kind, {}).get(_norm(entry.get("name") or "")) or other
     for champ in db.get("champions") or []:
         other = by_key.get("champions", {}).get(str(champ.get("id")).lower())
         if not other:
@@ -146,20 +164,21 @@ def enrich(db: dict, lists: dict) -> dict:
         if not stats.get("mana") and isinstance(skill.get("skillMana"), (int, float)):
             stats["mana"] = skill["skillMana"]
     for augment in db.get("augments") or []:
-        other = by_key.get("augments", {}).get(str(augment.get("id")).lower())
+        other = match("augments", augment)
         if not other:
             continue
         desc = clean(other.get("desc"))
         if desc and "?" in (augment.get("desc") or "") and "?" not in desc:
             augment["desc"] = desc
             counts["augments"] += 1
-        stages = _stages(other)
+        keyed = by_key.get("augments", {}).get(str(augment.get("id")).lower())
+        stages = _stages(keyed) if keyed else None  # a namesake of another season may differ
         if stages and augment.get("pool") is None:
             augment["pool"] = True
             augment["stages"] = stages
             counts["stages"] += 1
     for item in db.get("items") or []:
-        other = by_key.get("items", {}).get(str(item.get("id")).lower())
+        other = match("items", item)
         if not other:
             continue
         desc = clean(other.get("desc"))

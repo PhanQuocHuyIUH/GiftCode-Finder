@@ -128,3 +128,15 @@ def test_in_game_counters_are_dropped_missing_numbers_stay():
     assert clean("Nhận 1 tướng.<br>(Hiện tại: ?)") == "Nhận 1 tướng."
     assert clean("Nhận ngay 1 tướng 3 vàng. ?") == "Nhận ngay 1 tướng 3 vàng."
     assert clean("Sau khi hơn ? Máu tối đa.") == "Sau khi hơn ? Máu tối đa."
+
+
+def test_clean_drops_in_game_counters():
+    from giftcode_finder.tft_db import clean
+
+    assert clean("Kích hoạt tộc/hệ.<br><br>Thưởng Hiện Tại: ?% SMCK ?% SMPT") == "Kích hoạt tộc/hệ."
+    assert clean("Nhận 1 Ezreal.<br><br>(Máu: ?, Tốc Độ Đánh: ?%)") == "Nhận 1 Ezreal."
+    assert clean("Mất 20% số Mũ. (Mũ: ?)") == "Mất 20% số Mũ."
+    assert clean("Đã triển khai: ? / 6<br>Cấp: ? / 9") == ""
+    assert clean("Trao 1 trang bị (tối đa ?/3).") == "Trao 1 trang bị (tối đa 3)."
+    # A number that is really unknown stays, so the page can say so.
+    assert clean("Đội tăng ? Máu.<br>Lượt đổi: ? Máu: ?") == "Đội tăng ? Máu."

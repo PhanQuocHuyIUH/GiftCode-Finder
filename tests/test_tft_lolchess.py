@@ -54,3 +54,22 @@ def test_fetch_and_enrich():
     assert [s["value"] for s in item["stats"]] == ["+10% SMCK", "150 Máu"]
     assert counts == {"champions": 1, "augments": 1, "stages": 1, "items": 1}
     assert db["filled_from"] == "LoLCHESS.GG"
+
+
+def test_round_flags_and_name_fallback():
+    lists = {
+        "augments": [
+            {"ingameKey": "TFT18_Augment_Rolls", "desc": "Nhận ? Máu.", "isRound32": True, "isRound42": True, "isRound21": False},
+            {"ingameKey": "TFT14_Augment_Rolls", "name": "Ván Cờ May Rủi", "desc": "Nhận 8 Máu.", "isRound21": True},
+        ],
+        "items": [{"ingameKey": "DA_Item_Old", "name": "Đao Tím", "desc": "Gây thêm 15 sát thương phép."}],
+    }
+    db = {
+        "augments": [{"id": "TFT18_Augment_Rolls", "name": "Ván Cờ May Rủi", "desc": "Nhận ? Máu.", "pool": None, "stages": None}],
+        "items": [{"id": "TFT_Item_WitsEnd", "name": "Đao Tím", "desc": "Gây thêm ? sát thương phép.", "stats": []}],
+    }
+    enrich(db, lists)
+    augment = db["augments"][0]
+    # Numbers from the namesake, stages only from the entry with the same id.
+    assert augment["desc"] == "Nhận 8 Máu." and augment["stages"] == ["3-2", "4-2"]
+    assert db["items"][0]["desc"] == "Gây thêm 15 sát thương phép."

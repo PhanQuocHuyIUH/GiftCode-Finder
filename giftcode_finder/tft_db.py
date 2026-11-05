@@ -85,6 +85,20 @@ def _per_star(values: list, times100: bool) -> str:
     return texts[0] if len(set(texts)) == 1 else "/".join(texts)
 
 
+def _is_counter(line: str) -> bool:
+    """A line that only shows a value during a game: "?", "Tổng thu nhập: ? Vàng",
+    "Thưởng Hiện Tại: ?% SMCK ?% SMPT", "Lượt đổi: ? Máu: ?"."""
+    if line == "?":
+        return True
+    if "?" not in line or ":" not in line or len(line) > 90 or re.search(r"[.!]", line):
+        return False
+    label, value = line.split(":", 1)
+    if not label.strip() or "?" in label:
+        return False
+    words = re.sub(r"[?\d%/+,:\s-]+", " ", value).split()
+    return len(words) <= 3
+
+
 def clean(text: str | None) -> str:
     """Game markup to plain text: <br> to newlines, icons to words, tags gone."""
     if not text:
@@ -103,8 +117,11 @@ def clean(text: str | None) -> str:
     # In-game progress counters ("Đòn Đánh: ?", "(Hiện tại: ?)") only have a
     # value during a game: drop them rather than show a "?".
     text = re.sub(r"\(\s*(?:hiện tại|current|đã nhận|tiến độ)[^()]*\?\s*\)", "", text, flags=re.I)
+    text = re.sub(r"\((tối đa|max)\s*\?\s*/\s*(\d+)\)", r"(\1 \2)", text, flags=re.I)
+    # "(Mũ: ?)", "(?/6)", "(Máu: ?, Tốc Độ Đánh: ?%)": short asides holding a count.
+    text = re.sub(r"\s*\((?=[^()]*\?)[^().!]{1,60}\)", "", text)
     lines = [" ".join(line.split()) for line in text.split("\n")]
-    lines = ["" if re.fullmatch(r"\?|[^.!?:]{1,60}:\s*\?(?:\s*[,/]\s*\?)*", line) else line for line in lines]
+    lines = ["" if _is_counter(line) else line for line in lines]
     lines = [re.sub(r"(?<=[.!])\s*\?$", "", line) for line in lines]
     out = []
     for line in lines:
@@ -377,6 +394,9 @@ def build_db(data: dict, set_number: int, base: str) -> dict | None:
             and i.get("desc")
             and "debug" not in str(i["apiName"]).lower()
         ]
+    # Test items of the practice tool and the anniversary event's items are not
+    # part of a season.
+    items_raw = [i for i in items_raw if not re.match(r"tft_item_debug|tftevent", str(i["apiName"]).lower())]
     items = [_item(i, base) for i in items_raw]
     augments = [_augment(a, base) for a in augments_raw if a.get("desc")]
     if not any(a["pool"] for a in augments):  # data without the tag: treat all as offered

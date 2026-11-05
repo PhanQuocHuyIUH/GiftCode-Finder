@@ -78,11 +78,6 @@ jobs:
           INSPECT_ARGS: ${{ inputs.inspect_args }}
         run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --render --text 200
 
-      - name: Dò nguồn số liệu (tạm)
-        if: github.ref_name == 'dev'
-        continue-on-error: true
-        run: python -m giftcode_finder.probe | cut -c1-2500
-
       - name: Lấy giftcode
         id: scrape
         env:

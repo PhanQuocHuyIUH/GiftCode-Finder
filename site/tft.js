@@ -740,8 +740,15 @@ const TFT = (() => {
 
   function richText(text) {
     // Numbers stand out; text stays text (never HTML).
-    const parts = String(text || "").split(/(\d+(?:[.,]\d+)?(?:\/\d+(?:[.,]\d+)?)*%?)/);
-    return parts.map((part, i) => (i % 2 ? el("b", { class: "num" }, part) : part));
+    // A lone "?" is a number neither Riot nor LoLCHESS.GG publishes yet.
+    const parts = String(text || "").split(/(\d+(?:[.,]\d+)?(?:\/\d+(?:[.,]\d+)?)*%?|(?<!\p{L})\?%?(?=[\s.,;)%/]|$))/u);
+    return parts.map((part, i) =>
+      i % 2 === 0
+        ? part
+        : part[0] === "?"
+          ? el("b", { class: "num unk", title: "Riot và LoLCHESS.GG chưa công bố con số này — trang sẽ tự cập nhật khi có" }, part)
+          : el("b", { class: "num" }, part),
+    );
   }
 
   function statTile(label, value, icon) {

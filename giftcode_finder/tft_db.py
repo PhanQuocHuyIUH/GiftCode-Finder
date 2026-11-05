@@ -113,6 +113,7 @@ def clean(text: str | None) -> str:
         text,
     )
     text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"(\d%?)\((?=[^()\d])", r"\1 (", text)  # "405(SMCK)" -> "405 (SMCK)"
     text = text.replace("&nbsp;", " ").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
     # In-game progress counters ("Đòn Đánh: ?", "(Hiện tại: ?)") only have a
     # value during a game: drop them rather than show a "?".

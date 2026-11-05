@@ -16,7 +16,7 @@ import json
 import re
 from pathlib import Path
 
-DB_VERSION = 3  # bump to rebuild every season's sheets on the next run
+DB_VERSION = 4  # bump to rebuild every season's sheets on the next run
 PLACEHOLDER = re.compile(r"@([A-Za-z0-9_{}.:]+?)(\*100)?@")
 ICON_TEXT = {
     "scaleap": "SMPT",
@@ -246,6 +246,45 @@ def _trait(raw: dict, base: str) -> dict:
     }
 
 
+# Hidden tags of augments, named by what they hold in every season (15-18):
+# augments only in a few variants lack TAG_IN_POOL; TAG_NOT_AT marks the stage
+# an augment is never offered at ("Triệu Gọi Hỗn Mang": not 2-1, not 3-2 -> 4-2 only).
+TAG_IN_POOL = "{b72bd3bf}"
+TAG_NOT_AT = {"{d02ae323}": "2-1", "{d12ae4b6}": "3-2", "{d22ae649}": "4-2"}
+TAG_TIER = {"{d11fd6d5}": 1, "{ce1fd21c}": 2, "{cf1fd3af}": 3}
+STAGES = ("2-1", "3-2", "4-2")
+COMPONENTS = {
+    "tft_item_bfsword", "tft_item_recurvebow", "tft_item_needlesslylargerod", "tft_item_tearofthegoddess",
+    "tft_item_chainvest", "tft_item_negatroncloak", "tft_item_giantsbelt", "tft_item_sparringgloves",
+    "tft_item_spatula", "tft_item_fryingpan",
+}
+
+
+def item_kind(raw: dict) -> str:
+    """completed, component, radiant, artifact, emblem, support, mechanic, consumable or other."""
+    api = str(raw.get("apiName") or "").lower()
+    tags = {str(t).lower() for t in raw.get("tags") or []}
+    icon = str(raw.get("icon") or "").lower()
+    name = str(raw.get("name") or "")
+    if "radiant" in api:
+        return "radiant"
+    if "ornn" in api or "artifact" in api:
+        return "artifact"
+    if "emblem" in api or name.startswith("Ấn ") or fnv1a("traititem") in tags:
+        return "emblem"
+    if "support" in api or fnv1a("tft_support") in tags:
+        return "support"
+    if "consumable" in tags or "consumable" in api:
+        return "consumable"
+    if api in COMPONENTS or "component" in tags:
+        return "component"
+    if len(raw.get("composition") or []) == 2:
+        return "completed"
+    if "zaps/" in icon or api.startswith("da_") or re.match(r"tft\d+_(?!item)", api):
+        return "mechanic"
+    return "other"
+
+
 def _item(raw: dict, base: str) -> dict:
     effects = raw.get("effects") or {}
     stats = []
@@ -260,7 +299,7 @@ def _item(raw: dict, base: str) -> dict:
         "desc": clean(fill(raw.get("desc"), _flat_lookup(effects))),
         "stats": stats,
         "from": [c for c in raw.get("composition") or [] if isinstance(c, str)],
-        "tags": [t for t in raw.get("tags") or [] if isinstance(t, str)],
+        "kind": item_kind(raw),
         "unique": bool(raw.get("unique")),
         "traits": [t for t in raw.get("associatedTraits") or [] if isinstance(t, str)],
     }
@@ -271,9 +310,16 @@ _TIER = re.compile(r"(?:^|[_\s-])(III|II|I)$|(\d)$")
 
 def _augment(raw: dict, base: str) -> dict:
     entry = _item(raw, base)
+    entry.pop("kind", None)
+    tags = set(raw.get("tags") or [])
+    entry["pool"] = TAG_IN_POOL in tags
+    banned = {TAG_NOT_AT[t] for t in tags if t in TAG_NOT_AT}
+    entry["stages"] = [stage for stage in STAGES if stage not in banned]
     icon = str(raw.get("icon") or "").lower()
-    tier = None
+    tier = next((TAG_TIER[t] for t in tags if t in TAG_TIER), None)
     for word, value in (("prismatic", 3), ("-iii", 3), ("_iii", 3), ("3.", 3), ("gold", 2), ("-ii", 2), ("_ii", 2), ("2.", 2), ("silver", 1), ("-i.", 1), ("_i.", 1), ("1.", 1)):
+        if tier is not None:
+            break
         if word in icon:
             tier = value
             break
@@ -325,16 +371,23 @@ def build_db(data: dict, set_number: int, base: str) -> dict | None:
         ]
     items = [_item(i, base) for i in items_raw]
     augments = [_augment(a, base) for a in augments_raw if a.get("desc")]
+    if not any(a["pool"] for a in augments):  # data without the tag: treat all as offered
+        for augment in augments:
+            augment["pool"] = True
+    # Variants share a name with the offered augment: keep the offered one.
+    offered = {(a["name"], a["tier"]) for a in augments if a["pool"]}
+    kept, seen_aug = [], set()
+    for augment in augments:
+        key = (augment["name"], augment["tier"])
+        if (not augment["pool"] and key in offered) or (key, augment["pool"]) in seen_aug:
+            continue
+        seen_aug.add((key, augment["pool"]))
+        kept.append(augment)
+    augments = kept
     names = {i["id"]: i["name"] for i in items}
     for item in items:  # recipe ids to names
         item["from"] = [names.get(c) or by_id.get(c, {}).get("name") or c for c in item["from"]]
-    seen = set()
-    unique_items = []
-    for item in items:
-        key = (item["name"], item["desc"])
-        if key not in seen:
-            seen.add(key)
-            unique_items.append(item)
+    unique_items = merge_items(items)
     return {
         "version": DB_VERSION,
         "set": set_number,
@@ -342,8 +395,29 @@ def build_db(data: dict, set_number: int, base: str) -> dict | None:
         "champions": sorted(champions, key=lambda c: (c["cost"] or 0, c["name"] or "")),
         "traits": sorted(traits, key=lambda t: t["name"] or ""),
         "items": unique_items,
-        "augments": sorted(augments, key=lambda a: (a.get("tier") or 0, a["name"] or "")),
+        "augments": sorted(augments, key=lambda a: (not a["pool"], a.get("tier") or 0, a["name"] or "")),
     }
+
+
+def merge_items(items: list[dict]) -> list[dict]:
+    """One entry per item name: newer sets list an item twice (a "DA_" record
+    without text and the classic one with its stats), so the two are merged."""
+    merged: dict[str, dict] = {}
+    for item in items:
+        name = item.get("name")
+        current = merged.get(name)
+        if current is None:
+            merged[name] = dict(item)
+            continue
+        for key in ("desc", "stats", "from", "icon"):
+            if not current.get(key) and item.get(key):
+                current[key] = item[key]
+        if current.get("kind") in ("other", "mechanic") and item.get("kind") not in ("other", "mechanic", None):
+            current["kind"] = item["kind"]
+    for item in merged.values():
+        if not item.get("desc") and item.get("kind") == "emblem" and str(item.get("name", "")).startswith("Ấn "):
+            item["desc"] = f"Người mang trang bị này được tính thêm tộc/hệ {item['name'][3:]}."
+    return list(merged.values())
 
 
 def save_db(directory: str | Path, db: dict) -> bool:

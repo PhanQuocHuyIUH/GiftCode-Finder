@@ -686,7 +686,7 @@ const TFT = (() => {
   const dbs = {};
   const COST_COLORS = { 1: "#9aa4b8", 2: "#34d399", 3: "#3b82f6", 4: "#c026d3", 5: "#ffc94d", 6: "#ff6a3d", 7: "#ff4fd8" };
   const TIERS = { 1: ["Bạc", "#c0c8d8"], 2: ["Vàng", "#ffc94d"], 3: ["Kim cương", "#c084fc"] };
-  const TYPES = { champions: ["Tướng", "🦸"], traits: ["Tộc/Hệ", "🧬"], items: ["Trang bị", "🗡️"], augments: ["Nâng cấp", "💠"] };
+  const TYPES = { champions: ["Tướng", "🦸"], traits: ["Tộc/Hệ", "🧬"], items: ["Trang bị", "🗡️"], augments: ["Nâng cấp", "💠"], rewards: ["Phần thưởng & lõi đặc biệt", "🎁"] };
   let summaryRef = null;
 
   function dbSets() {
@@ -755,6 +755,8 @@ const TFT = (() => {
     const subtitle = [];
     if (type === "champions") subtitle.push(`${entry.cost} vàng`);
     if (type === "augments" && TIERS[entry.tier]) subtitle.push(`Nâng cấp ${TIERS[entry.tier][0]}`);
+    if (type === "augments") subtitle.push(entry.pool === false ? "Không có trong vòng chọn" : entry.stages && entry.stages.length ? `Xuất hiện ở ${entry.stages.join(", ")}` : "Không ra ở lượt chọn thường");
+    if (type === "items" && entry.kind) subtitle.push((ITEM_KINDS.find(([k]) => k === entry.kind) || [, "Trang bị"])[1]);
     if (type === "items" && entry.from && entry.from.length) subtitle.push("Trang bị ghép");
     parts.push(
       el(
@@ -854,7 +856,14 @@ const TFT = (() => {
         );
       }
     }
-    if (type !== "champions") {
+    if (type === "augments" && entry.pool !== false) parts.push(el("div", { class: "sheet-sec" }, el("h3", {}, "⏱ Giai đoạn xuất hiện"), stagePills(entry.stages || [])));
+    const rewards =
+      (type === "traits" && REWARD_RX.test([entry.desc, ...(entry.breakpoints || []).map((b) => b.text)].join(" "))) ||
+      (type === "augments" && RANDOM_RX.test(entry.desc || ""));
+    if (rewards) {
+      const table = rewardTable(set, entry.name, true);
+      if (table) parts.push(el("section", { class: "sheet-sec" }, table));
+    } else if (type !== "champions") {
       const values = latestValues(set, entry.name, false);
       if (values) parts.push(el("section", { class: "sheet-sec" }, values));
     }
@@ -969,7 +978,7 @@ const TFT = (() => {
 
   // --- The lookup page: #/tft/tra-cuu[/<set>] --------------------------------
 
-  const dbState = { type: "champions", query: "" };
+  const dbState = { type: "champions", query: "", stage: "all", tier: "all", showGone: false, itemKind: "completed" };
 
   function renderDb(view, appData, set) {
     const sets = dbSets();
@@ -1025,6 +1034,13 @@ const TFT = (() => {
           dbState.type = b.dataset.type;
           paint();
         });
+        body.addEventListener("click", (event) => {
+          const f = event.target.closest("[data-db]");
+          if (!f) return;
+          const key = f.dataset.db;
+          dbState[key] = key === "showGone" ? !dbState.showGone : f.dataset.value;
+          paint();
+        });
         let timer;
         search.addEventListener("input", () => {
           clearTimeout(timer);
@@ -1040,6 +1056,7 @@ const TFT = (() => {
 
   function dbGrid(db, set, type, q) {
     const open = (name) => openSheet(set, name);
+    if (type === "rewards") return rewardsView(db, set, q, open);
     const hit = (e) => !q || fold([e.name, e.desc, (e.traits || []).join(" "), (e.ability && e.ability.name) || ""].join(" ")).includes(q);
     const list = (db[type] || []).filter(hit);
     if (!list.length) return [el("p", { class: "empty" }, "Không có mục nào khớp.")];
@@ -1084,30 +1101,273 @@ const TFT = (() => {
         ),
       ];
     }
-    const groups = new Map();
-    for (const e of list) {
-      const key = type === "augments" ? (TIERS[e.tier] ? `Nâng cấp ${TIERS[e.tier][0]}` : "Khác") : e.from && e.from.length ? "Trang bị ghép" : /ấn |emblem/i.test(e.name) ? "Ấn" : "Thành phần & đặc biệt";
-      groups.set(key, [...(groups.get(key) || []), e]);
-    }
-    return [...groups.entries()].map(([label, entries]) =>
+    if (type === "augments") return augmentGrid(db, set, list, open);
+    if (type === "items") return itemGrid(db, list, open);
+    return [];
+  }
+
+  // --- Lookup: augments by stage, items by kind, rewards -----------------------
+
+  const STAGES = ["2-1", "3-2", "4-2"];
+  const ITEM_KINDS = [
+    ["completed", "Trang bị ghép", "⚔️"],
+    ["component", "Thành phần", "🧩"],
+    ["radiant", "Ánh Sáng", "✨"],
+    ["artifact", "Tạo tác (Ornn)", "🔨"],
+    ["emblem", "Ấn", "🧬"],
+    ["support", "Hỗ trợ", "🤝"],
+    ["mechanic", "Cơ chế mùa", "🌿"],
+    ["consumable", "Tiêu hao", "🧪"],
+    ["other", "Khác", "✳️"],
+  ];
+  // Traits that pay out (cash-out traits) and augments with random or conditional rewards.
+  const REWARD_RX = /phần thưởng|báu vật|chiến lợi phẩm|nổ hũ|chuyển đổi .*thành|tích lũy|tích trữ|rương|loot|payout|cash ?out/i;
+  const RANDOM_RX = /ngẫu nhiên|phần thưởng|báu vật|trứng|rương|nở ra|sau \d+ vòng|mỗi \d+ vòng|tích lũy|khi .{0,40}(đạt|hoàn thành)|random|reward|egg/i;
+  const CHANCE_RX = /tỉ lệ|tỷ lệ|cơ hội|xác suất|\bchance\b|\bodds\b/i;
+
+  function chip(label, on, attrs) {
+    return el("button", { type: "button", class: `chipbtn${on ? " is-on" : ""}`, "aria-pressed": String(on), ...attrs }, label);
+  }
+
+  function stagePills(stages) {
+    return el(
+      "span",
+      { class: "stages", title: stages.length ? `Xuất hiện ở giai đoạn ${stages.join(", ")}` : "Không xuất hiện ở lượt chọn nâng cấp thường" },
+      STAGES.map((stage) => el("i", { class: stages.includes(stage) ? "on" : "" }, stage)),
+    );
+  }
+
+  function augmentCard(a, i, open, extra) {
+    const [tierName, tierColor] = TIERS[a.tier] || ["?", "#94a3b8"];
+    return el(
+      "article",
+      {
+        class: `sc db-card aug${a.pool ? "" : " is-gone"}`,
+        style: `--i:${i};--tone:${tierColor}`,
+        tabindex: "0",
+        role: "button",
+        onclick: () => open(a.name),
+        onkeydown: (ev) => ev.key === "Enter" && open(a.name),
+      },
       el(
-        "section",
-        { class: "tsec" },
-        el("div", { class: "tsec-head" }, el("span", { class: "ico" }, TYPES[type][1]), el("h2", {}, label), el("small", {}, entries.length)),
+        "header",
+        { class: "sc-head" },
+        avatar(a.name, a.icon, "augments"),
+        el("div", { class: "sc-name" }, el("h3", {}, a.name), el("small", {}, `Nâng cấp ${tierName}`)),
+        a.pool ? stagePills(a.stages) : el("span", { class: "gone-tag" }, "Không có trong vòng chọn"),
+      ),
+      el("p", { class: "sheet-desc small" }, richText(a.desc || "")),
+      extra,
+    );
+  }
+
+  function augmentGrid(db, set, list, open) {
+    const latest = ((data && data.patches) || []).find((p) => p.set === set);
+    const newestSet = Math.max(...dbSets());
+    const gone = list.filter((a) => !a.pool).length;
+    const shown = list.filter(
+      (a) =>
+        (dbState.showGone || a.pool) &&
+        (dbState.stage === "all" || (a.pool && a.stages.includes(dbState.stage))) &&
+        (dbState.tier === "all" || String(a.tier) === dbState.tier),
+    );
+    const filters = el(
+      "div",
+      { class: "db-filters" },
+      el(
+        "div",
+        { class: "kind-tabs", role: "group", "aria-label": "Giai đoạn" },
+        chip("Mọi giai đoạn", dbState.stage === "all", { "data-db": "stage", "data-value": "all" }),
+        STAGES.map((stage) => chip(`⏱ ${stage}`, dbState.stage === stage, { "data-db": "stage", "data-value": stage })),
+      ),
+      el(
+        "div",
+        { class: "kind-tabs", role: "group", "aria-label": "Bậc" },
+        chip("Mọi bậc", dbState.tier === "all", { "data-db": "tier", "data-value": "all" }),
+        Object.entries(TIERS).map(([tier, [name, color]]) => chip(name, dbState.tier === tier, { "data-db": "tier", "data-value": tier, style: `--tone:${color}` })),
+        gone > 0 && chip(`${dbState.showGone ? "✓ " : ""}Hiện cả ${gone} lõi không có trong vòng chọn`, dbState.showGone, { "data-db": "showGone", "data-value": "toggle" }),
+      ),
+      el(
+        "p",
+        { class: "db-note" },
+        `Giai đoạn xuất hiện và lõi có trong vòng chọn đọc từ dữ liệu game ${set === newestSet ? `của bản hiện tại${latest ? ` (${latest.version})` : ""}` : `lần cuối mùa ${set} có trong game`}. Lõi chỉ đến từ nguồn khác (Triệu Gọi Hỗn Mang, Ân Huệ…) hoặc đã gỡ được ẩn, bật nút trên để xem.`,
+      ),
+    );
+    if (!shown.length) return [filters, el("p", { class: "empty" }, "Không có lõi nào khớp bộ lọc.")];
+    const groups = new Map();
+    for (const a of shown) {
+      const key = a.pool ? a.tier || 0 : "gone";
+      groups.set(key, [...(groups.get(key) || []), a]);
+    }
+    return [
+      filters,
+      ...[...groups.entries()].map(([key, entries]) =>
         el(
-          "div",
-          { class: "cards" },
-          entries.slice(0, 400).map((e, i) =>
-            el(
-              "article",
-              { class: "sc db-card", "data-dir": type === "augments" ? "fix" : "new", style: `--i:${i}`, tabindex: "0", role: "button", onclick: () => open(e.name), onkeydown: (ev) => ev.key === "Enter" && open(e.name) },
-              el("header", { class: "sc-head" }, avatar(e.name, e.icon, type), el("div", { class: "sc-name" }, el("h3", {}, e.name), e.stats && e.stats.length > 0 && el("small", {}, e.stats.map((x) => `${x.label} ${x.value}`).join(" · ")))),
-              el("p", { class: "sheet-desc small" }, richText(e.desc || "")),
-            ),
+          "section",
+          { class: "tsec" },
+          el(
+            "div",
+            { class: "tsec-head" },
+            el("span", { class: "ico", style: key === "gone" ? "" : `background:${(TIERS[key] || [, "#94a3b8"])[1]};color:#111` }, key === "gone" ? "🚫" : "💠"),
+            el("h2", {}, key === "gone" ? "Không có trong vòng chọn" : `Nâng cấp ${(TIERS[key] || ["khác"])[0]}`),
+            el("small", {}, entries.length),
+          ),
+          el("div", { class: "cards" }, entries.map((a, i) => augmentCard(a, i, open))),
+        ),
+      ),
+    ];
+  }
+
+  function recipe(db, names) {
+    if (!names || !names.length) return null;
+    return el(
+      "span",
+      { class: "mini-recipe", title: `Ghép từ: ${names.join(" + ")}` },
+      names.map((name, i) => {
+        const part = db.index.get(fold(name));
+        return [i > 0 && "+", avatar(name, part && part.entry.icon, "items"), el("small", {}, name)];
+      }),
+    );
+  }
+
+  function itemGrid(db, list, open) {
+    const counts = Object.fromEntries(ITEM_KINDS.map(([kind]) => [kind, list.filter((i) => (i.kind || "other") === kind).length]));
+    if (!counts[dbState.itemKind]) dbState.itemKind = (ITEM_KINDS.find(([kind]) => counts[kind]) || ["completed"])[0];
+    const filters = el(
+      "div",
+      { class: "db-filters" },
+      el(
+        "div",
+        { class: "kind-tabs", role: "group", "aria-label": "Loại trang bị" },
+        ITEM_KINDS.filter(([kind]) => counts[kind]).map(([kind, label, icon]) => chip([`${icon} ${label} `, el("small", {}, counts[kind])], dbState.itemKind === kind, { "data-db": "itemKind", "data-value": kind })),
+      ),
+    );
+    const seen = new Set();
+    const shown = list.filter((i) => (i.kind || "other") === dbState.itemKind && !seen.has(i.name) && seen.add(i.name));
+    return [
+      filters,
+      el(
+        "div",
+        { class: "cards" },
+        shown.map((item, i) =>
+          el(
+            "article",
+            { class: "sc db-card item-card", "data-dir": "new", style: `--i:${i}`, tabindex: "0", role: "button", onclick: () => open(item.name), onkeydown: (ev) => ev.key === "Enter" && open(item.name) },
+            el("header", { class: "sc-head" }, avatar(item.name, item.icon, "items"), el("div", { class: "sc-name" }, el("h3", {}, item.name), recipe(db, item.from))),
+            item.stats && item.stats.length > 0 && el("div", { class: "item-stats" }, item.stats.map((x) => el("span", {}, `${x.label} `, el("b", {}, x.value)))),
+            el("p", { class: "sheet-desc small" }, richText(item.desc || "")),
           ),
         ),
       ),
+    ];
+  }
+
+  // What the season's patch notes said about ``name``'s rewards: the newest
+  // value of every line, chance lines marked (the game data has no loot tables).
+  function rewardTable(set, name, open = false) {
+    const key = bare(name);
+    const rows = new Map();
+    for (const patch of ((data && data.patches) || []).filter((p) => p.set === set)) {
+      for (const c of changesOf(patch)) {
+        const hay = fold([c.subject, c.stat, c.text, c.group].join(" "));
+        if (!(c.subject && bare(c.subject) === key) && !hay.includes(key)) continue;
+        // "Nổ Hũ 130 · Phần thưởng" or the nested heading ("Phần Thưởng … mốc 250 Tinh Hoa").
+        const head = [c.subject && bare(c.subject) !== key ? c.subject : null, c.group, c.stat].filter(Boolean).join(" · ");
+        const label = head || c.text || "";
+        const value = c.after || (head && c.text) || "";
+        // Same milestone, several reward options: the old value tells them apart.
+        const id = fold(`${label}|${c.before || ""}|${c.after ? "" : value}`);
+        if (!label || rows.has(id)) continue;
+        rows.set(id, { label, before: c.before || "", value, version: patch.version, chance: CHANCE_RX.test(`${label} ${value}`) });
+      }
+    }
+    if (!rows.size) return null;
+    const list = [...rows.values()].slice(0, 60);
+    return el(
+      "details",
+      { class: "rewards", open: open || null },
+      el("summary", {}, `🎁 Phần thưởng & số liệu theo patch notes (${list.length})`),
+      el(
+        "table",
+        { class: "vars" },
+        el("thead", {}, el("tr", {}, el("th", {}, "Mục"), el("th", {}, "Hiện tại"), el("th", {}, "Bản"))),
+        el(
+          "tbody",
+          {},
+          list.map((r) =>
+            el("tr", { class: r.chance ? "is-chance" : "" }, el("td", {}, r.chance ? "🎲 " : "", r.label, r.before && el("small", { class: "was" }, `trước: ${r.before}`)), el("td", {}, r.value || "—"), el("td", { class: "ver-cell" }, el("a", { href: `#/tft/${r.version}` }, r.version))),
+          ),
+        ),
+      ),
+      el("p", { class: "db-note" }, "Riot không đưa bảng phần thưởng hay xác suất vào dữ liệu game; bảng gom từ các dòng patch notes của mùa (giá trị mới nhất). Dòng 🎲 là dòng có nhắc tỉ lệ."),
     );
+  }
+
+  function rewardsView(db, set, q, open) {
+    const hit = (e) => !q || fold([e.name, e.desc].join(" ")).includes(q);
+    const traits = db.traits.filter((t) => hit(t) && REWARD_RX.test([t.desc, ...t.breakpoints.map((b) => b.text)].join(" ")));
+    const pool = db.augments.filter((a) => a.pool && hit(a));
+    const random = pool.filter((a) => RANDOM_RX.test(a.desc || ""));
+    const traitNames = db.traits.map((t) => t.name).filter((n) => n && n.length > 2);
+    const byTrait = new Map();
+    for (const a of pool) {
+      const trait = traitNames.find((n) => fold(`${a.name} ${a.desc}`).includes(fold(n)));
+      if (trait) byTrait.set(trait, [...(byTrait.get(trait) || []), a]);
+    }
+    const out = [
+      el("p", { class: "db-note" }, "Những thứ hay phải tra: tộc/hệ “nổ hũ” và bảng phần thưởng, lõi cho phần thưởng ngẫu nhiên hoặc cần điều kiện, lõi gắn với từng tộc/hệ. Bấm vào thẻ để xem đầy đủ."),
+    ];
+    if (traits.length)
+      out.push(
+        el(
+          "section",
+          { class: "tsec" },
+          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "💰"), el("h2", {}, "Tộc/hệ nổ hũ & phần thưởng"), el("small", {}, traits.length)),
+          el(
+            "div",
+            { class: "cards wide-cards" },
+            traits.map((t, i) =>
+              el(
+                "article",
+                { class: "sc db-card reward-card", "data-dir": "new", style: `--i:${i}` },
+                el("header", { class: "sc-head has-sheet", "data-sheet": t.name, onclick: () => open(t.name) }, avatar(t.name, t.icon, "traits"), el("div", { class: "sc-name" }, el("h3", {}, t.name), el("small", {}, `Mốc: ${t.breakpoints.map((b) => b.min).join(" / ")}`))),
+                el("p", { class: "sheet-desc" }, richText(t.desc || "")),
+                el("ol", { class: "bps" }, t.breakpoints.map((b) => el("li", { "data-style": b.style }, el("span", { class: "bp-n" }, b.min), el("span", {}, richText(b.text.replace(/^\(\d+\)\s*/, "") || "—"))))),
+                rewardTable(set, t.name, true),
+              ),
+            ),
+          ),
+        ),
+      );
+    if (random.length)
+      out.push(
+        el(
+          "section",
+          { class: "tsec" },
+          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "🎲"), el("h2", {}, "Lõi phần thưởng ngẫu nhiên & có điều kiện"), el("small", {}, random.length)),
+          el("div", { class: "cards" }, random.map((a, i) => augmentCard(a, i, open, rewardTable(set, a.name)))),
+        ),
+      );
+    if (byTrait.size)
+      out.push(
+        el(
+          "section",
+          { class: "tsec" },
+          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "🧬"), el("h2", {}, "Lõi theo tộc/hệ"), el("small", {}, [...byTrait.values()].reduce((n, l) => n + l.length, 0))),
+          [...byTrait.entries()]
+            .sort((x, y) => x[0].localeCompare(y[0]))
+            .map(([trait, augs]) =>
+              el(
+                "div",
+                { class: "trait-augs" },
+                el("p", { class: "hf-block-head" }, el("b", {}, trait), ` · ${augs.length} lõi`),
+                el("div", { class: "cards" }, augs.map((a, i) => augmentCard(a, i, open))),
+              ),
+            ),
+        ),
+      );
+    if (out.length === 1) out.push(el("p", { class: "empty" }, "Không có mục nào khớp."));
+    return out;
   }
 
   // "Patch notes" | "Stat lookup" switch shown on both pages.

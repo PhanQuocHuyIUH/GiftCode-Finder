@@ -1578,6 +1578,35 @@ dialog.sheet::backdrop { background: rgba(5, 3, 15, .78); }
 .tftp-hf { display: inline-block; margin: 0 0 12px; padding: 6px 12px; border-radius: 12px; background: rgba(255, 159, 61, .14); box-shadow: inset 0 0 0 1px rgba(255, 159, 61, .4); color: var(--muted); font-size: .88rem; font-weight: 700; }
 .tftp-hf b { color: #ffb44d; }
 
+
+/* --- TFT lookup: stage filter, item kinds, rewards ------------------------- */
+
+.db-filters { display: grid; gap: 8px; margin: 0 0 16px; }
+.db-filters .kind-tabs { flex-wrap: wrap; }
+.db-note { margin: 4px 0 0; color: var(--faint); font-size: .78rem; }
+.stages { display: inline-flex; gap: 3px; flex: none; }
+.stages i { padding: 1px 6px; border-radius: 6px; font: 800 .66rem/1.6 var(--font); font-style: normal; color: var(--faint); background: var(--surface-2); text-decoration: line-through; opacity: .6; }
+.stages i.on { color: #062018; background: linear-gradient(145deg, #a7f3d0, var(--buff)); text-decoration: none; opacity: 1; box-shadow: 0 2px 0 color-mix(in oklab, var(--buff) 45%, #000); }
+.sheet-sec .stages i { font-size: .85rem; padding: 3px 12px; }
+.sc.aug { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tone) 35%, var(--line)), inset 0 3px 0 var(--tone), 0 14px 26px -22px var(--tone); }
+.sc.aug .sc-head { flex-wrap: wrap; }
+.sc.is-gone { opacity: .62; filter: saturate(.5); }
+.gone-tag { flex: none; padding: 1px 8px; border-radius: 99px; background: var(--surface-3); color: var(--muted); font-size: .66rem; font-weight: 800; }
+.mini-recipe { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 5px; margin-top: 3px; color: var(--faint); font-size: .68rem; font-weight: 700; }
+.mini-recipe .av { width: 16px; height: 16px; border-radius: 4px; box-shadow: none; font-size: .45rem; }
+.mini-recipe small { color: var(--faint); font-size: .68rem; }
+.item-stats { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 6px; color: var(--muted); font-size: .78rem; }
+.item-stats b { color: var(--text); }
+.rewards { margin: 10px 0 0; }
+.rewards summary { cursor: pointer; color: var(--gold); font-weight: 800; font-size: .86rem; }
+.rewards[open] summary { margin-bottom: 8px; }
+.rewards .vars td { font-size: .8rem; }
+.rewards .was { display: block; color: var(--faint); font-size: .72rem; text-decoration: line-through; }
+.rewards tr.is-chance td { background: color-mix(in oklab, var(--gold) 8%, transparent); }
+.cards.wide-cards { columns: 2 420px; }
+.reward-card .bps li { font-size: .84rem; padding: 7px 10px; }
+.trait-augs { margin: 0 0 14px; }
+
 /* Tone of anything marked with a change direction (after the components, so it wins). */
 [data-dir="buff"] { --tone: var(--buff); }
 [data-dir="nerf"] { --tone: var(--nerf); }

@@ -67,3 +67,44 @@ def test_hashed_keys_and_literal_newlines():
     db = build_db(game, 19, "https://cd.test/")
     assert db["champions"][0]["ability"]["desc"] == "Gây ? sát thương."  # the page fills in patch-note values
     assert db["traits"][0]["breakpoints"][0]["text"] == "(3) +200 Máu"
+
+
+def test_augment_stages_pool_and_item_kinds():
+    from giftcode_finder.tft_db import item_kind
+
+    game = {"setData": [{"number": 20, "champions": [], "traits": [],
+                         "augments": ["TFT20_Augment_Chaos", "TFT20_Augment_Chaos_Variant", "TFT20_Augment_Patience"],
+                         "items": ["TFT_Item_BFSword", "TFT_Item_Deathblade", "TFT5_Item_DeathbladeRadiant", "TFT_Item_Artifact_Fishbones", "TFT20_Item_FooEmblemItem"]}],
+            "items": [
+        {"apiName": "TFT20_Augment_Chaos", "name": "Triệu Gọi Hỗn Mang", "desc": "Nhận 1 phần thưởng ngẫu nhiên.",
+         "tags": ["{b72bd3bf}", "{d02ae323}", "{d12ae4b6}", "{cf1fd3af}"]},
+        {"apiName": "TFT20_Augment_Chaos_Variant", "name": "Triệu Gọi Hỗn Mang", "desc": "Biến thể.", "tags": ["{cf1fd3af}"]},
+        {"apiName": "TFT20_Augment_Patience", "name": "Kiên Nhẫn", "desc": "Đổi miễn phí.",
+         "tags": ["{b72bd3bf}", "{d12ae4b6}", "{d22ae649}", "{d11fd6d5}"]},
+        {"apiName": "TFT_Item_BFSword", "name": "Kiếm B.F.", "desc": "x", "tags": ["component"]},
+        {"apiName": "TFT_Item_Deathblade", "name": "Kiếm Tử Thần", "desc": "x", "composition": ["TFT_Item_BFSword", "TFT_Item_BFSword"]},
+        {"apiName": "TFT5_Item_DeathbladeRadiant", "name": "Kiếm Tử Thần Ánh Sáng", "desc": "x"},
+        {"apiName": "TFT_Item_Artifact_Fishbones", "name": "Đại Bác", "desc": "x"},
+        {"apiName": "TFT20_Item_FooEmblemItem", "name": "Ấn Foo", "desc": "x", "composition": ["TFT_Item_Spatula", "TFT_Item_BFSword"]},
+    ]}
+    db = build_db(game, 20, "https://cd.test/")
+    chaos = [a for a in db["augments"] if a["name"] == "Triệu Gọi Hỗn Mang"]
+    assert len(chaos) == 1 and chaos[0]["pool"] and chaos[0]["stages"] == ["4-2"] and chaos[0]["tier"] == 3
+    patience = next(a for a in db["augments"] if a["name"] == "Kiên Nhẫn")
+    assert patience["stages"] == ["2-1"] and patience["tier"] == 1
+    kinds = {i["name"]: i["kind"] for i in db["items"]}
+    assert kinds == {"Kiếm B.F.": "component", "Kiếm Tử Thần": "completed", "Kiếm Tử Thần Ánh Sáng": "radiant",
+                     "Đại Bác": "artifact", "Ấn Foo": "emblem"}
+    assert item_kind({"apiName": "DA_18_AfterShock", "icon": "assets/ux/tft/hud/zaps/wands/x.tex"}) == "mechanic"
+
+
+def test_items_listed_twice_are_merged():
+    from giftcode_finder.tft_db import merge_items
+
+    items = merge_items([
+        {"name": "Huyết Kiếm", "desc": "", "stats": [], "from": [], "icon": None, "kind": "other"},
+        {"name": "Huyết Kiếm", "desc": "Hút máu.", "stats": [{"label": "SMCK", "value": "15%"}], "from": ["a", "b"], "icon": "i", "kind": "completed"},
+        {"name": "Ấn Gai Đen", "desc": "", "stats": [], "from": [], "kind": "emblem"},
+    ])
+    assert items[0] == {"name": "Huyết Kiếm", "desc": "Hút máu.", "stats": [{"label": "SMCK", "value": "15%"}], "from": ["a", "b"], "icon": "i", "kind": "completed"}
+    assert items[1]["desc"] == "Người mang trang bị này được tính thêm tộc/hệ Gai Đen."

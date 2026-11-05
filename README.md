@@ -29,7 +29,16 @@ code hiện như vé, lật 3D khi bấm chép. Mỗi game có link riêng để
   toàn bộ tướng theo giá tiền, tộc/hệ, trang bị và nâng cấp của mỗi mùa. Bấm vào một tướng (hoặc vào
   tên tướng/trang bị trong bản cập nhật) để mở bảng thông số: máu, SMCK, tốc đánh, giáp, kháng phép,
   năng lượng, tầm đánh, chí mạng, kỹ năng với chỉ số 1★/2★/3★, các mốc tộc/hệ, công thức trang bị,
-  số liệu mới nhất theo patch notes và lịch sử tăng/giảm trong mùa. Dữ liệu game mùa mới nhất của
+  số liệu mới nhất theo patch notes và lịch sử tăng/giảm trong mùa.
+  - **Nâng cấp (lõi):** lọc theo **giai đoạn xuất hiện 2-1 / 3-2 / 4-2** và theo bậc. Dữ liệu này lấy
+    từ các thẻ ẩn trong dữ liệu game (vd. Triệu Gọi Hỗn Mang chỉ ở 4-2). Mặc định chỉ hiện lõi đang có
+    trong vòng chọn của bản hiện tại; lõi chỉ đến từ nguồn khác hoặc đã gỡ được ẩn sau một nút.
+  - **Trang bị:** chia theo trang bị ghép, thành phần, Ánh Sáng, Tạo tác (Ornn), Ấn, hỗ trợ, cơ chế
+    mùa, tiêu hao; có chỉ số, hiệu ứng và công thức ghép nhỏ.
+  - **🎁 Phần thưởng & lõi đặc biệt:** tộc/hệ "nổ hũ" (Tiên Hắc Ám, Pha Lê…) kèm bảng phần thưởng
+    theo từng mốc, lõi cho phần thưởng ngẫu nhiên hoặc có điều kiện (Triệu Gọi Hỗn Mang, Trứng Vàng…),
+    lõi theo từng tộc/hệ. Riot không đưa bảng phần thưởng hay xác suất vào dữ liệu game, nên các bảng
+    này gom từ những dòng patch notes của mùa (giá trị mới nhất). Dữ liệu game mùa mới nhất của
   Community Dragon không kèm số liệu kỹ năng, nên với mùa đó số liệu kỹ năng lấy từ các dòng patch
   notes gần nhất.
 

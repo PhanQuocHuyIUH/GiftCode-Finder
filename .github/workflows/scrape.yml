@@ -83,7 +83,7 @@ jobs:
         if: github.ref_name == 'dev'
         continue-on-error: true
         run: |
-          python -m giftcode_finder.probe "https://lolchess.gg/rewards/set18/expedition?hl=vi" "https://lolchess.gg/rewards/set18/coven?hl=vi" "https://lolchess.gg/rewards/set18/callto-chaos?hl=vi" "https://lolchess.gg/rewards/set17/expedition?hl=vi" | cut -c1-6000
+          python -m giftcode_finder.probe "https://lolchess.gg/rewards/set18/expedition?hl=vi" "https://lolchess.gg/rewards/set18/coven?hl=vi" | grep -A2 CONTAINER | cut -c1-9500
 
       - name: Lấy giftcode
         id: scrape

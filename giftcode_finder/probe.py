@@ -55,6 +55,15 @@ def main(urls):
             print("  rsc ctx:", joined[max(0, m.start() - 250): m.start() + 250])
         links = sorted({a["href"] for a in soup.find_all("a", href=True) if "/rewards/" in a["href"] or "/tables/" in a["href"]})
         print("links", len(links), links[:80])
+        mark = soup.find(string=re.compile(r"Updated:|Cập nhật:"))
+        if mark:
+            node = mark.parent
+            for _ in range(4):
+                if node.parent is not None and len(str(node.parent)) < 60000:
+                    node = node.parent
+            html_part = re.sub(r"\s+", " ", str(node))
+            print("CONTAINER", node.name, node.get("class"), len(html_part))
+            print(html_part[:9000])
         body = soup.get_text(" ", strip=True)
         print("text:", body[1200:2600])
         imgs = [i.get("src") for i in soup.find_all("img")][:15]

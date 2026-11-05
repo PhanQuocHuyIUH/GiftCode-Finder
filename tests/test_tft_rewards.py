@@ -54,3 +54,13 @@ def test_dice_tables_and_choice_lists():
     choices = """<div class="RewardContainer"><h2 class="title">Primal</h2><ul><li><div><img src="/b.png"/><h3>Phước Lành Của Gấu</h3></div><p>Hành quyết dưới 12% Máu</p></li></ul></div>"""
     item = parse_table(choices, "primal", "https://lolchess.gg/x")["groups"][0]["rows"][0]["items"][0]
     assert (item["name"], item["desc"]) == ("Phước Lành Của Gấu", "Hành quyết dưới 12% Máu")
+
+
+def test_older_layout_without_container_class():
+    old = """<div><div class="head"><img src="/ico-crystal.png"/><div class="content"><div><h3 class="title">Crystal Gambit</h3>
+    <p class="description">Gain crystals on losses.</p></div><div class="updated-at">Updated: November 5, 2025</div></div></div>
+    <section><header><strong>3 Crystal Gambit</strong></header><table><tbody><tr><td class="probability">50%</td>
+    <td><div class="RewardItem" data-reward-key="Gold"><div><img src="/g.png"/><span>x4</span></div><div>Vàng</div></div></td></tr></tbody></table></section></div>"""
+    table = parse_table(old, "crystal-gambit", "https://lolchess.gg/rewards/set15/crystal-gambit")
+    assert (table["title"], table["updated"], table["desc"]) == ("Crystal Gambit", "November 5, 2025", "Gain crystals on losses.")
+    assert table["groups"][0]["title"] == "3 Crystal Gambit" and table["groups"][0]["rows"][0]["items"][0]["qty"] == 4

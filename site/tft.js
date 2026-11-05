@@ -1443,18 +1443,23 @@ const TFT = (() => {
           "div",
           { class: "loot-group-box" },
           (group.title || group.note) && el("p", { class: "loot-group" }, group.title ? `🎯 ${group.title}` : "", group.note && el("small", {}, ` · ${group.note}`)),
-          el(
-            "div",
-            { class: "loot" },
-            group.rows.map((row) =>
+          (() => {
+            const rowEl = (row) =>
               el(
                 "div",
                 { class: `loot-row${best !== null && parseChance(row.chance) === best ? " top" : ""}` },
                 el("span", { class: `loot-chance${row.chance ? (/%/.test(row.chance) ? "" : " cond") : " none"}` }, row.chance || "chắc chắn"),
                 el("span", { class: "rchips" }, row.items.map((item) => lootItem(item, set))),
-              ),
-            ),
-          ),
+              );
+            const first = group.rows.slice(0, 6);
+            const rest = group.rows.slice(6);
+            return el(
+              "div",
+              { class: "loot" },
+              first.map(rowEl),
+              rest.length > 0 && el("details", { class: "more-loot" }, el("summary", {}, `Xem thêm ${rest.length} khả năng`), el("div", { class: "loot" }, rest.map(rowEl))),
+            );
+          })(),
         );
       }),
       el("p", { class: "loot-src" }, "Tỉ lệ & phần thưởng theo ", el("a", { href: table.url, target: "_blank", rel: "noopener" }, "LoLCHESS.GG ↗"), table.updated ? ` · cập nhật ${table.updated}` : ""),

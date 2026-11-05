@@ -25,7 +25,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup, Tag
 
 BASE = "https://lolchess.gg"
-REWARDS_VERSION = 2
+REWARDS_VERSION = 3
 SKIP = {"augment-exclusive", "augment-chance", "blackthorn"}  # lists and calculators, not loot
 GAME_ID = re.compile(r"^(?:DA|TFT\d*)_[A-Za-z0-9_]+$")
 
@@ -80,11 +80,19 @@ def parse_table(html: str, slug: str, page_url: str) -> dict | None:
         style.decompose()
     box = soup.select_one(".RewardContainer")
     if box is None:
+        # Older seasons: no container class; climb from the title to the block
+        # that also holds the rewards.
+        head = soup.select_one("h2.title, h3.title")
+        node = head
+        while node is not None and not (node.select(".RewardItem") or node.find("table")):
+            node = node.parent
+        box = node
+    if box is None:
         return None
-    head_img = box.find("img")
-    title = box.select_one("h2.title")
-    updated = box.select_one(".update-time")
-    desc = " ".join(_text(p) for p in box.select(".description p"))
+    title = box.select_one("h2.title, h3.title")
+    head_img = title.find_previous("img") if title else box.find("img")
+    updated = box.select_one(".update-time, .updated-at")
+    desc = " ".join(_text(p) for p in box.select(".description p")) or _text(box.select_one("p.description"))
     groups: list[dict] = []
     loose: list[dict] = []
     for table in box.find_all("table"):

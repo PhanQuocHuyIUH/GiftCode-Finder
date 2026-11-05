@@ -684,6 +684,7 @@ const TFT = (() => {
   // --- Stat sheets (data/tft_db/<set>.json) -----------------------------------
 
   const dbs = {};
+  const dbLoaded = {}; // set -> db once loaded (for icons in reward chips)
   const COST_COLORS = { 1: "#9aa4b8", 2: "#34d399", 3: "#3b82f6", 4: "#c026d3", 5: "#ffc94d", 6: "#ff6a3d", 7: "#ff4fd8" };
   const TIERS = { 1: ["Bạc", "#c0c8d8"], 2: ["Vàng", "#ffc94d"], 3: ["Kim cương", "#c084fc"] };
   const TYPES = { champions: ["Tướng", "🦸"], traits: ["Tộc/Hệ", "🧬"], items: ["Trang bị", "🗡️"], augments: ["Nâng cấp", "💠"], rewards: ["Phần thưởng & lõi đặc biệt", "🎁"] };
@@ -710,6 +711,7 @@ const TFT = (() => {
               if (entry.name && !db.index.has(key)) db.index.set(key, { type, entry });
             }
           }
+          dbLoaded[set] = db;
           return db;
         })
         .catch((error) => {
@@ -1161,17 +1163,20 @@ const TFT = (() => {
     );
   }
 
-  function augmentGrid(db, set, list, open) {
+  function augmentPasses(a) {
+    return (
+      (dbState.showGone || a.pool) &&
+      (dbState.stage === "all" || (a.pool && a.stages.includes(dbState.stage))) &&
+      (dbState.tier === "all" || String(a.tier) === dbState.tier)
+    );
+  }
+
+  // Stage and tier chips, shared by the augment list and the rewards tab.
+  function augmentFilters(list, set, note = true) {
     const latest = ((data && data.patches) || []).find((p) => p.set === set);
     const newestSet = Math.max(...dbSets());
     const gone = list.filter((a) => !a.pool).length;
-    const shown = list.filter(
-      (a) =>
-        (dbState.showGone || a.pool) &&
-        (dbState.stage === "all" || (a.pool && a.stages.includes(dbState.stage))) &&
-        (dbState.tier === "all" || String(a.tier) === dbState.tier),
-    );
-    const filters = el(
+    return el(
       "div",
       { class: "db-filters" },
       el(
@@ -1184,15 +1189,21 @@ const TFT = (() => {
         "div",
         { class: "kind-tabs", role: "group", "aria-label": "Bậc" },
         chip("Mọi bậc", dbState.tier === "all", { "data-db": "tier", "data-value": "all" }),
-        Object.entries(TIERS).map(([tier, [name, color]]) => chip(name, dbState.tier === tier, { "data-db": "tier", "data-value": tier, style: `--tone:${color}` })),
+        Object.entries(TIERS).map(([tier, [name, color]]) => chip([el("i", { class: "tier-dot", style: `background:${color}` }), name], dbState.tier === tier, { "data-db": "tier", "data-value": tier, style: `--tone:${color}` })),
         gone > 0 && chip(`${dbState.showGone ? "✓ " : ""}Hiện cả ${gone} lõi không có trong vòng chọn`, dbState.showGone, { "data-db": "showGone", "data-value": "toggle" }),
       ),
-      el(
-        "p",
-        { class: "db-note" },
-        `Giai đoạn xuất hiện và lõi có trong vòng chọn đọc từ dữ liệu game ${set === newestSet ? `của bản hiện tại${latest ? ` (${latest.version})` : ""}` : `lần cuối mùa ${set} có trong game`}. Lõi chỉ đến từ nguồn khác (Triệu Gọi Hỗn Mang, Ân Huệ…) hoặc đã gỡ được ẩn, bật nút trên để xem.`,
-      ),
+      note &&
+        el(
+          "p",
+          { class: "db-note" },
+          `Giai đoạn xuất hiện và lõi có trong vòng chọn đọc từ dữ liệu game ${set === newestSet ? `của bản hiện tại${latest ? ` (${latest.version})` : ""}` : `lần cuối mùa ${set} có trong game`}. Lõi chỉ đến từ nguồn khác (Triệu Gọi Hỗn Mang, Ân Huệ…) hoặc đã gỡ được ẩn, bật nút trên để xem.`,
+        ),
     );
+  }
+
+  function augmentGrid(db, set, list, open) {
+    const shown = list.filter(augmentPasses);
+    const filters = augmentFilters(list, set);
     if (!shown.length) return [filters, el("p", { class: "empty" }, "Không có lõi nào khớp bộ lọc.")];
     const groups = new Map();
     for (const a of shown) {
@@ -1262,6 +1273,66 @@ const TFT = (() => {
     ];
   }
 
+  // "2x Gói Trang Bị Hoàn Chỉnh + Caitlyn 2* + 12v" as picture chips: gold coins,
+  // XP, starred champions, items (with their icons when known), chests and bundles.
+  const REWARD_ICONS = [
+    [/xẻng vàng|spatula/i, "🥄"],
+    [/chảo vàng|frying pan/i, "🍳"],
+    [/trứng|egg/i, "🥚"],
+    [/rương|chest/i, "🧰"],
+    [/ánh sáng|radiant/i, "✨"],
+    [/tạo tác|ornn|artifact/i, "🔨"],
+    [/hỗ trợ|support/i, "🤝"],
+    [/ấn\b|emblem/i, "🧬"],
+    [/gói|bộ |anvil|đe/i, "📦"],
+    [/hoàn chỉnh|completed/i, "⚔️"],
+    [/thành phần|component/i, "🧩"],
+    [/đổi lại|lượt đổi|reroll/i, "🔄"],
+    [/máu|health|hp/i, "❤️"],
+    [/tướng|champion/i, "🦸"],
+    [/vương miện|crown/i, "👑"],
+    [/găng|gloves/i, "🧤"],
+  ];
+
+  function rewardChips(text, set) {
+    const db = dbLoaded[set];
+    const parts = String(text || "")
+      .split(/\s*\+\s*|\s*,\s*(?=\d|[A-ZĐÂÊÔƠƯ])|\s+và\s+(?=\d)/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+    if (parts.length < 1) return null;
+    const chips = parts.map((part) => {
+      let label = part;
+      let qty = null;
+      const gold = part.match(/^(\d+)\s*(?:v|vàng|gold)$/i);
+      if (gold) return el("span", { class: "rchip gold" }, el("span", { class: "rchip-ico" }, "🪙"), el("b", {}, gold[1]), el("small", {}, "vàng"));
+      const xp = part.match(/^(\d+)\s*(?:xp|kn|kinh nghiệm)$/i);
+      if (xp) return el("span", { class: "rchip xp" }, el("span", { class: "rchip-ico" }, "📘"), el("b", {}, xp[1]), el("small", {}, "XP"));
+      const count = label.match(/^(\d+)\s*x\s*|^(\d+)\s+(?=\D)/i);
+      if (count) {
+        qty = count[1] || count[2];
+        label = label.slice(count[0].length);
+      }
+      const star = label.match(/^(.+?)\s*(\d)\s*(?:\*|★|sao)$/i);
+      const name = star ? star[1].trim() : label;
+      const hit = db && (db.index.get(fold(name)) || db.index.get(bare(name)));
+      const icon = hit && hit.entry.icon;
+      const emoji = !icon && (REWARD_ICONS.find(([rx]) => rx.test(name)) || [, "🎁"])[1];
+      return el(
+        "span",
+        { class: `rchip${hit && hit.type === "champions" ? " champ" : ""}`, title: part },
+        icon ? avatar(name, icon, hit.type) : el("span", { class: "rchip-ico" }, emoji),
+        qty && el("em", { class: "rchip-qty" }, `${qty}×`),
+        el("span", { class: "rchip-name" }, name),
+        star && el("span", { class: "rchip-star" }, "★".repeat(Number(star[2]))),
+      );
+    });
+    return el("span", { class: "rchips" }, chips);
+  }
+
+  // A value that reads like loot gets chips; numbers and sentences stay text.
+  const looksLikeLoot = (text) => /\+|\d\s*(?:v|vàng)\b|trang bị|rương|gói|\d\s*\*|ánh sáng|tạo tác|xẻng|chảo|găng|trứng/i.test(text || "") && String(text).length < 160;
+
   // What the season's patch notes said about ``name``'s rewards: the newest
   // value of every line, chance lines marked (the game data has no loot tables).
   function rewardTable(set, name, open = false) {
@@ -1295,7 +1366,7 @@ const TFT = (() => {
           "tbody",
           {},
           list.map((r) =>
-            el("tr", { class: r.chance ? "is-chance" : "" }, el("td", {}, r.chance ? "🎲 " : "", r.label, r.before && el("small", { class: "was" }, `trước: ${r.before}`)), el("td", {}, r.value || "—"), el("td", { class: "ver-cell" }, el("a", { href: `#/tft/${r.version}` }, r.version))),
+            el("tr", { class: r.chance ? "is-chance" : "" }, el("td", {}, r.chance ? "🎲 " : "", r.label, r.before && el("small", { class: "was" }, `trước: ${r.before}`)), el("td", {}, looksLikeLoot(r.value) ? rewardChips(r.value, set) : r.value || "—"), el("td", { class: "ver-cell" }, el("a", { href: `#/tft/${r.version}` }, r.version))),
           ),
         ),
       ),
@@ -1306,8 +1377,9 @@ const TFT = (() => {
   function rewardsView(db, set, q, open) {
     const hit = (e) => !q || fold([e.name, e.desc].join(" ")).includes(q);
     const traits = db.traits.filter((t) => hit(t) && REWARD_RX.test([t.desc, ...t.breakpoints.map((b) => b.text)].join(" ")));
-    const pool = db.augments.filter((a) => a.pool && hit(a));
-    const random = pool.filter((a) => RANDOM_RX.test(a.desc || ""));
+    const augs = db.augments.filter(hit);
+    const pool = augs.filter(augmentPasses);
+    const random = pool.filter((a) => RANDOM_RX.test(a.desc || "") || rewardTables(set, a.name));
     const traitNames = db.traits.map((t) => t.name).filter((n) => n && n.length > 2);
     const byTrait = new Map();
     for (const a of pool) {
@@ -1315,7 +1387,8 @@ const TFT = (() => {
       if (trait) byTrait.set(trait, [...(byTrait.get(trait) || []), a]);
     }
     const out = [
-      el("p", { class: "db-note" }, "Những thứ hay phải tra: tộc/hệ “nổ hũ” và bảng phần thưởng, lõi cho phần thưởng ngẫu nhiên hoặc cần điều kiện, lõi gắn với từng tộc/hệ. Bấm vào thẻ để xem đầy đủ."),
+      augmentFilters(augs, set, false),
+      el("p", { class: "db-note" }, "Tộc/hệ “nổ hũ”, lõi cho phần thưởng ngẫu nhiên hoặc cần điều kiện, lõi theo tộc/hệ. Bộ lọc giai đoạn và bậc áp dụng cho các lõi. Bấm vào thẻ để xem đầy đủ."),
     ];
     if (traits.length)
       out.push(

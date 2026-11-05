@@ -83,7 +83,7 @@ jobs:
         if: github.ref_name == 'dev'
         continue-on-error: true
         run: |
-          python -m giftcode_finder.probe "https://lolchess.gg/rewards/set18?hl=vi" "https://lolchess.gg/rewards/set18/expedition?hl=vi" "https://tftflow.com/tables/set18" "https://tftflow.com/tables/set18/expedition" | cut -c1-3000
+          python -m giftcode_finder.probe "https://lolchess.gg/rewards/set18/expedition?hl=vi" "https://lolchess.gg/rewards/set18/coven?hl=vi" "https://lolchess.gg/rewards/set18/callto-chaos?hl=vi" "https://lolchess.gg/rewards/set17/expedition?hl=vi" | cut -c1-6000
 
       - name: Lấy giftcode
         id: scrape

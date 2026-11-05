@@ -40,9 +40,11 @@ def main(urls):
         nd = soup.find("script", id="__NEXT_DATA__")
         if nd and nd.string:
             data = json.loads(nd.string)
-            print("NEXT_DATA keys:")
-            for line in keys_of(data)[:80]:
+            pp = data.get("props", {}).get("pageProps", {})
+            print("pageProps keys:", list(pp))
+            for line in keys_of(pp)[:60]:
                 print("  ", line)
+            print("pageProps json:", json.dumps(pp, ensure_ascii=False)[:5000])
             text = json.dumps(data, ensure_ascii=False)
             for m in list(re.finditer(r"(probab|chance|rate|percent|weight)", text, re.I))[:5]:
                 print("  ctx:", text[max(0, m.start() - 300): m.start() + 300])
@@ -54,7 +56,7 @@ def main(urls):
         links = sorted({a["href"] for a in soup.find_all("a", href=True) if "/rewards/" in a["href"] or "/tables/" in a["href"]})
         print("links", len(links), links[:80])
         body = soup.get_text(" ", strip=True)
-        print("text:", body[:2500])
+        print("text:", body[1200:2600])
         imgs = [i.get("src") for i in soup.find_all("img")][:15]
         print("imgs:", imgs)
 

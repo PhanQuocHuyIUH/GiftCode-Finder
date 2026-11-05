@@ -34,7 +34,7 @@ function el(tag, attrs = {}, ...children) {
     else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
     else node.setAttribute(key, value === true ? "" : value);
   }
-  for (const child of children.flat()) {
+  for (const child of children.flat(Infinity)) {
     if (child === null || child === undefined || child === false) continue;
     node.append(child instanceof Node ? child : document.createTextNode(String(child)));
   }
@@ -510,7 +510,8 @@ function ticker(data) {
   const tft = data.tft && data.tft.latest;
   if (tft) {
     const counts = tft.counts || {};
-    items.unshift(el("span", { class: "tk-item tk-gold" }, "⚔️ ĐTCL ", el("b", {}, tft.version), el("small", {}, `▲${counts.buff || 0} ▼${counts.nerf || 0}`)));
+    const fix = (tft.hotfixes || []).slice(-1)[0];
+    items.unshift(el("span", { class: "tk-item tk-gold" }, "⚔️ ĐTCL ", el("b", {}, fix ? fix.label : tft.version), el("small", {}, fix ? `bản vá mới · ${fix.count} thay đổi` : `▲${counts.buff || 0} ▼${counts.nerf || 0}`)));
   }
   items.push(el("span", { class: "tk-item" }, "⏱ ", el("small", {}, "tự cập nhật mỗi giờ")));
   if (items.length < 2) return null;

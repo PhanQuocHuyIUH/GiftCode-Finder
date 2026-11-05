@@ -33,7 +33,7 @@ const TFT = (() => {
 
   let data = null;
   let loading = null;
-  const state = { kind: "all", dir: "all", query: "", wide: false };
+  const state = { kind: "all", dir: "all", query: "", wide: false, hotfix: "all", patch: null };
 
   // Diacritics off, so "ahri" finds "Ahri" and "giap" finds "Giáp".
   const fold = (text) =>
@@ -111,14 +111,20 @@ const TFT = (() => {
   }
 
   function changesOf(patch) {
-    return patch.sections.flatMap((section) => section.changes.map((change) => ({ ...change, section: section.title })));
+    return patch.sections.flatMap((section) => section.changes.map((change) => ({ ...change, section: section.title, version: patch.version })));
   }
+
+  const hotfixesOf = (patch) => patch.hotfixes || [];
+  const latestHotfix = (patch) => hotfixesOf(patch).slice(-1)[0] || null;
+  const dayMonth = (iso) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : "");
 
   function haystack(change) {
     return fold([change.subject, change.stat, change.before, change.after, change.text, change.group, change.section].join(" "));
   }
 
   function matches(change, query) {
+    if (state.hotfix === "base" && change.hotfix) return false;
+    if (state.hotfix !== "all" && state.hotfix !== "base" && change.hotfix !== state.hotfix) return false;
     if (state.kind !== "all" && change.kind !== state.kind) return false;
     if (state.dir !== "all" && change.dir !== state.dir) return false;
     return !query || haystack(change).includes(query);
@@ -126,18 +132,58 @@ const TFT = (() => {
 
   // --- Cards --------------------------------------------------------------
 
+  // Numbers of a value as the patch notes write them: "1.000" and "1,000" are
+  // thousands, "0,5" a half; per-star values "200/300/450" give three.
+  function numbers(text) {
+    return (String(text || "").match(/-?\d+(?:[.,]\d+)*/g) || []).map((raw) =>
+      /^-?\d{1,3}(?:[.,]\d{3})+$/.test(raw) ? Number(raw.replace(/[.,]/g, "")) : Number(raw.replace(",", ".")),
+    );
+  }
+
+  // How much a value moved, in percent of the old value (averaged over stars).
+  function delta(change) {
+    const a = numbers(change.before);
+    const b = numbers(change.after);
+    if (!a.length || a.length !== b.length) return null;
+    const pairs = a.map((x, i) => [x, b[i]]).filter(([x, y]) => x !== y && x !== 0);
+    if (!pairs.length) return null;
+    return (pairs.reduce((sum, [x, y]) => sum + (y - x) / Math.abs(x), 0) / pairs.length) * 100;
+  }
+
   function line(change) {
     const [label, icon] = DIRS[change.dir] || DIRS.adjust;
     const parts = [el("i", { title: label }, icon)];
+    const move = change.before && change.after ? delta(change) : null;
+    const big = move !== null && Math.abs(move) >= 25 && (change.dir === "buff" || change.dir === "nerf");
     if (change.before && change.after) {
       parts.push(
-        el("span", { class: "ln-stat" }, change.stat || "Thay đổi"),
-        el("span", { class: `ln-vals${change.before.length + change.after.length > 34 ? " long" : ""}` }, el("s", {}, change.before), el("span", { class: "arr", "aria-label": "thành" }, "→"), el("b", {}, change.after)),
+        el(
+          "span",
+          { class: "ln-stat" },
+          change.stat || "Thay đổi",
+          big && el("em", { class: "big-tag", title: "Thay đổi lớn (từ 25% trở lên)" }, "🔥 lớn"),
+          change.hotfix && el("em", { class: "hf-tag", title: `Thêm trong bản vá ${change.version || ""}${change.hotfix}` }, `⚡ ${change.version || ""}${change.hotfix}`),
+        ),
+        el(
+          "span",
+          { class: `ln-vals${change.before.length + change.after.length > 34 ? " long" : ""}` },
+          el("s", {}, change.before),
+          el("span", { class: "arr", "aria-label": "thành" }, "→"),
+          el("b", {}, change.after),
+          move !== null && el("span", { class: "delta", title: "Mức thay đổi so với giá trị cũ" }, `${move > 0 ? "+" : "−"}${Math.abs(move) < 10 ? Math.abs(move).toFixed(1).replace(".", ",") : Math.round(Math.abs(move))}%`),
+        ),
       );
     } else {
-      parts.push(el("span", { class: "ln-text" }, change.text || change.stat || ""));
+      parts.push(
+        el(
+          "span",
+          { class: "ln-text" },
+          change.hotfix && el("em", { class: "hf-tag" }, `⚡ ${change.version || ""}${change.hotfix}`),
+          change.text || change.stat || "",
+        ),
+      );
     }
-    return el("li", { class: "ln", "data-dir": change.dir }, parts);
+    return el("li", { class: `ln${big ? " is-big" : ""}${change.hotfix ? " is-hotfix" : ""}`, "data-dir": change.dir }, parts);
   }
 
   function overall(changes) {
@@ -192,6 +238,13 @@ const TFT = (() => {
     const out = groups.map((g, i) => card(g.subject, g.changes, icons, i));
     if (loose.length) out.push(card(null, loose, icons, out.length, title));
     return el("div", { class: "cards" }, out);
+  }
+
+  // The first developer note stays in view; the rest fold away so changes come first.
+  function notesBlock(notes) {
+    if (notes.length <= 1) return notes.map(note);
+    const more = el("details", { class: "more-notes" }, el("summary", {}, `💬 Xem thêm ${notes.length - 1} ghi chú của Riot`), notes.slice(1).map(note));
+    return [note(notes[0]), more];
   }
 
   function note(text) {
@@ -256,8 +309,10 @@ const TFT = (() => {
           { class: "tft-meta" },
           patch.published_at && el("span", {}, `📅 ${when(patch.published_at)}`),
           el("a", { href: patch.url, target: "_blank", rel: "noopener" }, "Đọc bài gốc ↗"),
+          summaryRef && summaryRef.checked_at && patch.version === latest && el("span", { class: "live-mini" }, el("i", { class: "live-dot" }), `kiểm tra bài của Riot ${ago(summaryRef.checked_at)}`),
           lightbox && el("button", { type: "button", class: "linkbtn", onclick: () => lightbox.showModal() }, "🖼 Ảnh tiêu điểm"),
         ),
+        hotfixLine(patch, latest),
         el("div", { class: "tiles" }, tiles),
         el(
           "div",
@@ -319,6 +374,7 @@ const TFT = (() => {
             "aria-label": `Bản ${patch.version}`,
           },
           patch.version === latest && el("span", { class: "badge" }, "MỚI"),
+          hotfixesOf(patch).length > 0 && el("span", { class: "pcard-hf" }, `⚡ ${latestHotfix(patch).label}`),
           el("span", {}, el("span", { class: "pcard-ver" }, patch.version), el("span", { class: "pcard-date", style: "display:block" }, patch.published_at ? shortDate.format(new Date(patch.published_at)) : "")),
           el(
             "span",
@@ -451,22 +507,116 @@ const TFT = (() => {
     return { node, search, wide };
   }
 
+  // 18.5 (launch) → 18.5b → 18.5c: the updates Riot added after the patch went
+  // live, newest marked; clicking one shows only its changes.
+  function hotfixLine(patch, latest) {
+    const fixes = hotfixesOf(patch);
+    if (!fixes.length) return null;
+    const all = changesOf(patch);
+    const baseCount = all.filter((c) => !c.hotfix).length;
+    const newest = fixes[fixes.length - 1];
+    const step = (id, title, date, count, extra) =>
+      el(
+        "button",
+        { type: "button", class: `hf${state.hotfix === id ? " is-on" : ""}${extra || ""}`, "data-hotfix": id, "aria-pressed": String(state.hotfix === id) },
+        el("b", {}, title),
+        el("small", {}, date),
+        el("span", {}, `${count} thay đổi`),
+      );
+    return el(
+      "div",
+      { class: "hf-wrap" },
+      el("p", { class: "hf-title" }, `⚡ Phiên bản này có ${fixes.length} bản vá giữa phiên bản · mới nhất `, el("b", {}, newest.label), newest.date ? ` (${dayMonth(newest.date)})` : ""),
+      el(
+        "div",
+        { class: "hf-line", role: "group", "aria-label": "Bản vá trong phiên bản" },
+        step("base", patch.version, patch.published_at ? `${dayMonth(patch.published_at.slice(0, 10))} · ra mắt` : "ra mắt", baseCount, " is-base"),
+        fixes.map((f) => [
+          el("i", { class: "hf-arrow", "aria-hidden": "true" }, "→"),
+          step(f.id, f.label, f.date ? dayMonth(f.date) : "giữa phiên bản", f.count, f === newest ? (patch.version === latest ? " is-newest is-live" : " is-newest") : ""),
+        ]),
+        state.hotfix !== "all" && el("button", { type: "button", class: "chipbtn", "data-hotfix": "all" }, "✕ Xem tất cả"),
+      ),
+    );
+  }
+
+  // One tile per kind: what got stronger or weaker at a glance.
+  function kindSummary(patch) {
+    const inHotfix = (c) => state.hotfix === "all" || (state.hotfix === "base" ? !c.hotfix : c.hotfix === state.hotfix);
+    const all = changesOf(patch).filter(inHotfix);
+    const tiles = ["champions", "traits", "items", "augments", "mechanics", "modes"]
+      .map((kind) => {
+        const mine = all.filter((c) => c.kind === kind);
+        if (!mine.length) return null;
+        const n = (d) => mine.filter((c) => c.dir === d).length;
+        return el(
+          "button",
+          { type: "button", class: `ksum${state.kind === kind ? " is-on" : ""}`, "data-group": "kind", "data-value": kind, "data-kind": kind },
+          el("span", { class: "ksum-ico", "aria-hidden": "true" }, KINDS[kind][1]),
+          el("b", {}, KINDS[kind][0]),
+          el(
+            "span",
+            { class: "ksum-n" },
+            n("buff") > 0 && el("em", { "data-dir": "buff" }, `▲${n("buff")}`),
+            n("nerf") > 0 && el("em", { "data-dir": "nerf" }, `▼${n("nerf")}`),
+            n("adjust") + n("new") + n("removed") > 0 && el("em", { "data-dir": "adjust" }, `◆${n("adjust") + n("new") + n("removed")}`),
+          ),
+        );
+      })
+      .filter(Boolean);
+    return tiles.length ? el("section", { class: "ksums", "aria-label": "Tóm tắt theo loại" }, tiles) : null;
+  }
+
   function sectionView(patch, query) {
-    const plain = state.kind === "all" && state.dir === "all" && !query;
+    const plain = state.kind === "all" && state.dir === "all" && state.hotfix === "all" && !query;
     const out = [];
     const intro = patch.sections.filter((s) => !s.changes.length).flatMap((s) => s.notes);
     if (plain) {
-      intro.forEach((text) => out.push(note(text)));
+      out.push(...notesBlock(intro));
       for (const section of patch.sections) {
         if (!section.changes.length) continue;
         const kind = KINDS[section.kind] ? section.kind : "other";
+        const mine = section.changes.map((c) => ({ ...c, section: section.title, version: patch.version }));
+        if (section.mid) {
+          // Mid-patch updates: one highlighted block per update, newest first.
+          const letters = [...new Set(mine.map((c) => c.hotfix).filter(Boolean))].sort().reverse();
+          const newest = latestHotfix(patch);
+          out.push(
+            el(
+              "section",
+              { class: "tsec is-hotfix" },
+              el("div", { class: "tsec-head" }, el("span", { class: "ico", "aria-hidden": "true" }, "⚡"), el("h2", {}, section.title), el("small", {}, `${section.changes.length}`)),
+              notesBlock(section.notes),
+              letters.length
+                ? letters.map((letter) => {
+                    const info = hotfixesOf(patch).find((f) => f.id === letter) || { label: `${patch.version}${letter}` };
+                    const group = mine.filter((c) => c.hotfix === letter);
+                    return el(
+                      "div",
+                      { class: `hf-block${newest && newest.id === letter ? " is-newest" : ""}` },
+                      el(
+                        "p",
+                        { class: "hf-block-head" },
+                        el("b", {}, `Bản vá ${info.label}`),
+                        info.date ? ` · ${dayMonth(info.date)}/${info.date.slice(0, 4)}` : "",
+                        ` · ${group.length} thay đổi`,
+                        newest && newest.id === letter && el("span", { class: "badge" }, "MỚI NHẤT"),
+                      ),
+                      cards(group, patch.icons, section.title),
+                    );
+                  })
+                : cards(mine, patch.icons, section.title),
+            ),
+          );
+          continue;
+        }
         out.push(
           el(
             "section",
             { class: "tsec" },
             el("div", { class: "tsec-head" }, el("span", { class: "ico", "aria-hidden": "true" }, KINDS[kind][1]), el("h2", {}, section.title), el("small", {}, `${section.changes.length}`)),
-            section.notes.map(note),
-            cards(section.changes.map((c) => ({ ...c, section: section.title })), patch.icons, section.title),
+            notesBlock(section.notes),
+            cards(mine, patch.icons, section.title),
           ),
         );
       }
@@ -1034,6 +1184,12 @@ const TFT = (() => {
         tile.classList.toggle("is-on", on);
         tile.setAttribute("aria-pressed", String(on));
       }
+      // The hotfix strip and the per-kind tiles follow the filters too.
+      const strip = view.querySelector(".hf-wrap");
+      if (strip) strip.replaceWith(hotfixLine(patch, latest));
+      const sums = view.querySelector(".ksums");
+      const fresh = kindSummary(patch);
+      if (sums && fresh) sums.replaceWith(fresh);
       body.replaceChildren(...(state.wide && (query || state.kind !== "all" || state.dir !== "all") ? historyView(patches, patch, query) : sectionView(patch, query)));
     };
     controls = tools(patch, repaint);
@@ -1042,8 +1198,29 @@ const TFT = (() => {
       const head = event.target.closest("[data-sheet]");
       if (head) openSheet(patch.set, head.dataset.sheet);
     });
+    if (state.patch !== patch.version) {
+      state.hotfix = "all"; // a new patch starts with all its changes
+      state.patch = patch.version;
+    }
     const flow = carousel(patches, patch, latest);
     const top = hero(patch, latest);
+    const summaryTiles = kindSummary(patch);
+    // One delegated handler on the shared view (replaced on every render, never stacked).
+    if (view.tftClick) view.removeEventListener("click", view.tftClick);
+    view.tftClick = (event) => {
+      const fix = event.target.closest("[data-hotfix]");
+      if (fix) {
+        state.hotfix = state.hotfix === fix.dataset.hotfix ? "all" : fix.dataset.hotfix;
+        repaint();
+        return;
+      }
+      const sum = event.target.closest(".ksum");
+      if (sum) {
+        state.kind = state.kind === sum.dataset.value ? "all" : sum.dataset.value;
+        repaint();
+      }
+    };
+    view.addEventListener("click", view.tftClick);
     top.addEventListener("click", (event) => {
       const tile = event.target.closest("[data-filter-dir]");
       if (!tile || tile.disabled) return;
@@ -1060,6 +1237,7 @@ const TFT = (() => {
       viewSwitch("notes", patch.set),
       seasons(patches, patch),
       flow.wrap,
+      summaryTiles,
       movers(patch, pick),
       controls.node,
       body,
@@ -1101,6 +1279,15 @@ const TFT = (() => {
           el("p", { class: "tftp-kicker" }, "⚔️ Mới · Cập nhật ĐTCL / TFT"),
           el("h2", { class: "tftp-title" }, "Bản ", el("span", { class: "ver" }, latest.version), latest.set_name ? ` · ${latest.set_name}` : ""),
           el("p", { class: "tftp-sub" }, `Tướng, tộc hệ, trang bị, nâng cấp nào được tăng hay bị giảm sức mạnh — xem theo từng bản, từng mùa (${summary.patches} bản).`),
+          (latest.hotfixes || []).length > 0 &&
+            el(
+              "p",
+              { class: "tftp-hf" },
+              "⚡ Đã có bản vá ",
+              el("b", {}, latest.hotfixes[latest.hotfixes.length - 1].label),
+              latest.hotfixes[latest.hotfixes.length - 1].date ? ` · ${dayMonth(latest.hotfixes[latest.hotfixes.length - 1].date)}` : "",
+              ` · ${latest.hotfixes[latest.hotfixes.length - 1].count} thay đổi`,
+            ),
           el("div", { class: "dirs" }, ["buff", "nerf", "adjust"].filter((d) => counts[d]).map((d) => dpill(d, counts[d]))),
           el("span", { class: "tftp-cta" }, "Xem chi tiết ", el("i", { "aria-hidden": "true" }, "→")),
         ),

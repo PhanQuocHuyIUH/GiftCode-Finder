@@ -214,3 +214,36 @@ def test_numbers_with_thousands_and_several_stats_in_one_bullet():
     parser.add("Sát Thương Chính: 1.100 SMPT ⇒ 1.500 SMPT, Thời Gian Choáng: 1,5 giây ⇒ 3 giây", "Meep")
     assert [(c["stat"], c["after"], c["subject"]) for c in parser.sections[0].changes] == [
         ("Sát Thương Chính", "1.500 SMPT", "Meep"), ("Thời Gian Choáng", "3 giây", "Meep")]
+
+
+def test_mid_patch_updates_become_lettered_hotfixes():
+    from giftcode_finder.tft import hotfixes
+
+    names = build_names(VI_NAMES, 18, "https://cd.test/")
+    article = Article("https://t.test/vi-vn/news/game-updates/teamfight-tactics-patch-18-5", "ĐTCL 18.5", "18.5", "2026-10-20T18:00:00Z", locale="vi-vn")
+    patch = parse_article((FIXTURES / "tft_patch_vi.html").read_text(encoding="utf-8"), article, names)
+    assert patch["hotfixes"] == [{"id": "b", "label": "18.5b", "date": "2026-10-22", "count": 4,
+                                  "counts": {"buff": 1, "nerf": 2, "adjust": 0, "new": 0, "removed": 0, "fix": 1}}]
+    mid = patch["sections"][1]
+    assert mid["mid"] and all(c["hotfix"] == "b" and "mid" not in c for c in mid["changes"])
+    assert not any("hotfix" in c for s in patch["sections"][2:] for c in s["changes"])
+
+    # Several dated updates are lettered in date order; an explicit "15.1B" keeps its letter.
+    changes = [{"mid": "20/08", "dir": "buff"}, {"mid": "13/08", "dir": "nerf"}, {"mid": "15/08", "dir": "fix"}]
+    fixes = hotfixes(changes, "15.2", "2025-08-12T18:00:00Z")
+    assert [(f["label"], f["date"]) for f in fixes] == [("15.2b", "2025-08-13"), ("15.2c", "2025-08-15"), ("15.2d", "2025-08-20")]
+    assert [c["hotfix"] for c in changes] == ["d", "b", "c"]
+    assert [f["label"] for f in hotfixes([{"mid": "b", "dir": "buff"}], "15.1", None)] == ["15.1b"]
+
+
+def test_nested_forms_stay_with_their_champion():
+    from giftcode_finder.tft import _Parser
+    from bs4 import BeautifulSoup
+
+    names = build_names({"setData": [{"number": 18, "champions": [{"name": "Nidalee", "traits": ["x"]}]}]}, 18, "https://cd.test/")
+    parser = _Parser(names)
+    parser.open_section("THAY ĐỔI LỚN")
+    html = "<ul><li>Nidalee<ul><li>Dạng SMCK<ul><li>Hồi máu: 300 ⇒ 325</li></ul></li></ul></li></ul>"
+    parser.list(BeautifulSoup(html, "html.parser").ul)
+    change = parser.sections[0].changes[0]
+    assert (change["subject"], change["group"], change["dir"]) == ("Nidalee", "Dạng SMCK", "buff")

@@ -110,7 +110,7 @@ def _tft_summary(tft: dict | None, db_sets: list[int] | None = None) -> dict | N
     latest = tft["patches"][0]
     return {
         "patches": len(tft["patches"]),
-        "latest": {k: latest.get(k) for k in ("version", "set", "set_name", "title", "published_at", "image", "counts")},
+        "latest": {k: latest.get(k) for k in ("version", "set", "set_name", "title", "published_at", "image", "counts", "hotfixes")},
         "updated_at": tft.get("updated_at"),
         "checked_at": tft.get("checked_at"),
         "errors": tft.get("errors") or [],

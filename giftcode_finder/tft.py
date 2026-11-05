@@ -32,7 +32,7 @@ from .config import ConfigError
 from .fetch import Fetcher
 
 # Bump when parsing changes: every patch still listed by Riot is then read again.
-PARSER_VERSION = 4
+PARSER_VERSION = 5
 KINDS = ("champions", "traits", "items", "augments", "mechanics", "modes", "fixes", "other")
 DIRS = ("buff", "nerf", "adjust", "new", "removed", "fix")
 
@@ -47,6 +47,8 @@ TIER = re.compile(
 )
 # A ", " that starts another "Stat: old ⇒ new" in the same bullet.
 MULTI_SPLIT = re.compile(r"[,;]\s+(?=[^,;⇒>]{2,60}:\s*[^⇒]{1,60}?(?:⇒|=>|→|->))")
+MIDPATCH_HEAD = re.compile(r"giữa phiên bản|mid-?patch|b-?patch|bản vá nhanh|hotfix|cập nhật phiên bản \d+\.\d+[a-z]\b|\b\d+\.\d+[b-z]\b", re.I)
+HOTFIX_LETTER = re.compile(r"\b\d+\.\d+([b-z])\b", re.I)
 DATE_HEAD = re.compile(r"^(?:ngày|day|date)?\s*\d{1,2}\s*/\s*\d{1,2}(?:\s*/\s*\d{2,4})?$|^(?:ngày|day)\s+\d", re.I)
 HIGHLIGHTS = re.compile(r"highlight|tiêu điểm|điểm nhấn", re.I)
 BUFF_HEAD = re.compile(r"\bbuffs?\b|tăng sức mạnh|được tăng|tăng cường", re.I)
@@ -344,6 +346,7 @@ def build_names(data: dict, set_number: int | None, base: str) -> Names:
 class _Section:
     title: str
     kind: str
+    mid: bool = False  # a mid-patch update ("B-patch") added after the patch went live
     notes: list[str] = field(default_factory=list)
     changes: list[dict] = field(default_factory=list)
 
@@ -392,6 +395,58 @@ def direction(stat: str, before: str, after: str) -> str:
     return "buff" if trend > 0 else "nerf"
 
 
+def _day_month(text: str | None) -> str | None:
+    match = re.search(r"(\d{1,2})\s*/\s*(\d{1,2})", text or "")
+    return f"{int(match[1]):02d}/{int(match[2]):02d}" if match else None
+
+
+def hotfixes(changes: list[dict], version: str, published: str | None) -> list[dict]:
+    """Name the mid-patch updates "18.5b", "18.5c"... by date and tag their changes.
+
+    A change carries ``mid`` (a date "22/10", a letter "b" or "?"); this turns
+    it into ``hotfix`` (the letter) and returns one entry per update, oldest first.
+    """
+    keys = []
+    for change in changes:
+        key = change.get("mid")
+        if key and key not in keys:
+            keys.append(key)
+    year = int(published[:4]) if published else None
+    month = int(published[5:7]) if published else None
+
+    def when(key):
+        match = re.fullmatch(r"(\d{2})/(\d{2})", key)
+        if not match or not year:
+            return None
+        day, mon = int(match[1]), int(match[2])
+        return f"{year + (1 if month and mon < month - 6 else 0):04d}-{mon:02d}-{day:02d}"
+
+    dated = sorted(keys, key=lambda k: (when(k) or "9999", keys.index(k)))
+    out, used = [], set()
+    next_letter = ord("b")
+    for key in dated:
+        if re.fullmatch(r"[b-z]", key):
+            letter = key
+        else:
+            while chr(next_letter) in used or chr(next_letter) in keys:
+                next_letter += 1
+            letter = chr(next_letter)
+            next_letter += 1
+        used.add(letter)
+        mine = [c for c in changes if c.get("mid") == key]
+        for change in mine:
+            change["hotfix"] = letter
+            change.pop("mid", None)
+        out.append({
+            "id": letter,
+            "label": f"{version}{letter}",
+            "date": when(key),
+            "count": len(mine),
+            "counts": {d: sum(1 for c in mine if c["dir"] == d) for d in DIRS},
+        })
+    return sorted(out, key=lambda h: h["id"])
+
+
 def kind_of(title: str) -> str | None:
     for name, pattern in SECTION_KINDS:
         if pattern.search(title):
@@ -411,14 +466,20 @@ class _Parser:
         self.titles: list[str] = []
         self.subkind: str | None = None  # set by a "Champions"/"Tướng" heading inside a section
         self.date: str | None = None  # "NGÀY 22/10": when a mid-patch change went live
+        self.letter: str | None = None  # "15.1B" in a mid-patch heading
 
     # Sections and headings
     def open_section(self, title: str) -> None:
         self.titles.append(title)
-        self.section = _Section(title, kind_of(title) or "other")
+        clean_title = title.strip(" :")
+        # "CẬP NHẬT GIỮA PHIÊN BẢN", "CẬP NHẬT PHIÊN BẢN 15.1B", or a bare "NGÀY 20/08".
+        mid = bool(MIDPATCH_HEAD.search(clean_title) or DATE_HEAD.search(clean_title))
+        self.section = _Section(title, kind_of(title) or "other", mid=mid)
         self.sub = None
         self.subkind = None
-        self.date = None
+        self.date = clean_title if DATE_HEAD.search(clean_title) else None
+        letter = HOTFIX_LETTER.search(clean_title)
+        self.letter = letter[1].lower() if letter else None
         if not SKIP_SECTIONS.search(title):
             self.sections.append(self.section)
 
@@ -499,6 +560,8 @@ class _Parser:
             change["group"] = group
         if self.date:
             change["date"] = self.date.capitalize() if self.date.isupper() else self.date
+        if section.mid:
+            change["mid"] = self.letter or _day_month(self.date) or "?"
         section.changes.append(change)
 
     def li(self, li: Tag, subject: str | None, group: str | None) -> None:
@@ -511,6 +574,9 @@ class _Parser:
                 self.add(own, subject, group)
             elif TIER.search(label):
                 inner_group = label
+            elif label and subject and self.names.find(subject) and not self.names.find(label):
+                # "Nidalee" > "Dạng SMCK" > changes: still Nidalee's, in her AD form.
+                inner_group = " · ".join(filter(None, (group, label)))
             elif label:
                 # "Caitlyn" over its changes: the label is what they are about.
                 inner_subject = label
@@ -558,6 +624,8 @@ class _Parser:
         # "TƯỚNG", "TỘC/HỆ", "TRANG BỊ"...: a category inside the section, not a subject.
         if DATE_HEAD.search(text):  # "NGÀY 22/10" inside the mid-patch updates
             self.date = text
+            if self.section is not None:
+                self.section.mid = True
             self.sub = None
             self.subkind = None
             return
@@ -703,6 +771,7 @@ def parse_article(html: str, article: Article, names: Names | None = None, sets:
             guess = name.title() if name.isupper() else name
             break
     counts = {d: sum(1 for c in changes if c["dir"] == d) for d in DIRS}
+    fixes = hotfixes(changes, article.version, _iso(published))
     return {
         "version": article.version,
         "set": major,
@@ -715,9 +784,10 @@ def parse_article(html: str, article: Article, names: Names | None = None, sets:
         "highlights": parser.highlights,
         "description": _meta(soup, "og:description", "description"),
         "counts": counts,
+        "hotfixes": fixes,
         "icons": parser.icons,
         "sections": [
-            {"title": s.title, "kind": s.kind, "notes": s.notes, "changes": s.changes} for s in sections
+            {"title": s.title, "kind": s.kind, "mid": s.mid, "notes": s.notes, "changes": s.changes} for s in sections
         ],
     }
 
@@ -784,14 +854,15 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
         return result
 
     known = {p["version"]: p for p in history.get("patches", [])}
-    newest = max(articles, key=version_key)
+    # The two newest: a late fix to the previous patch can land after a new one.
+    recent = set(sorted(articles, key=version_key, reverse=True)[:2])
     reparse = history.get("parser") != PARSER_VERSION
     todo = []
     for version, article in sorted(articles.items(), key=lambda kv: version_key(kv[0]), reverse=True)[: config.max_patches]:
         stored = known.get(version)
-        # The newest article is read again every run (B-patches are added to it);
+        # The newest articles are read again every run (B-patches are added to them);
         # it is only parsed when its text changed.
-        if stored is None or reparse or version == newest:
+        if stored is None or reparse or version in recent:
             todo.append(article)
 
     names_cache: dict = {}

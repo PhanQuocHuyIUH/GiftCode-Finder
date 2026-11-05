@@ -16,7 +16,7 @@ import json
 import re
 from pathlib import Path
 
-DB_VERSION = 5  # bump to rebuild every season's sheets on the next run
+DB_VERSION = 6  # bump to rebuild every season's sheets on the next run
 PLACEHOLDER = re.compile(r"@([A-Za-z0-9_{}.:]+?)(\*100)?@")
 ICON_TEXT = {
     "scaleap": "SMPT",
@@ -313,7 +313,7 @@ def _augment(raw: dict, base: str) -> dict:
     entry.pop("kind", None)
     tags = set(raw.get("tags") or [])
     entry["pool"] = TAG_IN_POOL in tags
-    if not tags and str(raw.get("apiName") or "").startswith("DA_"):
+    if TAG_IN_POOL not in tags and not tags & TAG_NOT_AT.keys() and str(raw.get("apiName") or "").startswith("DA_"):
         # Newer "DA_" records carry no tags at all: offered or not, and when, is unknown.
         entry["pool"] = None
     banned = {TAG_NOT_AT[t] for t in tags if t in TAG_NOT_AT}

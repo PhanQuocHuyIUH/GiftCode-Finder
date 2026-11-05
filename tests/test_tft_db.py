@@ -116,7 +116,7 @@ def test_new_style_augments_without_tags_are_unknown():
             "items": [
         {"apiName": "TFT21_Augment_Box", "name": "Hộp", "desc": "x", "tags": ["{b72bd3bf}", "{d11fd6d5}"]},
         {"apiName": "DA_BoxI", "name": "Hộp I", "desc": "x", "tags": []},
-        {"apiName": "DA_Ladder", "name": "Thứ Hạng Tộc Hệ", "desc": "x", "tags": []},
+        {"apiName": "DA_Ladder", "name": "Thứ Hạng Tộc Hệ", "desc": "x", "tags": ["{cf1fd3af}"]},
     ]}
     db = build_db(game, 21, "https://cd.test/")
     pools = {a["name"]: (a["pool"], a["stages"]) for a in db["augments"]}

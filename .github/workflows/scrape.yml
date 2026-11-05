@@ -78,6 +78,27 @@ jobs:
           INSPECT_ARGS: ${{ inputs.inspect_args }}
         run: printf '%s' "$INSPECT_ARGS" | xargs python -m giftcode_finder inspect --render --text 200
 
+      - name: Dò mùa cũ (tạm)
+        if: github.ref_name == 'dev'
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          from giftcode_finder.fetch import Fetcher
+          from giftcode_finder.tft_rewards import list_tables, parse_table, index_url, table_url
+          f = Fetcher()
+          for n in (17, 15):
+              for url in (index_url(n), table_url(n, "expedition")):
+                  try:
+                      page = f.fetch(url)
+                      t = parse_table(page.text, "expedition", url)
+                      print(n, url, "->", page.url, page.status, "slugs", list_tables(page.text, n)[:8], "box", ".RewardContainer" in page.text, "parsed", bool(t))
+                      if not t:
+                          i = page.text.find("Updated")
+                          print("   ", page.text[max(0, i - 1500):i + 300].replace("\n", " ")[:1800])
+                  except Exception as exc:
+                      print(n, url, "ERR", exc)
+          PY
+
       - name: Lấy giftcode
         id: scrape
         env:

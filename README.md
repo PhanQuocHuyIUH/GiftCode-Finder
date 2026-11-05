@@ -35,10 +35,12 @@ code hiện như vé, lật 3D khi bấm chép. Mỗi game có link riêng để
     trong vòng chọn của bản hiện tại; lõi chỉ đến từ nguồn khác hoặc đã gỡ được ẩn sau một nút.
   - **Trang bị:** chia theo trang bị ghép, thành phần, Ánh Sáng, Tạo tác (Ornn), Ấn, hỗ trợ, cơ chế
     mùa, tiêu hao; có chỉ số, hiệu ứng và công thức ghép nhỏ.
-  - **🎁 Phần thưởng & lõi đặc biệt:** tộc/hệ "nổ hũ" (Tiên Hắc Ám, Pha Lê…) kèm bảng phần thưởng
-    theo từng mốc, lõi cho phần thưởng ngẫu nhiên hoặc có điều kiện (Triệu Gọi Hỗn Mang, Trứng Vàng…),
-    lõi theo từng tộc/hệ. Riot không đưa bảng phần thưởng hay xác suất vào dữ liệu game, nên các bảng
-    này gom từ những dòng patch notes của mùa (giá trị mới nhất). Dữ liệu game mùa mới nhất của
+  - **🎁 Phần thưởng & lõi đặc biệt:** bảng phần thưởng **có tỉ lệ** của lõi và tộc/hệ (Cuộc Viễn
+    Chinh, Đường Ra Trận, Triệu Gọi Hỗn Mang, Trứng Vàng, Gói Tăng Cường, Tiên Hắc Ám, Pha Lê…) hiện
+    bằng hình: ô tỉ lệ, vàng, tướng, trang bị kèm số lượng. Dùng chung bộ lọc giai đoạn 2-1/3-2/4-2 và
+    bậc Bạc/Vàng/Kim cương. Riot không đưa bảng phần thưởng vào dữ liệu game; các bảng này lấy từ
+    [LoLCHESS.GG](https://lolchess.gg/rewards) (mỗi ngày một lần, có ghi nguồn và ngày cập nhật trên
+    từng bảng), phần còn lại gom từ các dòng patch notes của mùa. Dữ liệu game mùa mới nhất của
   Community Dragon không kèm số liệu kỹ năng, nên với mùa đó số liệu kỹ năng lấy từ các dòng patch
   notes gần nhất.
 

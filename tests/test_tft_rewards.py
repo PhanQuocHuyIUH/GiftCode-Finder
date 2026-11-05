@@ -57,7 +57,7 @@ def test_dice_tables_and_choice_lists():
 
 
 def test_older_layout_without_container_class():
-    old = """<div><div class="head"><img src="/ico-crystal.png"/><div class="content"><div><h3 class="title">Crystal Gambit</h3>
+    old = """<div><h2 class="title">SET 15 Tables</h2><div class="head"><img src="/ico-crystal.png"/><div class="content"><div><h3 class="title">Crystal Gambit</h3>
     <p class="description">Gain crystals on losses.</p></div><div class="updated-at">Updated: November 5, 2025</div></div></div>
     <section><header><strong>3 Crystal Gambit</strong></header><table><tbody><tr><td class="probability">50%</td>
     <td><div class="RewardItem" data-reward-key="Gold"><div><img src="/g.png"/><span>x4</span></div><div>Vàng</div></div></td></tr></tbody></table></section></div>"""

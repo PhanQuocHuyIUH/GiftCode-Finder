@@ -25,8 +25,10 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup, Tag
 
 BASE = "https://lolchess.gg"
-REWARDS_VERSION = 3
+REWARDS_VERSION = 4
 SKIP = {"augment-exclusive", "augment-chance", "blackthorn"}  # lists and calculators, not loot
+# Tables whose name differs from the game's internal id of what they are about.
+ALIASES = {"crystal-gambit": "gemforce", "bounty-seeker": "draven", "riftbeast": "riftbeast", "coven": "coven"}
 GAME_ID = re.compile(r"^(?:DA|TFT\d*)_[A-Za-z0-9_]+$")
 
 
@@ -82,14 +84,16 @@ def parse_table(html: str, slug: str, page_url: str) -> dict | None:
     if box is None:
         # Older seasons: no container class; climb from the title to the block
         # that also holds the rewards.
-        head = soup.select_one("h2.title, h3.title")
+        heads = [h for h in soup.select("h2.title, h3.title") if not re.search(r"\bTables?$", _text(h), re.I)]
+        head = heads[0] if heads else None
         node = head
         while node is not None and not (node.select(".RewardItem") or node.find("table")):
             node = node.parent
         box = node
     if box is None:
         return None
-    title = box.select_one("h2.title, h3.title")
+    titles = [h for h in box.select("h2.title, h3.title") if not re.search(r"\bTables?$", _text(h), re.I)]
+    title = titles[0] if titles else None
     head_img = title.find_previous("img") if title else box.find("img")
     updated = box.select_one(".update-time, .updated-at")
     desc = " ".join(_text(p) for p in box.select(".description p")) or _text(box.select_one("p.description"))
@@ -172,7 +176,7 @@ def link_to_db(table: dict, db: dict | None) -> None:
                     item["kind"] = kind
                     if kind == "champions":
                         item["cost"] = entry.get("cost")
-    slug = _norm(table["slug"])
+    slug = _norm(ALIASES.get(table["slug"], table["slug"]))
     links = []
     for kind in ("augments", "traits"):
         for entry in db.get(kind) or []:

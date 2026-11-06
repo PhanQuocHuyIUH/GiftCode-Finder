@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-23T13:23:08Z",
+  "updated_at": "2026-11-06T18:04:28Z",
   "games": {
     "strinova": [
       {
@@ -94,6 +94,54 @@
       }
     ],
     "wuthering-waves": [
+      {
+        "code": "TRAINOFSOULS",
+        "title": "Wuthering Waves Version 3.8 Preview Special Broadcast",
+        "reward": "100 astrite, three premium resonance potions, and two advanced revival inhalers (new!)",
+        "expires": "2026-11-08 07:59 (PT)",
+        "expires_at": "2026-11-08T15:59:00Z",
+        "since": "2026-11-06T13:07:54Z",
+        "link": "https://www.threads.com/@wutheringwaves/post/DfZrXldEy8N",
+        "sources": [
+          "threads",
+          "pcgamesn",
+          "pockettactics"
+        ],
+        "first_seen": "2026-11-06T18:04:28Z",
+        "removed_at": null
+      },
+      {
+        "code": "BLOOMINGFLOWERS",
+        "title": "Wuthering Waves Version 3.8 Preview Special Broadcast",
+        "reward": "100 astrite, two premium enclosure tanks III, and 40k shell credits (new!)",
+        "expires": "2026-11-08 07:59 (PT)",
+        "expires_at": "2026-11-08T15:59:00Z",
+        "since": "2026-11-06T13:07:54Z",
+        "link": "https://www.threads.com/@wutheringwaves/post/DfZrXldEy8N",
+        "sources": [
+          "threads",
+          "pcgamesn",
+          "pockettactics"
+        ],
+        "first_seen": "2026-11-06T18:04:28Z",
+        "removed_at": null
+      },
+      {
+        "code": "SCHOOLLIFE",
+        "title": "Wuthering Waves Version 3.8 Preview Special Broadcast",
+        "reward": "100 astrite, 20 premium tuners, and five advanced sealed tubes (new!)",
+        "expires": "2026-11-08 07:59 (PT)",
+        "expires_at": "2026-11-08T15:59:00Z",
+        "since": "2026-11-06T13:07:54Z",
+        "link": "https://www.threads.com/@wutheringwaves/post/DfZrXldEy8N",
+        "sources": [
+          "threads",
+          "pcgamesn",
+          "pockettactics"
+        ],
+        "first_seen": "2026-11-06T18:04:28Z",
+        "removed_at": null
+      },
       {
         "code": "WUTHERINGGIFT",
         "title": null,

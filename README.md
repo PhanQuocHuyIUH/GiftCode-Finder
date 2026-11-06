@@ -57,15 +57,21 @@ cũ vẫn còn khi Riot không liệt kê nữa.
 ## Code hiện có
 
 <!-- GIFTCODES:START -->
-### Wuthering Waves — 1 code
+### Wuthering Waves — 4 code
 
 | Code | Sự kiện | Hết hạn | Thấy lần đầu |
 |---|---|---|---|
+| `TRAINOFSOULS` | [Wuthering Waves Version 3.8 Preview Special Broadcast — 100 astrite, three premium resonance potions, and two advanced revival inhalers (new!)](https://www.threads.com/@wutheringwaves/post/DfZrXldEy8N) | 08/11/2026 22:59 | 07/11/2026 |
+| `BLOOMINGFLOWERS` | [Wuthering Waves Version 3.8 Preview Special Broadcast — 100 astrite, two premium enclosure tanks III, and 40k shell credits (new!)](https://www.threads.com/@wutheringwaves/post/DfZrXldEy8N) | 08/11/2026 22:59 | 07/11/2026 |
+| `SCHOOLLIFE` | [Wuthering Waves Version 3.8 Preview Special Broadcast — 100 astrite, 20 premium tuners, and five advanced sealed tubes (new!)](https://www.threads.com/@wutheringwaves/post/DfZrXldEy8N) | 08/11/2026 22:59 | 07/11/2026 |
 | `WUTHERINGGIFT` | 50 Astrite, two Premium Resonance Potions, two Medium Revival Inhalers, a Medium Energy Bag, and 10k Shell Credits | — | 23/10/2026 |
 
 Sao chép tất cả:
 
 ```text
+TRAINOFSOULS
+BLOOMINGFLOWERS
+SCHOOLLIFE
 WUTHERINGGIFT
 ```
 
@@ -97,7 +103,7 @@ STRINOVA
 Nguồn: [Strinova VN – Hướng dẫn nhập giftcode](https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn), [Gzone Care (zoneplay.vn)](https://zoneplay.vn/care/game/367)
 Cách nhập: Trong game: Cài Đặt (góc trên bên phải) → Mã Đổi Thưởng → nhập code → xác nhận. — https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn
 
-_Code thay đổi lần cuối: 23/10/2026 20:23 (giờ Việt Nam)._
+_Code thay đổi lần cuối: 07/11/2026 01:04 (giờ Việt Nam)._
 <!-- GIFTCODES:END -->
 
 ## Cách hoạt động

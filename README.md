@@ -103,7 +103,7 @@ STRINOVA
 Nguồn: [Strinova VN – Hướng dẫn nhập giftcode](https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn), [Gzone Care (zoneplay.vn)](https://zoneplay.vn/care/game/367)
 Cách nhập: Trong game: Cài Đặt (góc trên bên phải) → Mã Đổi Thưởng → nhập code → xác nhận. — https://strinova.zoneplay.vn/huong-dan/huong-dan-nhap-giftcode-strinova-vn
 
-_Code thay đổi lần cuối: 07/11/2026 01:04 (giờ Việt Nam)._
+_Code thay đổi lần cuối: 09/11/2026 03:33 (giờ Việt Nam)._
 <!-- GIFTCODES:END -->
 
 ## Cách hoạt động

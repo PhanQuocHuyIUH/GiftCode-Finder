@@ -111,7 +111,6 @@ class TftConfig:
     sets: dict = field(default_factory=dict)
     min_version: str | None = None
     db_locale: str = "vi_vn"
-    db_hours: tuple = (6,)
 
 
 def load_tft_config(path: str | Path) -> TftConfig | None:
@@ -918,6 +917,31 @@ def update_history(config: TftConfig, history: dict, fetcher: Fetcher, log=print
     return result
 
 
+def _refresh_path(db_dir) -> Path:
+    return Path(db_dir).parent / "tft_refresh.json"
+
+
+def _due_today(db_dir, key: str, now: datetime) -> bool:
+    """True on the first run of a (UTC) day for ``key``. Scheduled runs come
+    hours apart, so a fixed hour of the day would be missed on some days."""
+    try:
+        done = json.loads(_refresh_path(db_dir).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        done = {}
+    return done.get(key) != now.date().isoformat()
+
+
+def _mark_done(db_dir, key: str, now: datetime) -> None:
+    path = _refresh_path(db_dir)
+    try:
+        done = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        done = {}
+    done[key] = now.date().isoformat()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(done, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def _update_rewards(config, patches, db_dir, now, fetcher, log, result) -> None:
     """Loot tables (LoLCHESS.GG) next to the stat sheets: the newest season once
     a day, older ones when they have none yet."""
@@ -925,13 +949,15 @@ def _update_rewards(config, patches, db_dir, now, fetcher, log, result) -> None:
 
     out_dir = Path(db_dir).parent / "tft_rewards"
     sets = sorted({p["set"] for p in patches}, reverse=True)
+    daily = _due_today(db_dir, "rewards", now)
+    refreshed = False
     for number in sets:
         path = out_dir / f"{number}.json"
         try:
             current = json.loads(path.read_text(encoding="utf-8")).get("version") == REWARDS_VERSION
         except (OSError, ValueError):
             current = False
-        if current and not (number == sets[0] and now.hour in config.db_hours):
+        if current and not (number == sets[0] and daily):
             continue
         try:
             db = json.loads((Path(db_dir) / f"{number}.json").read_text(encoding="utf-8"))
@@ -947,8 +973,11 @@ def _update_rewards(config, patches, db_dir, now, fetcher, log, result) -> None:
             log(f"  bảng phần thưởng mùa {number}: không có")
             continue
         written = save_rewards(out_dir, rewards)
+        refreshed = refreshed or number == sets[0]
         linked = sum(1 for t in rewards["tables"] if t["links"])
         log(f"  bảng phần thưởng mùa {number}: {len(rewards['tables'])} bảng, {linked} gắn với lõi/tộc hệ{' (mới)' if written else ''}")
+    if daily and refreshed:
+        _mark_done(db_dir, "rewards", now)
 
 
 def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, result) -> None:
@@ -965,7 +994,8 @@ def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, r
 
     sets = sorted({p["set"] for p in patches}, reverse=True)
     missing = [s for s in sets if outdated(s)]
-    if not (parsed_any or missing or now.hour in config.db_hours) or not config.names_url:
+    daily = _due_today(db_dir, "sheets", now)
+    if not (parsed_any or missing or daily) or not config.names_url:
         return
     url = config.names_url.replace("{locale}", config.db_locale)
     if url not in cache:
@@ -990,6 +1020,8 @@ def _update_dbs(config, patches, db_dir, parsed_any, now, cache, fetcher, log, r
             f"  thông số mùa {number}: {len(db['champions'])} tướng, {len(db['traits'])} tộc/hệ, "
             f"{len(db['items'])} trang bị, {len(db['augments'])} nâng cấp{' (mới)' if written else ''}"
         )
+    if result.db_sets:
+        _mark_done(db_dir, "sheets", now)
 
 
 def _unknowns(db: dict) -> dict:

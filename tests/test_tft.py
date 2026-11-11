@@ -247,3 +247,18 @@ def test_nested_forms_stay_with_their_champion():
     parser.list(BeautifulSoup(html, "html.parser").ul)
     change = parser.sections[0].changes[0]
     assert (change["subject"], change["group"], change["dir"]) == ("Nidalee", "Dạng SMCK", "buff")
+
+
+def test_daily_refresh_runs_once_per_day(tmp_path):
+    from datetime import datetime, timezone
+
+    from giftcode_finder.tft import _due_today, _mark_done
+
+    db_dir = tmp_path / "tft_db"
+    morning = datetime(2026, 11, 10, 2, 14, tzinfo=timezone.utc)
+    assert _due_today(db_dir, "sheets", morning)
+    _mark_done(db_dir, "sheets", morning)
+    # Later the same day: done; the next day, whatever the hour: due again.
+    assert not _due_today(db_dir, "sheets", morning.replace(hour=23))
+    assert _due_today(db_dir, "rewards", morning)
+    assert _due_today(db_dir, "sheets", datetime(2026, 11, 11, 15, 21, tzinfo=timezone.utc))

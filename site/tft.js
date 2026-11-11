@@ -3,20 +3,20 @@
 // Teamfight Tactics patch notes: pick a season, spin through its patches and
 // see every buff, nerf and change, by champion, trait, item, augment...
 // The data (tft.json) is large, so it loads only when this page opens.
-// Uses el(), ago(), setTheme(), toast() from app.js (loaded after this file,
+// Uses el(), ago(), toast() from app.js (loaded after this file,
 // but only called once the page runs).
 const TFT = (() => {
-  const GOLD = "#ffc94d";
+  const GOLD = "#d9a441";
   const KINDS = {
-    all: ["Tất cả", "✨"],
-    champions: ["Tướng", "🦸"],
-    traits: ["Tộc/Hệ", "🧬"],
-    items: ["Trang bị", "🗡️"],
-    augments: ["Nâng cấp", "💠"],
-    mechanics: ["Cơ chế", "⚙️"],
-    modes: ["Chế độ chơi", "🎮"],
-    fixes: ["Sửa lỗi", "🔧"],
-    other: ["Khác", "✳️"],
+    all: ["Tất cả"],
+    champions: ["Tướng"],
+    traits: ["Tộc/Hệ"],
+    items: ["Trang bị"],
+    augments: ["Nâng cấp"],
+    mechanics: ["Cơ chế"],
+    modes: ["Chế độ chơi"],
+    fixes: ["Sửa lỗi"],
+    other: ["Khác"],
   };
   const DIRS = {
     buff: ["Tăng sức mạnh", "▲", "Tăng"],
@@ -29,7 +29,6 @@ const TFT = (() => {
   };
   const NAMED = new Set(["champions", "traits", "items", "augments"]);
   const dateFmt = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-  const shortDate = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit" });
 
   let data = null;
   let loading = null;
@@ -67,19 +66,6 @@ const TFT = (() => {
 
   // --- Small pieces -------------------------------------------------------
 
-  function hexPrism(label, size = "") {
-    return el(
-      "div",
-      { class: `hexstage ${size}`, "aria-hidden": "true" },
-      el(
-        "div",
-        { class: "hexprism" },
-        [0, 1, 2, 3, 4, 5].map((k) => el("i", { style: `--k:${k}` }, k % 2 ? "TFT" : label)),
-        el("span", { class: "cap top" }),
-      ),
-    );
-  }
-
   function dpill(dir, count) {
     const [label, icon, short] = DIRS[dir];
     return el("span", { class: "dpill", "data-dir": dir, title: label }, icon, " ", count !== undefined ? [el("b", {}, count), " ", short.toLowerCase()] : short);
@@ -98,7 +84,7 @@ const TFT = (() => {
   }
 
   function avatar(name, icon, kind) {
-    const fallback = () => el("span", { class: "av", "aria-hidden": "true" }, name ? initialsOf(name) : KINDS[kind] ? KINDS[kind][1] : "•");
+    const fallback = () => el("span", { class: "av", "aria-hidden": "true" }, name ? initialsOf(name) : "•");
     if (!icon) return fallback();
     const img = el("img", { class: "av", src: icon, alt: "", loading: "lazy", decoding: "async", referrerpolicy: "no-referrer" });
     img.addEventListener("error", () => img.replaceWith(fallback()), { once: true });
@@ -117,6 +103,11 @@ const TFT = (() => {
   const hotfixesOf = (patch) => patch.hotfixes || [];
   const latestHotfix = (patch) => hotfixesOf(patch).slice(-1)[0] || null;
   const dayMonth = (iso) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : "");
+  // "03/11" in the reader's own time zone.
+  const localDay = (iso) => {
+    const d = new Date(iso);
+    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+  };
 
   function haystack(change) {
     return fold([change.subject, change.stat, change.before, change.after, change.text, change.group, change.section].join(" "));
@@ -161,8 +152,7 @@ const TFT = (() => {
           "span",
           { class: "ln-stat" },
           change.stat || "Thay đổi",
-          big && el("em", { class: "big-tag", title: "Thay đổi lớn (từ 25% trở lên)" }, "🔥 lớn"),
-          change.hotfix && el("em", { class: "hf-tag", title: `Thêm trong bản vá ${change.version || ""}${change.hotfix}` }, `⚡ ${change.version || ""}${change.hotfix}`),
+                    change.hotfix && el("em", { class: "hf-tag", title: `Thêm trong bản vá ${change.version || ""}${change.hotfix}` }, `${change.version || ""}${change.hotfix}`),
         ),
         el(
           "span",
@@ -170,7 +160,7 @@ const TFT = (() => {
           el("s", {}, change.before),
           el("span", { class: "arr", "aria-label": "thành" }, "→"),
           el("b", {}, change.after),
-          move !== null && el("span", { class: "delta", title: "Mức thay đổi so với giá trị cũ" }, `${move > 0 ? "+" : "−"}${Math.abs(move) < 10 ? Math.abs(move).toFixed(1).replace(".", ",") : Math.round(Math.abs(move))}%`),
+          move !== null && el("span", { class: "delta", title: big ? "Thay đổi lớn: từ 25% so với giá trị cũ" : "Mức thay đổi so với giá trị cũ" }, `${move > 0 ? "+" : "−"}${Math.abs(move) < 10 ? Math.abs(move).toFixed(1).replace(".", ",") : Math.round(Math.abs(move))}%`),
         ),
       );
     } else {
@@ -178,7 +168,7 @@ const TFT = (() => {
         el(
           "span",
           { class: "ln-text" },
-          change.hotfix && el("em", { class: "hf-tag" }, `⚡ ${change.version || ""}${change.hotfix}`),
+          change.hotfix && el("em", { class: "hf-tag" }, `${change.version || ""}${change.hotfix}`),
           change.text || change.stat || "",
         ),
       );
@@ -198,10 +188,12 @@ const TFT = (() => {
   function card(subject, changes, icons, index, title) {
     const first = changes[0];
     const dir = overall(changes);
-    const meta = [KINDS[first.kind] && first.kind !== "other" ? KINDS[first.kind][0] : null, first.group, first.date].filter(Boolean);
+    const kindName = KINDS[first.kind] && first.kind !== "other" ? KINDS[first.kind][0] : null;
+    // "Tướng 4 vàng" already says it is a champion.
+    const meta = [first.group && kindName && first.group.startsWith(kindName) ? null : kindName, first.group, first.date].filter(Boolean);
     return el(
       "article",
-      { class: "sc", "data-dir": dir, "data-kind": first.kind, style: `--i:${index}` },
+      { class: "sc", "data-dir": dir, "data-kind": first.kind },
       el(
         "header",
         {
@@ -243,7 +235,7 @@ const TFT = (() => {
   // The first developer note stays in view; the rest fold away so changes come first.
   function notesBlock(notes) {
     if (notes.length <= 1) return notes.map(note);
-    const more = el("details", { class: "more-notes" }, el("summary", {}, `💬 Xem thêm ${notes.length - 1} ghi chú của Riot`), notes.slice(1).map(note));
+    const more = el("details", { class: "more-notes" }, el("summary", {}, `Xem thêm ${notes.length - 1} ghi chú của Riot`), notes.slice(1).map(note));
     return [note(notes[0]), more];
   }
 
@@ -255,7 +247,17 @@ const TFT = (() => {
 
   // --- Sections of the page ----------------------------------------------
 
-  function hero(patch, latest) {
+  // A labelled row of filter chips: "Loại  [Tất cả] [Tướng] …".
+  function filterRow(label, name, chips) {
+    return el("div", { class: "filter-row" }, el("span", { class: "filter-label" }, label), el("div", { class: "kind-tabs", role: "group", "aria-label": name }, chips));
+  }
+
+  // One section heading: its title and how many things it holds.
+  function secHead(title, count, mark) {
+    return el("div", { class: "tsec-head" }, mark, el("h2", {}, title), count !== undefined && count !== "" && el("small", {}, count));
+  }
+
+  function patchHead(patch, latest) {
     const counts = patch.counts || {};
     const total = (counts.buff || 0) + (counts.nerf || 0) + (counts.adjust || 0) || 1;
     const lightbox =
@@ -272,48 +274,30 @@ const TFT = (() => {
         ),
       );
     if (lightbox) lightbox.addEventListener("click", (event) => event.target === lightbox && lightbox.close());
-    const tiles = Object.keys(DIRS)
-      .filter((dir) => dir !== "mixed")
-      .map((dir) => {
-        const [label, icon, short] = DIRS[dir];
-        const number = el("b", {}, counts[dir] || 0);
-        FX.countUp(number, counts[dir] || 0);
-        return el(
-          "button",
-          {
-            type: "button",
-            class: `tile${state.dir === dir ? " is-on" : ""}`,
-            "data-dir": dir,
-            "data-filter-dir": dir,
-            title: `Chỉ xem: ${label}`,
-            disabled: !counts[dir],
-            "aria-pressed": String(state.dir === dir),
-          },
-          el("i", { "aria-hidden": "true" }, icon),
-          number,
-          el("span", {}, short),
-        );
-      });
     const pct = (n) => `${((100 * (n || 0)) / total).toFixed(1)}%`;
+    const count = (dir) => el("div", { class: "count", "data-dir": dir }, el("b", {}, counts[dir] || 0), el("span", {}, `${DIRS[dir][1]} ${DIRS[dir][2]}`));
+    const minor = ["new", "removed", "fix"].filter((d) => counts[d]).map((d) => `${counts[d]} ${DIRS[d][2].toLowerCase()}`);
     return el(
       "section",
-      { class: "tft-hero" },
-      patch.image && el("div", { class: "tft-hero-bg", style: `background-image:${cssUrl(patch.image)}` }),
+      { class: "phead" },
       el(
         "div",
-        { class: "tft-hero-text" },
-        el("p", { class: "tft-kicker" }, `⚔️ Đấu Trường Chân Lý · ${setLabel(patch)}`),
-        el("h1", { class: "tft-title" }, "Bản cập nhật ", el("span", { class: "ver" }, patch.version), patch.version === latest && el("span", { class: "badge", style: "margin-left:12px;vertical-align:.6em" }, "MỚI NHẤT")),
+        { class: "phead-main" },
+        el("p", { class: "kicker" }, `Đấu Trường Chân Lý · ${setLabel(patch)}`),
+        el("h1", {}, `Bản cập nhật ${patch.version}`, patch.version === latest && el("span", { class: "badge" }, "Mới nhất")),
         el(
           "p",
-          { class: "tft-meta" },
-          patch.published_at && el("span", {}, `📅 ${when(patch.published_at)}`),
+          { class: "phead-meta" },
+          patch.published_at && el("span", {}, when(patch.published_at)),
           el("a", { href: patch.url, target: "_blank", rel: "noopener" }, "Đọc bài gốc ↗"),
-          summaryRef && summaryRef.checked_at && patch.version === latest && el("span", { class: "live-mini" }, el("i", { class: "live-dot" }), `kiểm tra bài của Riot ${ago(summaryRef.checked_at)}`),
-          lightbox && el("button", { type: "button", class: "linkbtn", onclick: () => lightbox.showModal() }, "🖼 Ảnh tiêu điểm"),
+          lightbox && el("button", { type: "button", class: "linkbtn", onclick: () => lightbox.showModal() }, "Ảnh tiêu điểm"),
+          summaryRef && summaryRef.checked_at && patch.version === latest && el("span", {}, `kiểm tra bài của Riot ${ago(summaryRef.checked_at)}`),
         ),
-        hotfixLine(patch, latest),
-        el("div", { class: "tiles" }, tiles),
+      ),
+      el(
+        "div",
+        { class: "phead-stats" },
+        el("div", { class: "counts" }, count("buff"), count("nerf"), count("adjust")),
         el(
           "div",
           { class: "balance", role: "img", "aria-label": `${counts.buff || 0} tăng, ${counts.adjust || 0} điều chỉnh, ${counts.nerf || 0} giảm` },
@@ -321,81 +305,75 @@ const TFT = (() => {
           el("i", { class: "b-adjust", style: `width:${pct(counts.adjust)}` }),
           el("i", { class: "b-nerf", style: `width:${pct(counts.nerf)}` }),
         ),
-        el("p", { class: "balance-legend" }, el("span", {}, `▲ ${counts.buff || 0} tăng`), el("span", {}, `${counts.nerf || 0} giảm ▼`)),
+        minor.length > 0 && el("p", { class: "phead-minor" }, `Ngoài ra: ${minor.join(" · ")}`),
       ),
-      hexPrism(patch.version),
+      hotfixLine(patch, latest),
       lightbox,
     );
   }
 
-  function seasons(patches, current) {
-    const sets = [];
-    for (const patch of patches) {
-      let entry = sets.find((s) => s.set === patch.set);
-      if (!entry) sets.push((entry = { set: patch.set, name: patch.set_name, newest: patch.version, count: 0 }));
-      entry.count += 1;
-    }
+  function seasonPills(sets, current, href, note) {
     return el(
       "nav",
       { class: "seasons", "aria-label": "Chọn mùa" },
       sets.map((s) =>
         el(
           "a",
-          {
-            class: `season${s.set === current.set ? " is-on" : ""}`,
-            href: `#/tft/${encodeURIComponent(s.newest)}`,
-            "aria-current": s.set === current.set ? "true" : null,
-          },
-          el("b", {}, `Mùa ${s.set}`),
-          el("small", {}, `${s.name ? `${s.name} · ` : ""}${s.count} bản`),
+          { class: `season${s.set === current ? " is-on" : ""}`, href: href(s), "aria-current": s.set === current ? "true" : null, title: s.name || null },
+          `Mùa ${s.set}`,
+          note(s) && el("small", {}, note(s)),
         ),
       ),
     );
   }
 
-  function carousel(patches, current, latest) {
-    const ordered = patches.filter((p) => p.set === current.set).slice().reverse(); // oldest first
-    const bar = (counts) => {
-      const total = (counts.buff || 0) + (counts.nerf || 0) + (counts.adjust || 0) || 1;
-      return ["buff", "adjust", "nerf"].map((d) => el("i", { class: `b-${d}`, style: `width:${((100 * (counts[d] || 0)) / total).toFixed(1)}%` }));
-    };
+  // Where you are: the season, then the patch of that season (newest first).
+  function picker(patches, current, latest) {
+    const sets = [];
+    for (const patch of patches) {
+      let entry = sets.find((s) => s.set === patch.set);
+      if (!entry) sets.push((entry = { set: patch.set, name: patch.set_name, newest: patch.version, count: 0 }));
+      entry.count += 1;
+    }
     const track = el(
       "div",
-      { class: "pflow-track", role: "list" },
-      ordered.map((patch) =>
-        el(
-          "a",
-          {
-            class: `pcard${patch.version === current.version ? " is-on" : ""}`,
-            role: "listitem",
-            href: `#/tft/${encodeURIComponent(patch.version)}`,
-            style: `--img:${cssUrl(patch.image)}`,
-            "aria-current": patch.version === current.version ? "true" : null,
-            "aria-label": `Bản ${patch.version}`,
-          },
-          patch.version === latest && el("span", { class: "badge" }, "MỚI"),
-          hotfixesOf(patch).length > 0 && el("span", { class: "pcard-hf" }, `⚡ ${latestHotfix(patch).label}`),
-          el("span", {}, el("span", { class: "pcard-ver" }, patch.version), el("span", { class: "pcard-date", style: "display:block" }, patch.published_at ? shortDate.format(new Date(patch.published_at)) : "")),
-          el(
-            "span",
-            {},
-            el("span", { class: "pcard-bar" }, bar(patch.counts || {})),
-            el(
-              "span",
-              { class: "pcard-nums" },
-              el("span", { "data-dir": "buff" }, `▲${(patch.counts || {}).buff || 0}`),
-              el("span", { "data-dir": "nerf" }, `▼${(patch.counts || {}).nerf || 0}`),
-            ),
-          ),
-        ),
-      ),
+      { class: "pstrip-track", role: "list" },
+      patches
+        .filter((p) => p.set === current.set)
+        .map((patch) => {
+          const counts = patch.counts || {};
+          const fix = latestHotfix(patch);
+          return el(
+            "a",
+            {
+              class: `pchip${patch.version === current.version ? " is-on" : ""}`,
+              role: "listitem",
+              href: `#/tft/${encodeURIComponent(patch.version)}`,
+              "aria-current": patch.version === current.version ? "true" : null,
+              "aria-label": `Bản ${patch.version}`,
+            },
+            el("b", {}, patch.version, patch.version === latest && el("span", { class: "badge" }, "Mới")),
+            el("small", {}, patch.published_at ? localDay(patch.published_at) : "", fix ? ` · vá ${fix.label}` : ""),
+            el("span", { class: "pchip-nums" }, el("i", { "data-dir": "buff" }, `▲${counts.buff || 0}`), el("i", { "data-dir": "nerf" }, `▼${counts.nerf || 0}`)),
+          );
+        }),
     );
     const wrap = el(
       "section",
-      { class: "pflow", "aria-label": `Các bản cập nhật mùa ${current.set}` },
-      el("button", { type: "button", class: "pflow-nav prev", "aria-label": "Bản trước" }, "‹"),
-      track,
-      el("button", { type: "button", class: "pflow-nav next", "aria-label": "Bản sau" }, "›"),
+      { class: "ppick", "aria-label": "Chọn mùa và bản cập nhật" },
+      el("div", { class: "ppick-row" }, el("span", { class: "ppick-label" }, "Mùa"), seasonPills(sets, current.set, (s) => `#/tft/${encodeURIComponent(s.newest)}`, (s) => `${s.count} bản`)),
+      el(
+        "div",
+        { class: "ppick-row" },
+        el("span", { class: "ppick-label" }, "Bản"),
+        el(
+          "div",
+          { class: "pstrip" },
+          el("button", { type: "button", class: "pstrip-nav prev", "aria-label": "Các bản mới hơn" }, "‹"),
+          track,
+          el("button", { type: "button", class: "pstrip-nav next", "aria-label": "Các bản cũ hơn" }, "›"),
+        ),
+      ),
     );
     return { wrap, track };
   }
@@ -433,9 +411,9 @@ const TFT = (() => {
                 ),
               ),
             )
-          : el("p", { class: "none", style: "margin:0;font-size:.85rem" }, "Không có."),
+          : el("p", { class: "none" }, "Không có."),
       );
-    return el("section", { class: "movers" }, column(up, "buff", "▲ Được tăng sức mạnh"), column(down, "nerf", "▼ Bị giảm sức mạnh"));
+    return el("section", { class: "movers", "aria-label": "Thay đổi nổi bật" }, column(up, "buff", "▲ Được tăng sức mạnh"), column(down, "nerf", "▼ Bị giảm sức mạnh"));
   }
 
   function tools(patch, repaint) {
@@ -464,13 +442,12 @@ const TFT = (() => {
       state.wide = wide.checked;
       repaint();
     });
-    const chip = (group, value, label, count, tone) =>
+    const chip = (group, value, label, count) =>
       el(
         "button",
         {
           type: "button",
           class: `chipbtn${state[group] === value ? " is-on" : ""}`,
-          style: tone ? `--tone:${tone}` : null,
           "data-group": group,
           "data-value": value,
           "aria-pressed": String(state[group] === value),
@@ -479,8 +456,7 @@ const TFT = (() => {
         count !== undefined && el("small", {}, count),
       );
     const kinds = Object.keys(KINDS).filter((k) => k === "all" || kindCount(k) > 0);
-    const dirTones = { buff: "var(--buff)", nerf: "var(--nerf)", adjust: "var(--adjust)", new: "var(--fresh)", removed: "var(--gone)", fix: "var(--fix)" };
-    const dirs = ["all", ...Object.keys(dirTones).filter((d) => (patch.counts || {})[d])];
+    const dirs = ["all", ...["buff", "nerf", "adjust", "new", "removed", "fix"].filter((d) => (patch.counts || {})[d])];
     const node = el(
       "div",
       { class: "tft-tools" },
@@ -488,14 +464,10 @@ const TFT = (() => {
         "div",
         { class: "tools-row" },
         search,
-        el("label", { class: "toggle", title: "Tìm trong mọi bản của mùa này, xem lịch sử tăng/giảm" }, wide, `Cả mùa ${patch.set}`),
+        el("label", { class: "toggle", title: "Tìm trong mọi bản của mùa này, xem lịch sử tăng/giảm" }, wide, el("span", {}, `Tìm trong cả mùa ${patch.set}`)),
       ),
-      el("nav", { class: "kind-tabs", "aria-label": "Loại thay đổi" }, kinds.map((k) => chip("kind", k, `${KINDS[k][1]} ${KINDS[k][0]}`, kindCount(k)))),
-      el(
-        "div",
-        { class: "kind-tabs", role: "group", "aria-label": "Tăng hay giảm" },
-        dirs.map((d) => (d === "all" ? chip("dir", "all", "Mọi thay đổi") : chip("dir", d, `${DIRS[d][1]} ${DIRS[d][2]}`, patch.counts[d], dirTones[d]))),
-      ),
+      filterRow("Loại", "Loại thay đổi", kinds.map((k) => chip("kind", k, KINDS[k][0], kindCount(k)))),
+      filterRow("Hướng", "Tăng hay giảm", dirs.map((d) => (d === "all" ? chip("dir", "all", "Tất cả") : chip("dir", d, `${DIRS[d][1]} ${DIRS[d][2]}`, patch.counts[d])))),
     );
     node.addEventListener("click", (event) => {
       const button = event.target.closest("[data-group]");
@@ -526,7 +498,7 @@ const TFT = (() => {
     return el(
       "div",
       { class: "hf-wrap" },
-      el("p", { class: "hf-title" }, `⚡ Phiên bản này có ${fixes.length} bản vá giữa phiên bản · mới nhất `, el("b", {}, newest.label), newest.date ? ` (${dayMonth(newest.date)})` : ""),
+      el("p", { class: "hf-title" }, `Phiên bản này có ${fixes.length} bản vá giữa phiên bản · mới nhất `, el("b", {}, newest.label), newest.date ? ` (${dayMonth(newest.date)})` : ""),
       el(
         "div",
         { class: "hf-line", role: "group", "aria-label": "Bản vá trong phiên bản" },
@@ -535,36 +507,9 @@ const TFT = (() => {
           el("i", { class: "hf-arrow", "aria-hidden": "true" }, "→"),
           step(f.id, f.label, f.date ? dayMonth(f.date) : "giữa phiên bản", f.count, f === newest ? (patch.version === latest ? " is-newest is-live" : " is-newest") : ""),
         ]),
-        state.hotfix !== "all" && el("button", { type: "button", class: "chipbtn", "data-hotfix": "all" }, "✕ Xem tất cả"),
+        state.hotfix !== "all" && el("button", { type: "button", class: "linkbtn", "data-hotfix": "all" }, "Xem tất cả"),
       ),
     );
-  }
-
-  // One tile per kind: what got stronger or weaker at a glance.
-  function kindSummary(patch) {
-    const inHotfix = (c) => state.hotfix === "all" || (state.hotfix === "base" ? !c.hotfix : c.hotfix === state.hotfix);
-    const all = changesOf(patch).filter(inHotfix);
-    const tiles = ["champions", "traits", "items", "augments", "mechanics", "modes"]
-      .map((kind) => {
-        const mine = all.filter((c) => c.kind === kind);
-        if (!mine.length) return null;
-        const n = (d) => mine.filter((c) => c.dir === d).length;
-        return el(
-          "button",
-          { type: "button", class: `ksum${state.kind === kind ? " is-on" : ""}`, "data-group": "kind", "data-value": kind, "data-kind": kind },
-          el("span", { class: "ksum-ico", "aria-hidden": "true" }, KINDS[kind][1]),
-          el("b", {}, KINDS[kind][0]),
-          el(
-            "span",
-            { class: "ksum-n" },
-            n("buff") > 0 && el("em", { "data-dir": "buff" }, `▲${n("buff")}`),
-            n("nerf") > 0 && el("em", { "data-dir": "nerf" }, `▼${n("nerf")}`),
-            n("adjust") + n("new") + n("removed") > 0 && el("em", { "data-dir": "adjust" }, `◆${n("adjust") + n("new") + n("removed")}`),
-          ),
-        );
-      })
-      .filter(Boolean);
-    return tiles.length ? el("section", { class: "ksums", "aria-label": "Tóm tắt theo loại" }, tiles) : null;
   }
 
   function sectionView(patch, query) {
@@ -575,7 +520,6 @@ const TFT = (() => {
       out.push(...notesBlock(intro));
       for (const section of patch.sections) {
         if (!section.changes.length) continue;
-        const kind = KINDS[section.kind] ? section.kind : "other";
         const mine = section.changes.map((c) => ({ ...c, section: section.title, version: patch.version }));
         if (section.mid) {
           // Mid-patch updates: one highlighted block per update, newest first.
@@ -585,7 +529,7 @@ const TFT = (() => {
             el(
               "section",
               { class: "tsec is-hotfix" },
-              el("div", { class: "tsec-head" }, el("span", { class: "ico", "aria-hidden": "true" }, "⚡"), el("h2", {}, section.title), el("small", {}, `${section.changes.length}`)),
+              secHead(section.title, section.changes.length),
               notesBlock(section.notes),
               letters.length
                 ? letters.map((letter) => {
@@ -600,7 +544,7 @@ const TFT = (() => {
                         el("b", {}, `Bản vá ${info.label}`),
                         info.date ? ` · ${dayMonth(info.date)}/${info.date.slice(0, 4)}` : "",
                         ` · ${group.length} thay đổi`,
-                        newest && newest.id === letter && el("span", { class: "badge" }, "MỚI NHẤT"),
+                        newest && newest.id === letter && el("span", { class: "badge" }, "Mới nhất"),
                       ),
                       cards(group, patch.icons, section.title),
                     );
@@ -614,7 +558,7 @@ const TFT = (() => {
           el(
             "section",
             { class: "tsec" },
-            el("div", { class: "tsec-head" }, el("span", { class: "ico", "aria-hidden": "true" }, KINDS[kind][1]), el("h2", {}, section.title), el("small", {}, `${section.changes.length}`)),
+            secHead(section.title, section.changes.length),
             notesBlock(section.notes),
             cards(mine, patch.icons, section.title),
           ),
@@ -628,13 +572,7 @@ const TFT = (() => {
       el(
         "section",
         { class: "tsec" },
-        el(
-          "div",
-          { class: "tsec-head" },
-          el("span", { class: "ico", "aria-hidden": "true" }, KINDS[state.kind][1]),
-          el("h2", {}, state.kind === "all" ? "Kết quả" : KINDS[state.kind][0]),
-          el("small", {}, `${found.length} thay đổi`),
-        ),
+        secHead(state.kind === "all" ? "Kết quả" : KINDS[state.kind][0], `${found.length} thay đổi`),
         cards(found, patch.icons, "Khác"),
       ),
     );
@@ -669,13 +607,7 @@ const TFT = (() => {
     }
     if (!items.length) return [el("p", { class: "empty" }, `Không bản nào trong mùa ${current.set} khớp bộ lọc.`)];
     return [
-      el(
-        "div",
-        { class: "tsec-head" },
-        el("span", { class: "ico", "aria-hidden": "true" }, "🕰️"),
-        el("h2", {}, query ? `“${state.query}” qua mùa ${current.set}` : `Mùa ${current.set}`),
-        el("small", {}, `${items.length} bản · ▲${up} ▼${down}`),
-      ),
+      secHead(query ? `“${state.query}” qua mùa ${current.set}` : `Mùa ${current.set}`, `${items.length} bản · ▲${up} ▼${down}`),
       el("ol", { class: "timeline" }, items),
     ];
   }
@@ -685,9 +617,11 @@ const TFT = (() => {
 
   const dbs = {};
   const dbLoaded = {}; // set -> db once loaded (for icons in reward chips)
-  const COST_COLORS = { 1: "#9aa4b8", 2: "#34d399", 3: "#3b82f6", 4: "#c026d3", 5: "#ffc94d", 6: "#ff6a3d", 7: "#ff4fd8" };
-  const TIERS = { 1: ["Bạc", "#c0c8d8"], 2: ["Vàng", "#ffc94d"], 3: ["Kim cương", "#c084fc"] };
-  const TYPES = { champions: ["Tướng", "🦸"], traits: ["Tộc/Hệ", "🧬"], items: ["Trang bị", "🗡️"], augments: ["Nâng cấp", "💠"], rewards: ["Phần thưởng & lõi đặc biệt", "🎁"] };
+  // The game's own color codes: unit cost and augment tier. Shown as a thin
+  // ring or a dot, never as a fill.
+  const COST_COLORS = { 1: "#8b95a5", 2: "#3fa77a", 3: "#4a86d8", 4: "#a653c4", 5: "#d9a441", 6: "#d9703c", 7: "#d9539a" };
+  const TIERS = { 1: ["Bạc", "#a9b2c0"], 2: ["Vàng", "#d9a441"], 3: ["Kim cương", "#b08be0"] };
+  const TYPES = { champions: ["Tướng"], traits: ["Tộc/Hệ"], items: ["Trang bị"], augments: ["Nâng cấp"], rewards: ["Phần thưởng & lõi đặc biệt"] };
   let summaryRef = null;
 
   function dbSets() {
@@ -751,8 +685,8 @@ const TFT = (() => {
     );
   }
 
-  function statTile(label, value, icon) {
-    return el("div", { class: "stile" }, el("span", { class: "stile-ico", "aria-hidden": "true" }, icon), el("b", {}, value ?? "—"), el("small", {}, label));
+  function statTile(label, value) {
+    return el("div", { class: "stile" }, el("small", {}, label), el("b", {}, value ?? "—"));
   }
 
   const fmt = (n, digits = 2) => (typeof n === "number" ? String(Math.round(n * 10 ** digits) / 10 ** digits).replace(".", ",") : "—");
@@ -760,7 +694,7 @@ const TFT = (() => {
   function sheetBody(set, db, hit, open) {
     const { type, entry } = hit;
     const parts = [];
-    const tone = type === "champions" ? COST_COLORS[entry.cost] || GOLD : type === "augments" ? (TIERS[entry.tier] || [, GOLD])[1] : type === "traits" ? "#a78bfa" : "#60a5fa";
+    const tone = type === "champions" ? COST_COLORS[entry.cost] || GOLD : type === "augments" ? (TIERS[entry.tier] || [, GOLD])[1] : null;
     const subtitle = [];
     if (type === "champions") subtitle.push(`${entry.cost} vàng`);
     if (type === "augments" && TIERS[entry.tier]) subtitle.push(`Nâng cấp ${TIERS[entry.tier][0]}`);
@@ -770,16 +704,16 @@ const TFT = (() => {
     parts.push(
       el(
         "header",
-        { class: "sheet-head", style: `--tone:${tone}` },
+        { class: "sheet-head", style: tone ? `--tone:${tone}` : null },
         avatar(entry.name, entry.icon, type),
         el(
           "div",
           { class: "sheet-title" },
-          el("small", {}, `${TYPES[type][1]} ${TYPES[type][0]} · Mùa ${set}`),
+          el("small", {}, `${TYPES[type][0]} · Mùa ${set}`),
           el("h2", {}, entry.name),
           subtitle.length > 0 && el("p", {}, subtitle.join(" · ")),
           type === "champions" &&
-            el("div", { class: "chips" }, entry.traits.map((t) => el("button", { type: "button", class: "chipbtn", onclick: () => open(t) }, `🧬 ${t}`))),
+            el("div", { class: "chips" }, entry.traits.map((t) => el("button", { type: "button", class: "chipbtn", onclick: () => open(t) }, t))),
         ),
       ),
     );
@@ -789,14 +723,14 @@ const TFT = (() => {
         el(
           "div",
           { class: "stiles" },
-          statTile("Máu", fmt(st.hp, 0), "❤️"),
-          statTile("Sức mạnh công kích", fmt(st.damage, 0), "⚔️"),
-          statTile("Tốc độ đánh", fmt(st.attackSpeed), "⚡"),
-          statTile("Giáp", fmt(st.armor, 0), "🛡️"),
-          statTile("Kháng phép", fmt(st.magicResist, 0), "🔮"),
-          statTile("Năng lượng", st.mana != null ? `${fmt(st.initialMana, 0)}/${fmt(st.mana, 0)}` : "—", "💧"),
-          statTile("Tầm đánh (ô)", fmt(st.range, 0), "🎯"),
-          statTile("Chí mạng", st.critChance != null ? `${fmt(st.critChance * 100, 0)}% · x${fmt(st.critMultiplier)}` : "—", "💥"),
+          statTile("Máu", fmt(st.hp, 0)),
+          statTile("Sức mạnh công kích", fmt(st.damage, 0)),
+          statTile("Tốc độ đánh", fmt(st.attackSpeed)),
+          statTile("Giáp", fmt(st.armor, 0)),
+          statTile("Kháng phép", fmt(st.magicResist, 0)),
+          statTile("Năng lượng", st.mana != null ? `${fmt(st.initialMana, 0)}/${fmt(st.mana, 0)}` : "—"),
+          statTile("Tầm đánh (ô)", fmt(st.range, 0)),
+          statTile("Chí mạng", st.critChance != null ? `${fmt(st.critChance * 100, 0)}% · x${fmt(st.critMultiplier)}` : "—"),
         ),
       );
       const ab = entry.ability || {};
@@ -804,7 +738,7 @@ const TFT = (() => {
         el(
           "section",
           { class: "sheet-sec" },
-          el("h3", {}, "✨ Kỹ năng", ab.name ? `: ${ab.name}` : ""),
+          el("h3", {}, "Kỹ năng", ab.name ? `: ${ab.name}` : ""),
           ab.desc && el("p", { class: "sheet-desc" }, richText(ab.desc)),
           ab.variables && ab.variables.length
             ? el(
@@ -824,7 +758,7 @@ const TFT = (() => {
         el(
           "section",
           { class: "sheet-sec" },
-          el("h3", {}, "📶 Các mốc kích hoạt"),
+          el("h3", {}, "Các mốc kích hoạt"),
           el(
             "ol",
             { class: "bps" },
@@ -838,21 +772,21 @@ const TFT = (() => {
           el(
             "section",
             { class: "sheet-sec" },
-            el("h3", {}, `🦸 Tướng (${members.length})`),
+            el("h3", {}, `Tướng (${members.length})`),
             el("div", { class: "mini-grid" }, members.map((c) => miniChamp(c, open))),
           ),
         );
     }
     if (type === "items" || type === "augments") {
       if (entry.stats && entry.stats.length)
-        parts.push(el("div", { class: "chips" }, entry.stats.map((x) => el("span", { class: "dpill", "data-dir": "new" }, `${x.label} `, el("b", {}, x.value)))));
+        parts.push(el("div", { class: "chips" }, entry.stats.map((x) => el("span", { class: "statpill" }, `${x.label} `, el("b", {}, x.value)))));
       if (entry.desc) parts.push(el("p", { class: "sheet-desc" }, richText(entry.desc)));
       if (entry.from && entry.from.length) {
         parts.push(
           el(
             "section",
             { class: "sheet-sec" },
-            el("h3", {}, "🧩 Công thức"),
+            el("h3", {}, "Công thức"),
             el(
               "div",
               { class: "recipe" },
@@ -865,12 +799,12 @@ const TFT = (() => {
         );
       }
     }
-    if (type === "augments" && entry.pool !== false) parts.push(el("div", { class: "sheet-sec" }, el("h3", {}, "⏱ Giai đoạn xuất hiện"), stagePills(entry.stages)));
+    if (type === "augments" && entry.pool !== false) parts.push(el("div", { class: "sheet-sec" }, el("h3", {}, "Giai đoạn xuất hiện"), stagePills(entry.stages)));
     const rewards =
       (type === "traits" && REWARD_RX.test([entry.desc, ...(entry.breakpoints || []).map((b) => b.text)].join(" "))) ||
       (type === "augments" && RANDOM_RX.test(entry.desc || ""));
     const loot = rewardTables(set, entry.name);
-    if (loot) parts.push(el("section", { class: "sheet-sec" }, el("h3", {}, "🎰 Phần thưởng & tỉ lệ"), loot.map((t) => lootView(t, set))));
+    if (loot) parts.push(el("section", { class: "sheet-sec" }, el("h3", {}, "Phần thưởng & tỉ lệ"), loot.map((t) => lootView(t, set))));
     if (rewards) {
       const table = rewardTable(set, entry.name, !loot);
       if (table) parts.push(el("section", { class: "sheet-sec" }, table));
@@ -883,7 +817,7 @@ const TFT = (() => {
       el(
         "section",
         { class: "sheet-sec" },
-        el("h3", {}, `🕰️ Thay đổi trong mùa ${set}`),
+        el("h3", {}, `Thay đổi trong mùa ${set}`),
         history.length
           ? el(
               "ol",
@@ -920,7 +854,7 @@ const TFT = (() => {
     return el(
       "div",
       {},
-      el("h4", { class: "vars-title" }, primary ? "📊 Số liệu kỹ năng (theo bản cập nhật gần nhất)" : "📊 Số liệu mới nhất theo patch notes"),
+      el("h4", { class: "vars-title" }, primary ? "Số liệu kỹ năng (theo bản cập nhật gần nhất)" : "Số liệu mới nhất theo patch notes"),
       el(
         "table",
         { class: "vars" },
@@ -982,7 +916,7 @@ const TFT = (() => {
     const history = seasonHistory(set, name);
     if (!history.length) return [];
     return [
-      el("h3", {}, `🕰️ Thay đổi trong mùa ${set}`),
+      el("h3", {}, `Thay đổi trong mùa ${set}`),
       el("ol", { class: "timeline" }, history.map(({ patch, found }) => el("li", { class: "tl-item" }, el("div", { class: "tl-head" }, el("a", { href: `#/tft/${patch.version}` }, `Bản ${patch.version}`)), el("ul", { class: "lines" }, found.map(line))))),
     ];
   }
@@ -1001,31 +935,30 @@ const TFT = (() => {
     const search = el("input", { class: "search", type: "search", placeholder: "Tìm tướng, tộc hệ, trang bị, nâng cấp…", value: dbState.query, "aria-label": "Tìm trong bảng thông số" });
     const tabs = el(
       "nav",
-      { class: "kind-tabs", "aria-label": "Loại" },
-      Object.entries(TYPES).map(([type, [label, icon]]) =>
-        el("button", { type: "button", class: `chipbtn${dbState.type === type ? " is-on" : ""}`, "data-type": type, "aria-pressed": String(dbState.type === type) }, `${icon} ${label}`),
+      { class: "tabs", "aria-label": "Loại" },
+      Object.entries(TYPES).map(([type, [label]]) =>
+        el("button", { type: "button", class: `tab${dbState.type === type ? " is-on" : ""}`, "data-type": type, "aria-pressed": String(dbState.type === type) }, label),
       ),
     );
     view.replaceChildren(
-      el(
-        "section",
-        { class: "tft-hero db-hero" },
-        el(
-          "div",
-          { class: "tft-hero-text" },
-          el("p", { class: "tft-kicker" }, "📚 Đấu Trường Chân Lý · Tra cứu thông số"),
-          el("h1", { class: "tft-title" }, "Mùa ", el("span", { class: "ver" }, current), setName ? ` · ${setName}` : ""),
-          el("p", { class: "tft-meta" }, "Chỉ số gốc của mọi tướng, mốc tộc/hệ, trang bị và nâng cấp theo dữ liệu game mới nhất. Bấm vào một ô để xem đầy đủ và lịch sử tăng/giảm trong mùa."),
-        ),
-        hexPrism(`S${current}`),
-      ),
       viewSwitch("db", current),
       el(
-        "nav",
-        { class: "seasons", "aria-label": "Chọn mùa" },
-        sets.map((n) => el("a", { class: `season${n === current ? " is-on" : ""}`, href: `#/tft/tra-cuu/${n}` }, el("b", {}, `Mùa ${n}`), el("small", {}, "thông số"))),
+        "section",
+        { class: "ppick", "aria-label": "Chọn mùa" },
+        el("div", { class: "ppick-row" }, el("span", { class: "ppick-label" }, "Mùa"), seasonPills(sets.map((n) => ({ set: n })), current, (s) => `#/tft/tra-cuu/${s.set}`, () => "")),
       ),
-      el("div", { class: "tft-tools" }, el("div", { class: "tools-row" }, search), tabs),
+      el(
+        "section",
+        { class: "phead" },
+        el(
+          "div",
+          { class: "phead-main" },
+          el("p", { class: "kicker" }, "Đấu Trường Chân Lý · Tra cứu thông số"),
+          el("h1", {}, `Mùa ${current}`, setName ? ` · ${setName}` : ""),
+          el("p", { class: "phead-meta" }, "Chỉ số gốc của tướng, mốc tộc/hệ, trang bị và nâng cấp theo dữ liệu game mới nhất. Bấm vào một ô để xem đầy đủ và lịch sử tăng/giảm trong mùa."),
+        ),
+      ),
+      el("div", { class: "tft-tools" }, tabs, el("div", { class: "tools-row" }, search)),
       body,
     );
     Promise.all([loadDb(current), loadRewards(current)])
@@ -1079,7 +1012,7 @@ const TFT = (() => {
         el(
           "section",
           { class: "tsec" },
-          el("div", { class: "tsec-head" }, el("span", { class: "ico", style: `background:${COST_COLORS[cost] || GOLD};color:#111` }, cost), el("h2", {}, `Tướng ${cost} vàng`), el("small", {}, champs.length)),
+          secHead(`Tướng ${cost} vàng`, champs.length, el("i", { class: "tier-dot", style: `background:${COST_COLORS[cost] || GOLD}` })),
           el(
             "div",
             { class: "champ-grid" },
@@ -1090,7 +1023,7 @@ const TFT = (() => {
                 avatar(c.name, c.icon, "champions"),
                 el("b", {}, c.name),
                 el("small", {}, c.traits.join(" · ")),
-                el("span", { class: "champ-stats" }, `❤️${fmt(c.stats.hp, 0)} ⚔️${fmt(c.stats.damage, 0)} 💧${fmt(c.stats.initialMana, 0)}/${fmt(c.stats.mana, 0)}`),
+                el("span", { class: "champ-stats" }, `Máu ${fmt(c.stats.hp, 0)} · NL ${fmt(c.stats.initialMana, 0)}/${fmt(c.stats.mana, 0)}`),
               ),
             ),
           ),
@@ -1105,7 +1038,7 @@ const TFT = (() => {
           list.map((t, i) =>
             el(
               "article",
-              { class: "sc db-card", "data-dir": "new", style: `--i:${i}`, tabindex: "0", role: "button", onclick: () => open(t.name), onkeydown: (e) => e.key === "Enter" && open(t.name) },
+              { class: "sc db-card", tabindex: "0", role: "button", onclick: () => open(t.name), onkeydown: (e) => e.key === "Enter" && open(t.name) },
               el("header", { class: "sc-head" }, avatar(t.name, t.icon, "traits"), el("div", { class: "sc-name" }, el("h3", {}, t.name), el("small", {}, `Mốc: ${t.breakpoints.map((b) => b.min).join(" / ")}`))),
               el("p", { class: "sheet-desc small" }, richText(t.desc || "")),
             ),
@@ -1122,15 +1055,15 @@ const TFT = (() => {
 
   const STAGES = ["2-1", "3-2", "4-2"];
   const ITEM_KINDS = [
-    ["completed", "Trang bị ghép", "⚔️"],
-    ["component", "Thành phần", "🧩"],
-    ["radiant", "Ánh Sáng", "✨"],
-    ["artifact", "Tạo tác (Ornn)", "🔨"],
-    ["emblem", "Ấn", "🧬"],
-    ["support", "Hỗ trợ", "🤝"],
-    ["mechanic", "Cơ chế mùa", "🌿"],
-    ["consumable", "Tiêu hao", "🧪"],
-    ["other", "Khác", "✳️"],
+    ["completed", "Trang bị ghép"],
+    ["component", "Thành phần"],
+    ["radiant", "Ánh Sáng"],
+    ["artifact", "Tạo tác (Ornn)"],
+    ["emblem", "Ấn"],
+    ["support", "Hỗ trợ"],
+    ["mechanic", "Cơ chế mùa"],
+    ["consumable", "Tiêu hao"],
+    ["other", "Khác"],
   ];
   // Traits that pay out (cash-out traits) and augments with random or conditional rewards.
   const REWARD_RX = /phần thưởng|báu vật|chiến lợi phẩm|nổ hũ|chuyển đổi .*thành|tích lũy|tích trữ|rương|loot|payout|cash ?out/i;
@@ -1156,7 +1089,7 @@ const TFT = (() => {
       "article",
       {
         class: `sc db-card aug${a.pool === false ? " is-gone" : ""}${rewardTables(currentSet, a.name) ? " has-loot" : ""}`,
-        style: `--i:${i};--tone:${tierColor}`,
+        style: `--tone:${tierColor}`,
         tabindex: "0",
         role: "button",
         onclick: () => open(a.name),
@@ -1166,7 +1099,7 @@ const TFT = (() => {
         "header",
         { class: "sc-head" },
         avatar(a.name, a.icon, "augments"),
-        el("div", { class: "sc-name" }, el("h3", {}, a.name), el("small", {}, `Nâng cấp ${tierName}`)),
+        el("div", { class: "sc-name" }, el("h3", {}, a.name), el("small", {}, el("i", { class: "tier-dot", style: `background:${tierColor}` }), `Nâng cấp ${tierName}`)),
         a.pool === false ? el("span", { class: "gone-tag" }, "Không có trong vòng chọn") : stagePills(a.stages),
       ),
       el("p", { class: "sheet-desc small" }, richText(a.desc || "")),
@@ -1190,19 +1123,15 @@ const TFT = (() => {
     return el(
       "div",
       { class: "db-filters" },
-      el(
-        "div",
-        { class: "kind-tabs", role: "group", "aria-label": "Giai đoạn" },
-        chip("Mọi giai đoạn", dbState.stage === "all", { "data-db": "stage", "data-value": "all" }),
-        STAGES.map((stage) => chip(`⏱ ${stage}`, dbState.stage === stage, { "data-db": "stage", "data-value": stage })),
-      ),
-      el(
-        "div",
-        { class: "kind-tabs", role: "group", "aria-label": "Bậc" },
-        chip("Mọi bậc", dbState.tier === "all", { "data-db": "tier", "data-value": "all" }),
-        Object.entries(TIERS).map(([tier, [name, color]]) => chip([el("i", { class: "tier-dot", style: `background:${color}` }), name], dbState.tier === tier, { "data-db": "tier", "data-value": tier, style: `--tone:${color}` })),
-        gone > 0 && chip(`${dbState.showGone ? "✓ " : ""}Hiện cả ${gone} lõi không có trong vòng chọn`, dbState.showGone, { "data-db": "showGone", "data-value": "toggle" }),
-      ),
+      filterRow("Vòng", "Giai đoạn xuất hiện", [
+        chip("Tất cả", dbState.stage === "all", { "data-db": "stage", "data-value": "all" }),
+        STAGES.map((stage) => chip(stage, dbState.stage === stage, { "data-db": "stage", "data-value": stage })),
+      ]),
+      filterRow("Bậc", "Bậc nâng cấp", [
+        chip("Tất cả", dbState.tier === "all", { "data-db": "tier", "data-value": "all" }),
+        Object.entries(TIERS).map(([tier, [name, color]]) => chip([el("i", { class: "tier-dot", style: `background:${color}` }), name], dbState.tier === tier, { "data-db": "tier", "data-value": tier })),
+        gone > 0 && chip(`Hiện cả ${gone} lõi không có trong vòng chọn`, dbState.showGone, { "data-db": "showGone", "data-value": "toggle" }),
+      ]),
       note &&
         el(
           "p",
@@ -1229,12 +1158,10 @@ const TFT = (() => {
         el(
           "section",
           { class: "tsec" },
-          el(
-            "div",
-            { class: "tsec-head" },
-            el("span", { class: "ico", style: key === "gone" || key === "new" ? "" : `background:${(TIERS[key] || [, "#94a3b8"])[1]};color:#111` }, key === "gone" ? "🚫" : key === "new" ? "🆕" : "💠"),
-            el("h2", {}, key === "gone" ? "Không có trong vòng chọn" : key === "new" ? "Lõi kiểu mới — dữ liệu game chưa ghi giai đoạn" : `Nâng cấp ${(TIERS[key] || ["khác"])[0]}`),
-            el("small", {}, entries.length),
+          secHead(
+            key === "gone" ? "Không có trong vòng chọn" : key === "new" ? "Lõi kiểu mới — dữ liệu game chưa ghi giai đoạn" : `Nâng cấp ${(TIERS[key] || ["khác"])[0]}`,
+            entries.length,
+            TIERS[key] && el("i", { class: "tier-dot", style: `background:${TIERS[key][1]}` }),
           ),
           el("div", { class: "cards" }, entries.map((a, i) => augmentCard(a, i, open))),
         ),
@@ -1260,10 +1187,10 @@ const TFT = (() => {
     const filters = el(
       "div",
       { class: "db-filters" },
-      el(
-        "div",
-        { class: "kind-tabs", role: "group", "aria-label": "Loại trang bị" },
-        ITEM_KINDS.filter(([kind]) => counts[kind]).map(([kind, label, icon]) => chip([`${icon} ${label} `, el("small", {}, counts[kind])], dbState.itemKind === kind, { "data-db": "itemKind", "data-value": kind })),
+      filterRow(
+        "Loại",
+        "Loại trang bị",
+        ITEM_KINDS.filter(([kind]) => counts[kind]).map(([kind, label]) => chip([label, el("small", {}, counts[kind])], dbState.itemKind === kind, { "data-db": "itemKind", "data-value": kind })),
       ),
     );
     const seen = new Set();
@@ -1276,7 +1203,7 @@ const TFT = (() => {
         shown.map((item, i) =>
           el(
             "article",
-            { class: "sc db-card item-card", "data-dir": "new", style: `--i:${i}`, tabindex: "0", role: "button", onclick: () => open(item.name), onkeydown: (ev) => ev.key === "Enter" && open(item.name) },
+            { class: "sc db-card item-card", tabindex: "0", role: "button", onclick: () => open(item.name), onkeydown: (ev) => ev.key === "Enter" && open(item.name) },
             el("header", { class: "sc-head" }, avatar(item.name, item.icon, "items"), el("div", { class: "sc-name" }, el("h3", {}, item.name), recipe(db, item.from))),
             item.stats && item.stats.length > 0 && el("div", { class: "item-stats" }, item.stats.map((x) => el("span", {}, `${x.label} `, el("b", {}, x.value)))),
             el("p", { class: "sheet-desc small" }, richText(item.desc || "")),
@@ -1370,7 +1297,7 @@ const TFT = (() => {
     return el(
       "details",
       { class: "rewards", open: open || null },
-      el("summary", {}, `🎁 Phần thưởng & số liệu theo patch notes (${list.length})`),
+      el("summary", {}, `Phần thưởng & số liệu theo patch notes (${list.length})`),
       el(
         "table",
         { class: "vars" },
@@ -1449,7 +1376,7 @@ const TFT = (() => {
         return el(
           "div",
           { class: "loot-group-box" },
-          (group.title || group.note) && el("p", { class: "loot-group" }, group.title ? `🎯 ${group.title}` : "", group.note && el("small", {}, ` · ${group.note}`)),
+          (group.title || group.note) && el("p", { class: "loot-group" }, group.title || "", group.note && el("small", {}, ` · ${group.note}`)),
           (() => {
             const rowEl = (row) =>
               el(
@@ -1489,7 +1416,7 @@ const TFT = (() => {
     const [tierName, tierColor] = aug ? TIERS[aug.tier] || ["", GOLD] : ["", GOLD];
     return el(
       "article",
-      { class: "sc db-card reward-card has-loot", style: `--i:${i};--tone:${tierColor}` },
+      { class: "sc db-card reward-card has-loot", style: `--tone:${tierColor}` },
       el(
         "header",
         { class: `sc-head${hit ? " has-sheet" : ""}`, onclick: hit ? () => open(name) : null },
@@ -1536,29 +1463,29 @@ const TFT = (() => {
     if (tables.length) {
       const linked = tables.filter((t) => t.links && t.links.length);
       const other = tables.filter((t) => !(t.links && t.links.length));
-      const block = (title, icon, list) =>
+      const block = (title, list) =>
         el(
           "section",
           { class: "tsec" },
-          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, icon), el("h2", {}, title), el("small", {}, list.length)),
+          secHead(title, list.length),
           el("div", { class: "cards wide-cards" }, list.map((t, i) => lootCard(t, set, db, open, i))),
         );
-      if (linked.length) out.push(block("Bảng phần thưởng của lõi & tộc/hệ", "🎰", linked));
-      if (other.length) out.push(block("Bảng phần thưởng khác (Tinh Linh, sự kiện, PvE…)", "🗃️", other));
+      if (linked.length) out.push(block("Bảng phần thưởng của lõi & tộc/hệ", linked));
+      if (other.length) out.push(block("Bảng phần thưởng khác (Tinh Linh, sự kiện, PvE…)", other));
     }
     if (traits.length)
       out.push(
         el(
           "section",
           { class: "tsec" },
-          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "💰"), el("h2", {}, "Tộc/hệ có phần thưởng (theo patch notes)"), el("small", {}, traits.length)),
+          secHead("Tộc/hệ có phần thưởng (theo patch notes)", traits.length),
           el(
             "div",
             { class: "cards wide-cards" },
             traits.map((t, i) =>
               el(
                 "article",
-                { class: "sc db-card reward-card", "data-dir": "new", style: `--i:${i}` },
+                { class: "sc db-card reward-card" },
                 el("header", { class: "sc-head has-sheet", "data-sheet": t.name, onclick: () => open(t.name) }, avatar(t.name, t.icon, "traits"), el("div", { class: "sc-name" }, el("h3", {}, t.name), el("small", {}, `Mốc: ${t.breakpoints.map((b) => b.min).join(" / ")}`))),
                 el("p", { class: "sheet-desc" }, richText(t.desc || "")),
                 el("ol", { class: "bps" }, t.breakpoints.map((b) => el("li", { "data-style": b.style }, el("span", { class: "bp-n" }, b.min), el("span", {}, richText(b.text.replace(/^\(\d+\)\s*/, "") || "—"))))),
@@ -1573,7 +1500,7 @@ const TFT = (() => {
         el(
           "section",
           { class: "tsec" },
-          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "🎲"), el("h2", {}, "Lõi phần thưởng ngẫu nhiên & có điều kiện"), el("small", {}, random.length)),
+          secHead("Lõi phần thưởng ngẫu nhiên & có điều kiện", random.length),
           el("div", { class: "cards" }, random.map((a, i) => augmentCard(a, i, open, rewardTable(set, a.name)))),
         ),
       );
@@ -1582,7 +1509,7 @@ const TFT = (() => {
         el(
           "section",
           { class: "tsec" },
-          el("div", { class: "tsec-head" }, el("span", { class: "ico" }, "🧬"), el("h2", {}, "Lõi theo tộc/hệ"), el("small", {}, [...byTrait.values()].reduce((n, l) => n + l.length, 0))),
+          secHead("Lõi theo tộc/hệ", [...byTrait.values()].reduce((n, l) => n + l.length, 0)),
           [...byTrait.entries()]
             .sort((x, y) => x[0].localeCompare(y[0]))
             .map(([trait, list]) =>
@@ -1605,8 +1532,8 @@ const TFT = (() => {
     return el(
       "nav",
       { class: "vswitch", "aria-label": "Chế độ xem" },
-      el("a", { class: active === "notes" ? "is-on" : "", href: "#/tft" }, "📰 Bản cập nhật"),
-      has && el("a", { class: active === "db" ? "is-on" : "", href: `#/tft/tra-cuu/${set || dbSets()[0]}` }, "📚 Tra cứu thông số"),
+      el("a", { class: active === "notes" ? "is-on" : "", href: "#/tft", "aria-current": active === "notes" ? "page" : null }, "Bản cập nhật"),
+      has && el("a", { class: active === "db" ? "is-on" : "", href: `#/tft/tra-cuu/${set || dbSets()[0]}`, "aria-current": active === "db" ? "page" : null }, "Tra cứu thông số"),
     );
   }
 
@@ -1614,16 +1541,13 @@ const TFT = (() => {
 
   function render(view, appData, version, options = {}) {
     document.title = "Cập nhật ĐTCL / TFT – GiftCode Finder";
-    setTheme(GOLD);
     view.className = "wrap tftpage";
-    view.removeAttribute("style");
     if (!appData.tft) {
       view.replaceChildren(
         el(
           "section",
-          { class: "tft-hero" },
-          el("div", {}, el("p", { class: "tft-kicker" }, "⚔️ Đấu Trường Chân Lý"), el("h1", { class: "tft-title" }, "Chưa có dữ liệu"), el("p", { class: "none" }, "Trang sẽ có bản cập nhật TFT sau lần quét tới (mỗi giờ).")),
-          hexPrism("TFT"),
+          { class: "phead" },
+          el("div", { class: "phead-main" }, el("p", { class: "kicker" }, "Đấu Trường Chân Lý"), el("h1", {}, "Chưa có dữ liệu"), el("p", { class: "phead-meta" }, "Trang sẽ có bản cập nhật TFT sau lần quét tới.")),
         ),
       );
       return;
@@ -1668,21 +1592,13 @@ const TFT = (() => {
         }
         controls.wide.checked = state.wide;
       }
-      for (const tile of view.querySelectorAll("[data-filter-dir]")) {
-        const on = state.dir === tile.dataset.filterDir;
-        tile.classList.toggle("is-on", on);
-        tile.setAttribute("aria-pressed", String(on));
-      }
-      // The hotfix strip and the per-kind tiles follow the filters too.
+      // The hotfix strip follows the filters too.
       const strip = view.querySelector(".hf-wrap");
       if (strip) strip.replaceWith(hotfixLine(patch, latest));
-      const sums = view.querySelector(".ksums");
-      const fresh = kindSummary(patch);
-      if (sums && fresh) sums.replaceWith(fresh);
       body.replaceChildren(...(state.wide && (query || state.kind !== "all" || state.dir !== "all") ? historyView(patches, patch, query) : sectionView(patch, query)));
     };
     controls = tools(patch, repaint);
-    const pick = (name) => openSheet(patch.set, name);
+    const openName = (name) => openSheet(patch.set, name);
     body.addEventListener("click", (event) => {
       const head = event.target.closest("[data-sheet]");
       if (head) openSheet(patch.set, head.dataset.sheet);
@@ -1691,9 +1607,7 @@ const TFT = (() => {
       state.hotfix = "all"; // a new patch starts with all its changes
       state.patch = patch.version;
     }
-    const flow = carousel(patches, patch, latest);
-    const top = hero(patch, latest);
-    const summaryTiles = kindSummary(patch);
+    const pick = picker(patches, patch, latest);
     // One delegated handler on the shared view (replaced on every render, never stacked).
     if (view.tftClick) view.removeEventListener("click", view.tftClick);
     view.tftClick = (event) => {
@@ -1701,53 +1615,35 @@ const TFT = (() => {
       if (fix) {
         state.hotfix = state.hotfix === fix.dataset.hotfix ? "all" : fix.dataset.hotfix;
         repaint();
-        return;
-      }
-      const sum = event.target.closest(".ksum");
-      if (sum) {
-        state.kind = state.kind === sum.dataset.value ? "all" : sum.dataset.value;
-        repaint();
       }
     };
     view.addEventListener("click", view.tftClick);
-    top.addEventListener("click", (event) => {
-      const tile = event.target.closest("[data-filter-dir]");
-      if (!tile || tile.disabled) return;
-      state.dir = state.dir === tile.dataset.filterDir ? "all" : tile.dataset.filterDir;
-      repaint();
-    });
     const summary = appData.tft;
     const problems =
       summary.errors && summary.errors.length
-        ? el("p", { class: "note", style: "margin-top:20px" }, `Lần kiểm tra gần nhất gặp lỗi: ${summary.errors.join(" · ")}`)
+        ? el("p", { class: "note" }, `Lần kiểm tra gần nhất gặp lỗi: ${summary.errors.join(" · ")}`)
         : null;
     view.replaceChildren(
-      top,
       viewSwitch("notes", patch.set),
-      seasons(patches, patch),
-      flow.wrap,
-      summaryTiles,
-      movers(patch, pick),
+      pick.wrap,
+      patchHead(patch, latest),
+      movers(patch, openName),
       controls.node,
       body,
       problems,
       el(
         "p",
-        { class: "foot", style: "border:0;padding:8px 0 0" },
+        { class: "fineprint" },
         "Nội dung từ bài patch notes chính thức của Riot Games; tên và biểu tượng từ Community Dragon. Tăng/giảm được xếp tự động theo con số (năng lượng, hồi chiêu, giá tiền giảm là tăng sức mạnh) nên vài dòng có thể chưa chuẩn — xem bài gốc khi cần.",
       ),
     );
     repaint();
-    FX.pauseAway(top);
-    const carouselCtl = FX.coverflow(flow.track);
-    flow.wrap.querySelector(".prev").addEventListener("click", () => carouselCtl.step(-1));
-    flow.wrap.querySelector(".next").addEventListener("click", () => carouselCtl.step(1));
-    const selected = flow.track.querySelector(".is-on");
-    if (selected) {
-      // Again once fonts and the page transition have settled the layout.
-      requestAnimationFrame(() => carouselCtl.center(selected, false));
-      setTimeout(() => carouselCtl.center(selected, false), 400);
-    }
+    const strip = FX.strip(pick.track);
+    pick.wrap.querySelector(".prev").addEventListener("click", () => strip.step(-1));
+    pick.wrap.querySelector(".next").addEventListener("click", () => strip.step(1));
+    const selected = pick.track.querySelector(".is-on");
+    // Once fonts have settled the layout.
+    if (selected) requestAnimationFrame(() => strip.center(selected, false));
     if (!options.keepScroll) window.scrollTo(0, 0);
   }
 
@@ -1756,32 +1652,16 @@ const TFT = (() => {
     if (!summary || !summary.latest) return null;
     const latest = summary.latest;
     const counts = latest.counts || {};
+    const fix = (latest.hotfixes || []).slice(-1)[0];
     return el(
-      "section",
-      { class: "tftp", "aria-label": "Cập nhật Đấu Trường Chân Lý" },
-      el(
-        "a",
-        { class: "tftp-card", href: "#/tft" },
-        el(
-          "div",
-          {},
-          el("p", { class: "tftp-kicker" }, "⚔️ Mới · Cập nhật ĐTCL / TFT"),
-          el("h2", { class: "tftp-title" }, "Bản ", el("span", { class: "ver" }, latest.version), latest.set_name ? ` · ${latest.set_name}` : ""),
-          el("p", { class: "tftp-sub" }, `Tướng, tộc hệ, trang bị, nâng cấp nào được tăng hay bị giảm sức mạnh — xem theo từng bản, từng mùa (${summary.patches} bản).`),
-          (latest.hotfixes || []).length > 0 &&
-            el(
-              "p",
-              { class: "tftp-hf" },
-              "⚡ Đã có bản vá ",
-              el("b", {}, latest.hotfixes[latest.hotfixes.length - 1].label),
-              latest.hotfixes[latest.hotfixes.length - 1].date ? ` · ${dayMonth(latest.hotfixes[latest.hotfixes.length - 1].date)}` : "",
-              ` · ${latest.hotfixes[latest.hotfixes.length - 1].count} thay đổi`,
-            ),
-          el("div", { class: "dirs" }, ["buff", "nerf", "adjust"].filter((d) => counts[d]).map((d) => dpill(d, counts[d]))),
-          el("span", { class: "tftp-cta" }, "Xem chi tiết ", el("i", { "aria-hidden": "true" }, "→")),
-        ),
-        hexPrism(latest.version),
-      ),
+      "a",
+      { class: "panel promo", href: "#/tft", "aria-label": "Cập nhật Đấu Trường Chân Lý" },
+      el("span", { class: "kicker" }, "Đấu Trường Chân Lý"),
+      el("b", { class: "promo-title" }, `Bản ${latest.version}`, latest.set_name ? ` · ${latest.set_name}` : ""),
+      el("span", { class: "dirs" }, ["buff", "nerf", "adjust"].filter((d) => counts[d]).map((d) => dpill(d, counts[d]))),
+      fix && el("span", { class: "promo-sub" }, `Đã có bản vá ${fix.label}${fix.date ? ` (${dayMonth(fix.date)})` : ""} · ${fix.count} thay đổi`),
+      el("span", { class: "promo-sub" }, "Tướng, tộc hệ, trang bị, nâng cấp nào được tăng hay giảm, theo từng bản và từng mùa."),
+      el("span", { class: "promo-cta" }, "Xem bản cập nhật →"),
     );
   }
 

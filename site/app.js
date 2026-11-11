@@ -2,10 +2,9 @@
 
 const NEW_FOR_MS = 72 * 3600 * 1000;
 const SOON_MS = 7 * 86400 * 1000; // codes expiring sooner than this get their own strip
-const LATEST_IN_BOX = 6;
+const LATEST_COUNT = 6;
 const COPIED_KEY = "gcf:copied";
 const HEX_COLOR = /^#(?:[0-9a-f]{3}){1,2}$/i;
-const BRAND_COLOR = "#a855f7";
 
 const store = {
   read() {
@@ -92,7 +91,7 @@ function isNew(item) {
 }
 
 function badge(item) {
-  return isNew(item) && el("span", { class: "badge" }, "MỚI");
+  return isNew(item) && el("span", { class: "badge" }, "Mới");
 }
 
 // Time left before ``iso``; tick() refreshes every countdown each second.
@@ -116,7 +115,7 @@ function tick() {
     const until = level === "urgent" ? `hết hạn lúc ${clockFmt.format(end)}` : `HSD ${dayFmt.format(end)}`;
     // Compact countdowns (cards, chips, phones) leave out the date.
     const compact = level === "expired" || "compact" in node.dataset || narrow.matches;
-    node.textContent = compact ? `⏳ ${text}` : `⏳ ${text} · ${until}`;
+    node.textContent = compact ? text : `${text} · ${until}`;
     node.dataset.level = level;
     if (compact && level !== "expired") node.title = until;
   }
@@ -124,29 +123,32 @@ function tick() {
 
 // --- Games ---------------------------------------------------------------
 
-function codesOf(game) {
-  return (game.items || []).filter((i) => i.code);
+// A code past its expiry is still listed by its source for a while.
+function isLive(item) {
+  return !item.expires_at || new Date(item.expires_at) > Date.now();
 }
 
-// The game's colors from the config, or three derived from its id.
-function colorsOf(game) {
-  const own = (game.colors || []).filter((c) => HEX_COLOR.test(c));
-  if (own.length) return [own[0], own[1] || own[0], own[2] || own[1] || own[0]];
+// The codes that can still be redeemed.
+function codesOf(game) {
+  return (game.items || []).filter((i) => i.code && isLive(i));
+}
+
+// The game's own color (from the config, or derived from its id): the one
+// place a game brings its color is its monogram.
+function colorOf(game) {
+  const own = (game.colors || []).find((c) => HEX_COLOR.test(c));
+  if (own) return own;
   let hash = 0;
   for (const ch of game.id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  const hue = hash % 360;
-  return [`hsl(${hue} 85% 58%)`, `hsl(${(hue + 55) % 360} 80% 52%)`, `hsl(${(hue + 170) % 360} 90% 66%)`];
+  return `hsl(${hash % 360} 55% 50%)`;
 }
 
-function themeStyle(game) {
-  const [c1, c2, c3] = colorsOf(game);
-  return `--c1:${c1};--c2:${c2};--c3:${c3}`;
+function initials(name) {
+  return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase() || "?";
 }
 
-// The page glow takes the color of the game on screen.
-function setTheme(game) {
-  const color = typeof game === "string" ? game : game ? colorsOf(game)[0] : BRAND_COLOR;
-  document.documentElement.style.setProperty("--b1", color);
+function monogram(game, size = "") {
+  return el("span", { class: `mono ${size}`.trim(), style: `--game:${colorOf(game)}`, "aria-hidden": "true" }, initials(game.name));
 }
 
 function soonestExpiry(items) {
@@ -171,13 +173,7 @@ function latestCodes(data, count) {
     .slice(0, count);
 }
 
-function center(node) {
-  const box = node.getBoundingClientRect();
-  return [box.left + box.width / 2, box.top + box.height / 2];
-}
-
-async function copyCode(game, code, event) {
-  const source = event && event.currentTarget; // gone once the copy is awaited
+async function copyCode(game, code) {
   if (!(await copyText(code))) {
     toast("Không sao chép được, hãy chọn và copy tay");
     return false;
@@ -185,47 +181,42 @@ async function copyCode(game, code, event) {
   copied.add(`${game.id}:${code}`);
   store.write(copied);
   toast(`Đã sao chép ${code}`);
-  // Keyboard clicks have no pointer position: burst from the element instead.
-  if (event && (event.clientX || event.clientY)) FX.burst(event.clientX, event.clientY, [...colorsOf(game), "#ffffff"]);
-  else if (source) FX.burst(...center(source), [...colorsOf(game), "#ffffff"]);
   return true;
 }
 
 // The countdown (or the raw expiry text); without one, when it was first seen.
-function metaLine(item) {
-  if (item.expires_at) return el("span", { class: "code-meta" }, el("span", { class: "expiry", "data-expires": item.expires_at }));
-  if (item.expires) return el("span", { class: "code-meta" }, el("span", { class: "expiry" }, `⏳ HSD ${item.expires}`));
+// On pages that mix games, the game's name comes first.
+function metaLine(item, game) {
+  const from = game && el("span", { class: "code-game" }, game.name);
+  if (item.expires_at) return el("span", { class: "code-meta" }, from, el("span", { class: "expiry", "data-expires": item.expires_at }));
+  if (item.expires) return el("span", { class: "code-meta" }, from, el("span", { class: "expiry" }, `HSD ${item.expires}`));
   const seen = new Date(item.first_seen);
   const day = `${String(seen.getDate()).padStart(2, "0")}/${String(seen.getMonth() + 1).padStart(2, "0")}`;
-  return el("span", { class: "code-meta" }, `thấy lần đầu ${day}`);
+  return el("span", { class: "code-meta" }, from, el("span", {}, `thấy lần đầu ${day}`));
 }
 
-function codeRow(game, item) {
+function codeRow(game, item, withGame = false) {
   const key = `${game.id}:${item.code}`;
   const info = [item.title !== item.code && item.title, item.reward].filter(Boolean).join(" · ");
-  const action = el("span", { class: "code-action" }, copied.has(key) ? "✓ Đã chép" : "Sao chép");
+  const action = el("span", { class: "code-action" }, copied.has(key) ? "Đã chép" : "Sao chép");
   const button = el(
     "button",
     {
       type: "button",
       class: `code${copied.has(key) ? " copied" : ""}`,
       title: "Bấm để sao chép",
-      onclick: async (event) => {
-        if (!(await copyCode(game, item.code, event))) return;
+      onclick: async () => {
+        if (!(await copyCode(game, item.code))) return;
         button.classList.add("copied");
-        action.textContent = "✓ Đã chép";
-        button.classList.remove("flip");
-        void button.offsetWidth; // restart the flip
-        button.classList.add("flip");
+        action.textContent = "Đã chép";
       },
     },
-    el("span", { class: "code-stub", "aria-hidden": "true" }, "🎟️"),
     el(
       "span",
       { class: "code-main" },
       el("span", { class: "code-value" }, item.code, badge(item)),
       info && el("span", { class: "code-info" }, info),
-      metaLine(item),
+      metaLine(item, withGame && game),
     ),
     action,
   );
@@ -243,7 +234,7 @@ function lockedRow(item) {
       el(
         "span",
         { class: "code-main" },
-        el("span", { class: "locked-title" }, "🔒 ", item.title || "Sự kiện giftcode", badge(item)),
+        el("span", { class: "locked-title" }, item.title || "Sự kiện giftcode", badge(item)),
         el("span", { class: "code-info" }, [item.reward, "đăng nhập trang nguồn để xem mã"].filter(Boolean).join(" · ")),
         metaLine(item),
       ),
@@ -258,7 +249,7 @@ function oldRow(code) {
     {},
     el(
       "div",
-      { class: "code" },
+      { class: "code is-old" },
       el(
         "span",
         { class: "code-main" },
@@ -285,129 +276,73 @@ function sourceLine(source) {
   );
 }
 
-// A section heading with its icon on a small 3D tile.
-function heading(icon, text, tone = "violet", extra = "") {
-  return el("h2", { class: `section-title ${extra}`.trim() }, el("span", { class: `st-ico tone-${tone}`, "aria-hidden": "true" }, icon), el("span", {}, text));
-}
-
-// A CSS cube showing ``label`` on its sides (game badge on cards and pages).
-function labelCube(label, size = "") {
+// One region of a page: a title (with an optional note beside it) over its content.
+function region(title, aside, body, extra = "") {
   return el(
-    "span",
-    { class: `lcube ${size}`, "aria-hidden": "true" },
-    el("span", { class: "lcube-in" }, ["f", "b", "r", "l", "t", "d"].map((side) => el("i", { class: `lc-${side}` }, side === "t" || side === "d" ? "🎁" : label))),
+    "section",
+    { class: `region ${extra}`.trim() },
+    el("div", { class: "region-head" }, el("h2", {}, title), aside && el("span", {}, aside)),
+    body,
   );
 }
 
-function initials(name) {
-  return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase() || "?";
-}
-
-// The game's initials in its colors: its badge on its page.
-function monogram(game, size = "") {
-  return el("span", { class: `mono ${size}`, style: `view-transition-name: mono-${game.id}`, "aria-hidden": "true" }, initials(game.name));
+function panel(title, body, extra = "") {
+  return el("section", { class: `panel ${extra}`.trim() }, el("h2", { class: "panel-title" }, title), body);
 }
 
 function countText(game) {
   const items = game.items || [];
   const codes = codesOf(game).length;
-  const locked = items.length - codes;
-  return `${codes} code${locked ? ` · 🔒 ${locked}` : ""}`;
+  const locked = items.filter((i) => !i.code).length;
+  return `${codes} code${locked ? ` · ${locked} cần đăng nhập` : ""}`;
 }
 
-// --- Home: pick a game ----------------------------------------------------
+// --- Home ------------------------------------------------------------------
 
-function intro(data, soonCount) {
+function pageHead(data, soonCount) {
   const codeCount = data.games.reduce((n, game) => n + codesOf(game).length, 0);
-  const stat = (value, label, tone = "") => {
-    const number = el("b", {}, value);
-    FX.countUp(number, value);
-    return el("div", { class: `stat ${tone}` }, number, el("span", {}, label));
-  };
+  const fact = (value, label, tone = "") => el("div", { class: `fact ${tone}`.trim() }, el("b", {}, value), el("span", {}, label));
   return el(
-    "section",
-    { class: "intro" },
-    el("p", { class: "live" }, el("i", { class: "live-dot" }), `Tự cập nhật mỗi giờ · kiểm tra ${ago(data.generated_at)}`),
-    el("h1", { class: "intro-title" }, "Giftcode mới nhất,", el("br"), el("span", { class: "accent" }, "bấm là chép.")),
-    el("p", { class: "intro-sub" }, "Chọn game để xem code, mở hộp quà để lấy code mới nhất. Code livestream có đồng hồ đếm ngược hạn dùng."),
+    "header",
+    { class: "pagehead" },
     el(
       "div",
-      { class: "stats" },
-      stat(codeCount, "code đang dùng được"),
-      stat(data.games.length, "game", "cyan"),
-      soonCount > 0 && stat(soonCount, "sắp hết hạn", "warn"),
+      { class: "pagehead-text" },
+      el("h1", {}, "Giftcode mới nhất"),
+      el("p", {}, `Bấm vào code để sao chép. Trang tự kiểm tra các nguồn, lần gần nhất ${ago(data.generated_at)}.`),
+    ),
+    el(
+      "div",
+      { class: "facts" },
+      fact(codeCount, "code đang dùng được"),
+      fact(data.games.length, "game"),
+      soonCount > 0 && fact(soonCount, "sắp hết hạn", "is-warn"),
     ),
   );
 }
 
-function soonStrip(entries) {
-  return el(
-    "section",
-    { class: "soon", "aria-label": "Code sắp hết hạn" },
-    heading("🔥", "Sắp hết hạn — chép ngay kẻo lỡ", "hot"),
-    el(
-      "div",
-      { class: "soon-list" },
-      entries.map(({ game, item }) =>
-        el(
-          "button",
-          {
-            type: "button",
-            class: "soon-item",
-            style: themeStyle(game),
-            title: "Bấm để sao chép",
-            onclick: (event) => copyCode(game, item.code, event),
-          },
-          el("b", {}, item.code),
-          el("span", { class: "soon-meta" }, `${game.name} · `, el("span", { class: "expiry", "data-expires": item.expires_at, "data-compact": "" })),
-          el("span", { class: "soon-ico", "aria-hidden": "true" }, "⏳"),
-        ),
-      ),
-    ),
-  );
-}
-
-function gameTile(game, index) {
+function gameCard(game) {
   const items = game.items || [];
-  const newest = items[0];
+  const newest = items.find(isLive);
   const next = soonestExpiry(items);
-  const codes = codesOf(game).length;
-  const locked = items.length - codes;
   const search = [game.name, ...items.map((i) => i.code || i.title || "")].join(" ").toLowerCase();
   return el(
     "a",
-    {
-      class: "gcard",
-      href: `#/${encodeURIComponent(game.id)}`,
-      style: `${themeStyle(game)};--i:${index}`,
-      "data-search": search,
-      "aria-label": `${game.name}: ${codes} code`,
-    },
-    el("span", { class: "gcard-pattern", "aria-hidden": "true" }),
-    el("span", { class: "gcard-art", "aria-hidden": "true" }, initials(game.name)),
-    labelCube(initials(game.name)),
+    { class: "gcard", href: `#/${encodeURIComponent(game.id)}`, "data-search": search, "aria-label": `${game.name}: ${countText(game)}` },
+    monogram(game),
     el(
       "span",
-      { class: "gcard-head" },
-      el("span", { class: "gcard-count" }, el("b", {}, codes), locked ? `code · 🔒 ${locked}` : "code"),
-      items.some(isNew) && el("span", { class: "badge" }, "MỚI"),
-      el("span", { class: "gcard-go", "aria-hidden": "true" }, "→"),
+      { class: "gcard-body" },
+      el("b", { class: "gcard-title" }, game.name, items.some(isNew) && el("span", { class: "badge" }, "Mới")),
+      el("span", { class: "gcard-meta" }, countText(game), newest ? ` · mới nhất ${ago(newest.first_seen)}` : ""),
+      next && el("span", { class: "gcard-meta" }, "Hạn gần nhất: ", el("span", { class: "expiry", "data-expires": next.expires_at, "data-compact": "" })),
     ),
-    el("h3", { class: "gcard-title" }, game.name),
-    newest &&
-      el(
-        "p",
-        { class: "gcard-latest" },
-        "Mới nhất ",
-        newest.code ? el("b", {}, newest.code) : `🔒 ${newest.title || "sự kiện mới"}`,
-        ` · ${ago(newest.first_seen)}`,
-      ),
-    next && el("p", { class: "gcard-expiry" }, el("span", { class: "expiry", "data-expires": next.expires_at, "data-compact": "" })),
+    el("span", { class: "gcard-go", "aria-hidden": "true" }, "→"),
   );
 }
 
-function picker(data, first) {
-  const cards = data.games.map(gameTile);
+function gamePicker(data) {
+  const cards = data.games.map(gameCard);
   const empty = el("p", { class: "empty" }, "Không có game nào khớp.");
   empty.hidden = true;
   const search =
@@ -427,146 +362,54 @@ function picker(data, first) {
         empty.hidden = shown > 0;
       },
     });
-  return el(
-    "section",
-    { class: `picker${first ? " is-first" : ""}`, id: "chon-game" },
-    heading("🎮", "Chọn game", "cyan"),
+  return region("Chọn game", `${cards.length} game`, [
     search,
     cards.length ? el("div", { class: "gcards" }, cards) : el("p", { class: "empty" }, "Chưa có game nào trong cấu hình."),
     empty,
-  );
+  ]);
 }
 
-function giftScene(latest, games = []) {
-  const faces = () => ["front", "back", "right", "left", "top", "bottom"].map((side) => el("span", { class: `face f-${side}` }));
-  const bow = (plane) =>
-    el("span", { class: `bow ${plane}` }, el("span", { class: "loop l" }), el("span", { class: "loop r" }), el("span", { class: "knot" }));
-  const chips = latest.map(({ game, item }) =>
-    el(
-      "button",
-      {
-        type: "button",
-        class: "chip",
-        style: themeStyle(game),
-        "aria-label": `Sao chép ${item.code} (${game.name})`,
-        onclick: (event) => copyCode(game, item.code, event),
-      },
-      el("b", {}, item.code),
-      el("small", {}, game.name),
-    ),
-  );
-  return el(
-    "section",
-    { class: "gift", "aria-label": "Hộp quà code mới nhất" },
-    heading("🎁", "Hộp quà code mới", "pink", "gift-title"),
-    el(
-      "div",
-      { class: "gift-area" },
-      el("span", { class: "gift-ring", "aria-hidden": "true" }),
-      el(
-        "span",
-        { class: "orbit", "aria-hidden": "true" },
-        el(
-          "span",
-          { class: "orbit-in" },
-          ["#ffc94d", "#ff4fd8", "#22d3ee", "#b18cff", "#ffc94d", "#34d399", "#ff4fd8", "#22d3ee"].map((c, k) => el("i", { style: `--k:${k};--c:${c}` })),
-          // Every game circles the box as a little planet with its initials.
-          games.slice(0, 4).map((game, k) => el("b", { class: "planet", style: `${themeStyle(game)};--k:${k};--n:${Math.min(games.length, 4)}` }, initials(game.name))),
-        ),
-      ),
-      el("span", { class: "gift-glow", "aria-hidden": "true" }),
-      el("span", { class: "beams", "aria-hidden": "true" }, [0, 1, 2, 3, 4, 5].map((k) => el("i", { style: `--k:${k}` }))),
-      el(
-        "div",
-        { class: "box-pos", "aria-hidden": "true" },
-        el(
-          "div",
-          { class: "box-turn" },
-          el(
-            "div",
-            { class: "box-spin" },
-            el("div", { class: "box" }, el("div", { class: "cube base" }, faces()), el("div", { class: "cube lid" }, faces(), bow("b1"), bow("b2"))),
-          ),
-        ),
-      ),
-      el("div", {
-        class: "box-hit",
-        role: "button",
-        tabindex: "0",
-        "aria-expanded": "false",
-        "aria-label": latest.length ? "Mở hộp quà xem các code mới nhất" : "Hộp quà",
-      }),
-    ),
-    el("p", { class: "gift-hint" }, latest.length ? "Kéo để xoay · chạm để mở hộp" : "Kéo để xoay hộp quà"),
-    el("div", { class: "gift-chips" }, chips),
-  );
-}
-
-// A strip of the newest codes (and the TFT patch) running across the page.
-function ticker(data) {
-  const items = latestCodes(data, 12).map(({ game, item }) =>
-    el("span", { class: "tk-item", style: themeStyle(game) }, el("i", { class: "tk-dot" }), el("b", {}, item.code), el("small", {}, game.name)),
-  );
-  const tft = data.tft && data.tft.latest;
-  if (tft) {
-    const counts = tft.counts || {};
-    const fix = (tft.hotfixes || []).slice(-1)[0];
-    items.unshift(el("span", { class: "tk-item tk-gold" }, "⚔️ ĐTCL ", el("b", {}, fix ? fix.label : tft.version), el("small", {}, fix ? `bản vá mới · ${fix.count} thay đổi` : `▲${counts.buff || 0} ▼${counts.nerf || 0}`)));
-  }
-  items.push(el("span", { class: "tk-item" }, "⏱ ", el("small", {}, "tự cập nhật mỗi giờ")));
-  if (items.length < 2) return null;
-  const run = () => el("div", { class: "tk-run" }, items.map((node) => node.cloneNode(true)));
-  return el("div", { class: "ticker", "aria-hidden": "true" }, el("div", { class: "tk-track" }, run(), run()));
-}
-
-function steps() {
-  const list = [
-    ["1", "Chọn game", "Mỗi game có trang riêng — lưu ra màn hình chính điện thoại để mở nhanh.", "pink"],
-    ["2", "Bấm vào code", "Code được chép ngay (kèm pháo giấy 🎉). Code đã chép được đánh dấu.", "cyan"],
-    ["3", "Nhập trong game", "Xem mục “Cách nhập code” ở trang game. Code livestream có đếm ngược.", "gold"],
+function howTo() {
+  const steps = [
+    ["Chọn game", "Mỗi game có trang riêng với đủ code và cách nhập."],
+    ["Bấm vào code", "Code được chép ngay và được đánh dấu đã chép."],
+    ["Nhập trong game", "Code có hạn dùng sẽ kèm đồng hồ đếm ngược."],
   ];
-  return el(
-    "section",
-    { class: "steps" },
-    heading("✨", "Dùng thế nào?", "gold"),
-    el(
-      "div",
-      { class: "steps-grid" },
-      list.map(([n, title, text, tone]) => el("div", { class: `step tone-${tone}` }, el("span", { class: "step-n" }, n), el("h3", {}, title), el("p", {}, text))),
-    ),
-  );
+  return panel("Cách dùng", el("ol", { class: "howto" }, steps.map(([title, text]) => el("li", {}, el("b", {}, title), el("span", {}, text)))));
 }
 
-function renderHome(data, first) {
+function renderHome(data) {
   document.title = "GiftCode Finder – Chọn game";
-  setTheme(null);
   const soon = expiringSoon(data);
+  const latest = latestCodes(data, LATEST_COUNT);
   const view = document.getElementById("view");
   view.className = "wrap home";
-  view.removeAttribute("style");
   view.replaceChildren(
     ...[
-      ticker(data),
-      intro(data, soon.length),
-      soon.length > 0 && soonStrip(soon),
-      picker(data, first),
-      TFT.promo(data.tft),
-      giftScene(latestCodes(data, LATEST_IN_BOX), data.games),
-      steps(),
+      pageHead(data, soon.length),
+      soon.length > 0 &&
+        region("Sắp hết hạn", "chép trước khi hết hạn", el("ul", { class: "codes" }, soon.map(({ game, item }) => codeRow(game, item, true))), "is-warn"),
+      gamePicker(data),
+      el(
+        "div",
+        { class: "split" },
+        region(
+          "Code mới nhất",
+          latest.length ? `${latest.length} code gần đây` : "",
+          latest.length
+            ? el("ul", { class: "codes" }, latest.map(({ game, item }) => codeRow(game, item, true)))
+            : el("p", { class: "none" }, "Chưa có code nào đang hoạt động."),
+        ),
+        el("aside", { class: "aside" }, TFT.promo(data.tft), howTo()),
+      ),
     ].filter(Boolean),
   );
-  FX.giftBox(view.querySelector(".gift"));
-  FX.reveal(view.querySelectorAll(".soon, .picker, .tftp, .steps, .gift"));
-  view.querySelectorAll(".gcard").forEach(FX.tilt);
-  const promo = view.querySelector(".tftp-card");
-  if (promo) FX.pauseAway(promo);
 }
 
 // --- Game page ------------------------------------------------------------
 
 function renderGame(data, game) {
   document.title = `${game.name} – GiftCode Finder`;
-  setTheme(game);
   const items = game.items || [];
   const codes = codesOf(game);
   const old = game.old || [];
@@ -577,54 +420,44 @@ function renderGame(data, game) {
       {
         type: "button",
         class: "btn btn-primary",
-        onclick: async (event) => {
-          const button = event.currentTarget;
+        onclick: async () => {
           if (!(await copyText(codes.map((c) => c.code).join("\n")))) return toast("Không sao chép được");
           toast(`Đã sao chép ${codes.length} code`);
-          FX.burst(...center(button), colorsOf(game));
         },
       },
       `Sao chép cả ${codes.length} code`,
     );
-  const guide =
-    game.redeem_url && el("a", { class: "btn btn-ghost", href: game.redeem_url, target: "_blank", rel: "noopener" }, "Hướng dẫn nhập ↗");
+  const guide = game.redeem_url && el("a", { class: "btn", href: game.redeem_url, target: "_blank", rel: "noopener" }, "Hướng dẫn nhập ↗");
   const head = el(
     "header",
     { class: "ghead" },
-    el("span", { class: "ghead-pattern", "aria-hidden": "true" }),
-    el("span", { class: "ghead-art", "aria-hidden": "true" }, initials(game.name)),
-    labelCube(initials(game.name), "lcube-lg"),
+    monogram(game, "mono-lg"),
     el(
       "div",
-      { class: "ghead-main" },
-      monogram(game, "mono-lg"),
-      el(
-        "div",
-        { class: "ghead-text" },
-        el("h1", { class: "ghead-title" }, game.name),
-        el("p", { class: "ghead-meta" }, `${countText(game)} · kiểm tra ${ago(data.generated_at)}`),
-      ),
+      { class: "ghead-text" },
+      el("h1", {}, game.name),
+      el("p", {}, `${countText(game)} · kiểm tra ${ago(data.generated_at)}`),
     ),
     (copyAll || guide) && el("div", { class: "ghead-actions" }, copyAll, guide),
   );
+  const live = items.filter(isLive);
+  const expired = items.filter((i) => !isLive(i));
+  const rows = (list) => el("ul", { class: "codes" }, list.map((i) => (i.code ? codeRow(game, i) : lockedRow(i))));
   const list = el(
-    "section",
-    { class: "gmain" },
-    heading("🎟️", "Code đang dùng được", "pink"),
-    items.length
-      ? el("ul", { class: "codes" }, items.map((i, n) => {
-          const row = i.code ? codeRow(game, i) : lockedRow(i);
-          row.style.setProperty("--i", n);
-          return row;
-        }))
-      : el("p", { class: "none" }, "Chưa có code nào đang hoạt động — trang tự kiểm tra lại mỗi giờ."),
+    "div",
+    { class: "stack" },
+    region(
+      "Code đang dùng được",
+      live.length ? `${live.length} mục` : "",
+      live.length ? rows(live) : el("p", { class: "none" }, "Chưa có code nào đang hoạt động — trang tự kiểm tra lại định kỳ."),
+    ),
+    expired.length > 0 && region("Đã hết hạn", "trang nguồn vẫn còn liệt kê", rows(expired), "is-past"),
   );
   const side = el(
     "aside",
-    { class: "gside" },
-    game.redeem_note &&
-      el("section", { class: "panel tone-gold" }, el("h2", { class: "panel-title" }, "📝 Cách nhập code"), el("p", { class: "redeem" }, game.redeem_note)),
-    el("section", { class: "panel tone-cyan" }, el("h2", { class: "panel-title" }, "📡 Nguồn"), el("ul", { class: "sources" }, game.sources.map(sourceLine))),
+    { class: "aside" },
+    game.redeem_note && panel("Cách nhập code", el("p", { class: "redeem" }, game.redeem_note)),
+    panel("Nguồn", el("ul", { class: "sources" }, game.sources.map(sourceLine))),
     old.length > 0 &&
       el(
         "details",
@@ -635,9 +468,7 @@ function renderGame(data, game) {
   );
   const view = document.getElementById("view");
   view.className = "wrap gpage";
-  view.setAttribute("style", themeStyle(game));
-  view.replaceChildren(el("nav", { class: "crumbs" }, el("a", { class: "back", href: "#/" }, "← Chọn game khác")), head, el("div", { class: "glayout" }, list, side));
-  FX.tilt(head);
+  view.replaceChildren(el("nav", { class: "crumbs" }, el("a", { class: "back", href: "#/" }, "← Tất cả game")), head, el("div", { class: "split" }, list, side));
 }
 
 // --- Routing ----------------------------------------------------------------
@@ -674,7 +505,6 @@ function show(animate = true) {
   const where = route();
   if (where.key === shown) return;
   if (shown === "home") homeScroll = window.scrollY;
-  const first = shown === undefined;
   const sameTft = shown && shown.startsWith("tft:") && where.key.startsWith("tft:");
   shown = where.key;
   markNav(where.key);
@@ -686,7 +516,7 @@ function show(animate = true) {
       TFT.render(document.getElementById("view"), DATA, where.tft, { keepScroll: sameTft });
       if (!sameTft) window.scrollTo(0, 0);
     } else {
-      renderHome(DATA, first);
+      renderHome(DATA);
       window.scrollTo(0, homeScroll);
     }
     tick();
@@ -698,7 +528,7 @@ function show(animate = true) {
 
 function chrome(data) {
   document.getElementById("meta").replaceChildren(
-    data.workflow_url ? el("a", { class: "rescan", href: data.workflow_url, target: "_blank", rel: "noopener" }, "↻ Quét lại ngay") : "",
+    data.workflow_url ? el("a", { class: "rescan", href: data.workflow_url, target: "_blank", rel: "noopener" }, "Quét lại ngay ↻") : "",
   );
   document.getElementById("foot").replaceChildren(
     el("p", {}, `Kiểm tra lúc ${stamp(data.generated_at)} · code đổi lần cuối ${stamp(data.updated_at)}.`),
@@ -716,7 +546,6 @@ function chrome(data) {
 function start(data) {
   DATA = data;
   chrome(data);
-  FX.scene();
   show(false);
   setInterval(tick, 1000);
   window.addEventListener("hashchange", () => show());

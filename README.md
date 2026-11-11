@@ -6,10 +6,10 @@ sức mạnh của từng bản cập nhật Đấu Trường Chân Lý, theo t�
 
 **👉 Xem code: https://phanquochuyiuh.github.io/GiftCode-Finder/**
 
-Trang web là một "sân chơi" 3D: nền lưới neon và cực quang chuyển động, dải chữ chạy các code mới
-nhất, hộp quà 3D có các game bay quanh như hành tinh (kéo để xoay, chạm để mở và lấy code), dải
-*Sắp hết hạn* cho code livestream, mỗi game là một poster theo màu riêng với khối lập phương 3D, và
-code hiện như vé, lật 3D khi bấm chép. Mỗi game có link riêng để lưu ra màn hình chính điện thoại:
+Trang web được chia vùng rõ ràng: phần đầu trang (số code đang dùng được), **Sắp hết hạn** (chỉ
+hiện khi có), **Chọn game**, và **Code mới nhất** để bấm chép ngay. Giao diện dùng nền trung tính và
+một màu nhấn; màu khác chỉ xuất hiện khi mang nghĩa (xanh = tăng sức mạnh, đỏ = giảm, vàng = sắp hết
+hạn). Mỗi game có link riêng để lưu ra màn hình chính điện thoại:
 [Wuthering Waves](https://phanquochuyiuh.github.io/GiftCode-Finder/#/wuthering-waves) ·
 [Strinova](https://phanquochuyiuh.github.io/GiftCode-Finder/#/strinova) (dạng `…/#/<id game>`).
 
@@ -17,15 +17,15 @@ code hiện như vé, lật 3D khi bấm chép. Mỗi game có link riêng để
 
 [`…/#/tft`](https://phanquochuyiuh.github.io/GiftCode-Finder/#/tft) (hoặc `…/#/tft/18.5` cho một bản):
 
-- **Chọn mùa** (Mùa 18 — Đại Ngàn Kỳ Bí, Mùa 17 — Thần Không Gian…) rồi lướt các bản cập nhật của
-  mùa trên vòng quay 3D.
-- Mỗi bản có ô đếm **▲ tăng / ▼ giảm / ◆ điều chỉnh / ✦ mới / ✕ gỡ bỏ / ✔ sửa lỗi**, thanh cân bằng,
-  ảnh tiêu điểm của Riot và danh sách **được tăng / bị giảm sức mạnh** nhiều nhất.
+- **Chọn mùa** (Mùa 18 — Đại Ngàn Kỳ Bí, Mùa 17 — Thần Không Gian…) rồi chọn bản cập nhật của mùa
+  trên một dải ngang (bản mới nhất ở đầu).
+- Mỗi bản có số **▲ tăng / ▼ giảm / ◆ điều chỉnh**, thanh cân bằng, ảnh tiêu điểm của Riot và danh
+  sách **được tăng / bị giảm sức mạnh** nhiều nhất.
 - Lọc theo **tướng, tộc/hệ, trang bị, nâng cấp (lõi), cơ chế, chế độ chơi**; mỗi tướng/trang bị là
   một thẻ có biểu tượng, chỉ số cũ → mới.
-- Gõ tên (vd. `Ahri`, không cần dấu) và bật **Cả mùa** để xem lịch sử tăng/giảm của nó qua mọi bản
+- Gõ tên (vd. `Ahri`, không cần dấu) và bật **Tìm trong cả mùa** để xem lịch sử tăng/giảm của nó qua mọi bản
   trong mùa.
-- **📚 Tra cứu thông số** ([`…/#/tft/tra-cuu`](https://phanquochuyiuh.github.io/GiftCode-Finder/#/tft/tra-cuu)):
+- **Tra cứu thông số** ([`…/#/tft/tra-cuu`](https://phanquochuyiuh.github.io/GiftCode-Finder/#/tft/tra-cuu)):
   toàn bộ tướng theo giá tiền, tộc/hệ, trang bị và nâng cấp của mỗi mùa. Bấm vào một tướng (hoặc vào
   tên tướng/trang bị trong bản cập nhật) để mở bảng thông số: máu, SMCK, tốc đánh, giáp, kháng phép,
   năng lượng, tầm đánh, chí mạng, kỹ năng với chỉ số 1★/2★/3★, các mốc tộc/hệ, công thức trang bị,
@@ -35,7 +35,7 @@ code hiện như vé, lật 3D khi bấm chép. Mỗi game có link riêng để
     trong vòng chọn của bản hiện tại; lõi chỉ đến từ nguồn khác hoặc đã gỡ được ẩn sau một nút.
   - **Trang bị:** chia theo trang bị ghép, thành phần, Ánh Sáng, Tạo tác (Ornn), Ấn, hỗ trợ, cơ chế
     mùa, tiêu hao; có chỉ số, hiệu ứng và công thức ghép nhỏ.
-  - **🎁 Phần thưởng & lõi đặc biệt:** bảng phần thưởng **có tỉ lệ** của lõi và tộc/hệ (Cuộc Viễn
+  - **Phần thưởng & lõi đặc biệt:** bảng phần thưởng **có tỉ lệ** của lõi và tộc/hệ (Cuộc Viễn
     Chinh, Đường Ra Trận, Triệu Gọi Hỗn Mang, Trứng Vàng, Gói Tăng Cường, Tiên Hắc Ám, Pha Lê…) hiện
     bằng hình: ô tỉ lệ, vàng, tướng, trang bị kèm số lượng. Dùng chung bộ lọc giai đoạn 2-1/3-2/4-2 và
     bậc Bạc/Vàng/Kim cương. Riot không đưa bảng phần thưởng vào dữ liệu game; các bảng này lấy từ

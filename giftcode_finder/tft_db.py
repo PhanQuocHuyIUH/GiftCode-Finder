@@ -16,7 +16,7 @@ import json
 import re
 from pathlib import Path
 
-DB_VERSION = 8  # bump to rebuild every season's sheets on the next run
+DB_VERSION = 9  # bump to rebuild every season's sheets on the next run
 PLACEHOLDER = re.compile(r"@([A-Za-z0-9_{}.:]+?)(\*100)?@")
 ICON_TEXT = {
     "scaleap": "SMPT",
@@ -113,6 +113,7 @@ def clean(text: str | None) -> str:
         text,
     )
     text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"\{\{[^{}]*\}\}", "", text)  # keyword tooltips the data leaves unresolved
     text = re.sub(r"(\d%?)\((?=[^()\d])", r"\1 (", text)  # "405(SMCK)" -> "405 (SMCK)"
     text = text.replace("&nbsp;", " ").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
     # In-game progress counters ("Đòn Đánh: ?", "(Hiện tại: ?)") only have a

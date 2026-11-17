@@ -1,6 +1,682 @@
 {
- "updated_at": "2026-11-05T17:16:31Z",
+ "updated_at": "2026-11-17T22:58:13Z",
  "patches": [
+  {
+   "version": "18.7",
+   "set": 18,
+   "set_name": "Đại Ngàn Kỳ Bí",
+   "title": "Teamfight Tactics patch 18.7",
+   "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-7",
+   "locale": "en-us",
+   "published_at": "2026-11-17T19:00:00Z",
+   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2046b94758c3bd0f1bf5b07f9969e62611002326-1920x1080.jpg?accountingTag=TFT",
+   "highlights": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e966479490ceaf2f4edb650c1c3f8e00ed3760a7-2400x1350.png",
+   "description": "It’s our final patch of Enchanted Wilds before TFT goes on its Prismatic Tour! We’ve got an especially wild patch this time around bringing meme comps to reality, and returning past powerful comps to their peak-fantasy form.",
+   "counts": {
+    "buff": 20,
+    "nerf": 18,
+    "adjust": 11,
+    "new": 1,
+    "removed": 0,
+    "fix": 14
+   },
+   "hotfixes": [],
+   "icons": {
+    "Coven": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_coven.png",
+    "Eclipse": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_eclipse.png",
+    "Elderwood": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_elderwood.png",
+    "Fae": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_fae.png",
+    "Inferno": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_inferno.png",
+    "Primal": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_primal.png",
+    "Riftbeast": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_riftbeast.png",
+    "Sprykin": "https://raw.communitydragon.org/latest/game/assets/ux/traiticons/trait_icon_18_sprykin.png",
+    "Cinderling": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_cinderling/skins/base/images/t_18_cinderling_teamplannersplash.png",
+    "Kobuko": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_kobuko/skins/base/images/tft18_kobuko_splash_tile_2.png",
+    "Leona": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_leona/skins/base/images/tft18_leona_splash_tile_10.png",
+    "Ornn": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_ornn/skins/base/images/tft18_ornn_splash_tile_2.png",
+    "Pebbles": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_sentry/skins/base/images/t_18_sentry_teamplannersplash.png",
+    "Elise": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_elise/skins/base/images/tft18_elise_splash_tile_24.png",
+    "Kayle": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_kayle/skins/base/images/tft18_kayle_splash_tile_42.png",
+    "LeBlanc": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_leblanc/skins/base/images/tft18_leblanc_splash_tile_5.png",
+    "Teemo": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_teemo/skins/base/images/tft18_teemo_splash_tile_0.png",
+    "Warwick": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_warwick/skins/base/images/tft18_warwick_splash_tile_35.png",
+    "Aphelios": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_aphelios/skins/base/images/tft18_aphelios_splash_tile_0.png",
+    "Kennen": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_kennen/skins/base/images/tft18_kennen_splash_tile_8.png",
+    "Ivern": "https://raw.communitydragon.org/latest/game/assets/characters/tft18_ivern/skins/base/images/tft18_ivern_splash_tile_0.png",
+    "Advanced Loan": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/advancedloan_ii.png",
+    "Comeback Story": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/comebackstory_iii.png",
+    "Corrosion": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/corrosion_i.png",
+    "Electrocharge II": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/electrocharge-ii.png",
+    "Expected Unexpectedness": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/addicted-to-rolling-iii.png",
+    "Focused Fire": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/marksman_i.png",
+    "Forged in Strength": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/forgedinstrength_iii.png",
+    "Investment Strategy I": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/investmentstrategy_ii.png",
+    "Investment Strategy II": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/investmentstrategy_iii.png",
+    "Slightly Magic Roll": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/slightlymagicroll_i.png",
+    "Golden Gamble": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/goldengamble_iii.png",
+    "Magic Roll": "https://raw.communitydragon.org/latest/game/assets/maps/tft/icons/augments/hexcore/a-magical-roll-ii.png"
+   },
+   "sections": [
+    {
+     "title": "",
+     "kind": "other",
+     "mid": false,
+     "notes": [
+      "It’s the last patch of Enchanted Wilds before TFT goes to the Prismatic Tour!",
+      "And we’re sending the set out with an extra WILD patch, one that revives S-tier comps from the past and will create many new ones building upon champion fantasies that we’ve had in development. 18.7 also brings MacOS support, Mobile improvements, and more quality of life/bug fix changes."
+     ],
+     "changes": []
+    },
+    {
+     "title": "MACOS SUPPORT RETURNS",
+     "kind": "other",
+     "mid": false,
+     "notes": [
+      "MacOS native support returns for devices running M-series chips and Macbook devices with Patch 18.7. Since TFT was last supported on macOS devices, we’ve added Retina display support, and we’ll be keeping an eye on player feedback and bug reports to ensure that everything is working as intended. For additional information, including minimum / recommended specs and supported display modes, please visit our Player Support article here."
+     ],
+     "changes": []
+    },
+    {
+     "title": "LARGE CHANGES",
+     "kind": "mechanics",
+     "mid": false,
+     "notes": [
+      "Large, like the amount of champions (94) in our next set!",
+      "Reforgers now have an internal queue system, preventing them from rerolling into the same items within multiple uses. For example, if you reforge a Bow into a Sword, the next time you reforge it, it cannot turn back into a Bow. This is a reforger buff and hopefully a frustration nerf.",
+      "Coven: The highest breakpoint of Coven is getting more Essence per loss, so when you get that ultra high-roll Coven Lux, and some early Emblems, you can chase the deepest, darkest, Coven cashout of them all… eighth place. Eclipse: As one of the highlights of the set as a semi-hidden trait with a quest to unlock, we want to make sure that it’s even more memorable in its final patch by making the executes come faster while delaying the moment that they start, making the Eclipse a more impactful and high-spectacle moment. Elderwood: We added a new (and Legendary) unit to Elderwood, so we had to lower the (5) and (7) breakpoint’s power to account for how much easier (and more powerful) they will be to hit with end-game Ivern boards. Fae: Fae’s final gold breakpoint was all but impossible to hit, but now it should be faerly possible given a very high-roll set-up. The final breakpoint is A TON OF GOLD by the way, so get chasing. Inferno: Chasing the burning fantasy of vertical Inferno is now even hotter than before! Primal: Primal Phoenix will now give players components faster, and more of them, through the course of the game. Riftbeast: We’re lowering some of the power of the trait so we can put even more into Pebbles and Cinderling with the goal of bringing back one of our favorite reroll comps. Sprykin: With Sprykin getting a new Yordle to the roster, the (7) piece is now accessible without a Spatula AND it has two powerful 5-costs in it. That’s a lot of power, so we’ve gotta trim some of the stats the trait provides to be properly Yordle-height.",
+      "Cinderling and Pebbles: Gone are the days of reroll Cinderling and Pebbles, but coming are the days of their return. Kobuko: Kobuko is now K.O.boop-Yo with three easy steps: Three-star, vertical Bruisers, Warmog’s + Wawrmog’s + Sterak’s. Note this is not a good build…it is the best build. Ornn: Ornn’t you glad Ornn can print multiple Artifacts again?",
+      "Elise: Ravager Emblem/Dark Ritual Augment made this Spider unable to be flushed down the storm drain, but with these buffs and that build, she’ll drain tank any storm of damage. Kayle: While Solar has found some success, Kayle’s never been the star of the show, just someone to star up. Teemo: At the start of the set, Teemo had a bug where his shrooms were very big and now that bug is a feature. Scuttlecrab: Speaking of bugs, are crabs bugs? They’re just like spiders that sit in the water and have claws right? Anyways, because when she is burrowed she stops attacking, Scuttlecrab could never really be a carry. But now this smiteable delightable attacks while burrowed, opening up meme builds with Hunter Emblem and Silvermere Dawn + Horizon Focus. Warwick: While the wolf bros can find success, Warwick three-star often struggles in the late game. A three-star buff will have this wold bro howling with delight.",
+      "Kha’Zix: With the Tactician’s Crown behind us (congrats to SPOILER), we’re able to give one of our higher skill-ceiling champions back some power. Kruggs: Now a Summoner, Kruggs will work similar to how Yorick functions when the trait is active. And since it’s pretty easy to flex another Summoner in, we’ve got a small compensation nerf.",
+      "Aphelios: You should hear the Prismatic Tour set design lead’s Aphelios impression. It’s dead (silent) on.",
+      "Ivern: We went back and forth on whether to make Maokai or Ivern an Elderwood unit, but eventually landed on Ivern since the trait provides enough frontline as is. We couldn’t add the two of them to the trait cause three 5-costs in one vertical is a bit too wild (and enchanting).",
+      "Past some of the more for-fun changes, we’ve got a few focused balance adjustments for Augments that are sticking around in our next set (spoiler)."
+     ],
+     "changes": [
+      {
+       "subject": "Coven",
+       "stat": "Essence per loss",
+       "before": "22/28/35/60",
+       "after": "22/28/35/70",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Eclipse",
+       "stat": "Eclipse delay",
+       "before": "8 seconds",
+       "after": "9 seconds",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Eclipse",
+       "stat": "Repeating kill time",
+       "before": "3.5 seconds",
+       "after": "3 seconds",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Elderwood",
+       "stat": "5 Elderwood bonus tree HP",
+       "before": "200",
+       "after": "125",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Elderwood",
+       "stat": "Deepwood Protector Base HP",
+       "before": "450",
+       "after": "375",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Fae",
+       "stat": "Final breakpoint",
+       "before": "888888",
+       "after": "720000",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Inferno",
+       "stat": "Inferno burn",
+       "before": "1/1/3/4",
+       "after": "1/1/4/5",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Primal",
+       "stat": "Max components given",
+       "before": "4",
+       "after": "6",
+       "dir": "buff",
+       "kind": "traits",
+       "group": "Phoenix"
+      },
+      {
+       "subject": "Primal",
+       "stat": "Kills per component",
+       "before": "14",
+       "after": "12",
+       "dir": "nerf",
+       "kind": "traits",
+       "group": "Phoenix"
+      },
+      {
+       "subject": "Riftbeast",
+       "stat": "AD/AP",
+       "before": "5%",
+       "after": "4%",
+       "dir": "nerf",
+       "kind": "traits",
+       "group": "7 Riftbeast"
+      },
+      {
+       "subject": "Sprykin",
+       "stat": "Bonus Health %",
+       "before": "15/40/55",
+       "after": "15/40/45",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Sprykin",
+       "stat": "Bonus Attack Speed %",
+       "before": "15/35/55",
+       "after": "15/35/45",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Sprykin",
+       "stat": "Sprykin 7 bonus",
+       "before": "100%",
+       "after": "75%",
+       "dir": "nerf",
+       "kind": "traits"
+      },
+      {
+       "subject": "Inferno",
+       "stat": "Inferno burn",
+       "before": "1/1/3/4",
+       "after": "1/1/4/5",
+       "dir": "buff",
+       "kind": "traits"
+      },
+      {
+       "subject": "Cinderling",
+       "stat": "Spell Damage AD",
+       "before": "310/465/700/1200",
+       "after": "330/495/745/1265",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 1"
+      },
+      {
+       "subject": "Kobuko",
+       "stat": "Spell Damage AP",
+       "before": "70/105/150/255",
+       "after": "80/120/180/30",
+       "dir": "adjust",
+       "kind": "champions",
+       "group": "Tier 1"
+      },
+      {
+       "subject": "Kobuko",
+       "stat": "Spell Damage Hp scaling",
+       "before": "10%",
+       "after": "15%",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 1"
+      },
+      {
+       "subject": "Leona",
+       "stat": "Spell Damage AR scaling",
+       "before": "1.5/2.7/4.06",
+       "after": "1.8/3/4.36",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 1"
+      },
+      {
+       "subject": "Ornn",
+       "stat": "Artifact threshold",
+       "before": "90,000/230,000/410,000/",
+       "after": "90,000/210,000/370,000",
+       "dir": "nerf",
+       "kind": "champions",
+       "group": "Tier 1"
+      },
+      {
+       "subject": "Pebbles",
+       "stat": "Spell Damage AP",
+       "before": "160/240/360/615",
+       "after": "170/255/385/655",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 1"
+      },
+      {
+       "subject": "Elise",
+       "stat": "Spell Damage AP",
+       "before": "35/50/80/110",
+       "after": "40/60/90/130",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 2"
+      },
+      {
+       "subject": "Kayle",
+       "stat": "On-hit Spell Damage AP",
+       "before": "65/97/110/115",
+       "after": "68/102/115/120",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 2"
+      },
+      {
+       "subject": "LeBlanc",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "champions",
+       "text": "LeBlanc is now slightly better at printing units",
+       "group": "Tier 2"
+      },
+      {
+       "subject": "Teemo",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "champions",
+       "text": "Shrooms are now larger!",
+       "group": "Tier 2"
+      },
+      {
+       "subject": "Teemo",
+       "stat": "Shroom print chance %",
+       "before": "10/12/15",
+       "after": "12/15/18",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 2"
+      },
+      {
+       "subject": "Now attacks while burrowed",
+       "stat": "Base AD",
+       "before": "50/75/112.5/168.75",
+       "after": "60/90/135/202.5",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 2 · Scuttlecrab"
+      },
+      {
+       "subject": "Warwick",
+       "stat": "Bite Damage",
+       "before": "230/345/535/910",
+       "after": "230/345/560/950",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 2"
+      },
+      {
+       "subject": "Kha’Zix",
+       "stat": "Base Damage",
+       "before": "230/310/450 AP",
+       "after": "240/325/480",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 3"
+      },
+      {
+       "subject": "Kha’Zix",
+       "stat": "Isolated Damage",
+       "before": "250/350/530 AP",
+       "after": "260/360/540",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 3"
+      },
+      {
+       "subject": "Now a Summoner",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "champions",
+       "text": "Kruglettes gain 15% more max health when summoned",
+       "group": "Tier 3 · Kruggs"
+      },
+      {
+       "subject": "Kruggs",
+       "stat": "Kruglettes Base HP",
+       "before": "50/100/180",
+       "after": "50/75/150",
+       "dir": "nerf",
+       "kind": "champions",
+       "group": "Tier 3"
+      },
+      {
+       "subject": "Aphelios",
+       "stat": "Lunar Blast Damage",
+       "before": "450/675",
+       "after": "500/750",
+       "dir": "buff",
+       "kind": "champions",
+       "group": "Tier 4"
+      },
+      {
+       "subject": "Kennen",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "champions",
+       "text": "Now a Sprykin",
+       "group": "Tier 5"
+      },
+      {
+       "subject": "Ivern",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "champions",
+       "text": "Now an Elderwood",
+       "group": "Tier 5"
+      },
+      {
+       "subject": "Advanced Loan",
+       "stat": "Gold",
+       "before": "20",
+       "after": "22",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": "Comeback Story",
+       "stat": "Attack Speed Per Missing HP",
+       "before": "0.3%",
+       "after": "0.4%",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": "Corrosion",
+       "stat": "Resist Loss Per 2 Seconds",
+       "before": "4",
+       "after": "3",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": "Electrocharge II",
+       "stat": "Damage Per Stage",
+       "before": "80/110/140",
+       "after": "65/90/120",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": "Expected Unexpectedness",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "augments",
+       "text": "Expected Unexpectedness: Shortened delay between dice rolls"
+      },
+      {
+       "subject": "Focused Fire",
+       "stat": "Attack Damage Per 5s",
+       "before": "5%",
+       "after": "4%",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": "Forged in Strength",
+       "stat": "Components",
+       "before": "2",
+       "after": "3",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": "Investment Strategy I",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "augments",
+       "text": "Investment Strategy I/II: Bonus HP properly works with % HP sources."
+      },
+      {
+       "subject": "Investment Strategy I",
+       "stat": "Health Per Interest",
+       "before": "9",
+       "after": "8",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": "Investment Strategy II",
+       "stat": "Health Per Interest",
+       "before": "12",
+       "after": "10",
+       "dir": "nerf",
+       "kind": "augments"
+      },
+      {
+       "subject": "NO SCOUT NO PIVOT: Tooltip updated",
+       "stat": "Pandora’s Items II++: Initial Gold",
+       "before": "6",
+       "after": "7",
+       "dir": "buff",
+       "kind": "augments"
+      },
+      {
+       "subject": "NO SCOUT NO PIVOT: Tooltip updated",
+       "stat": "We Stick Together: Attack Speed",
+       "before": "30%",
+       "after": "25%",
+       "dir": "nerf",
+       "kind": "augments"
+      }
+     ]
+    },
+    {
+     "title": "BUG FIXES AND FOLLOW THE FIX CHECK IN",
+     "kind": "fixes",
+     "mid": false,
+     "notes": [
+      "While we’ll still be listing our bug fixes for the patch here, be sure to check out the Follow the Fix (FTF) website for a broader look at fixes, quality of life improvements, cosmetics conversion process, and more scheduled for this patch, next patch, and beyond."
+     ],
+     "changes": [
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Escape button now cancels unconfirmed armory choices"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Opponent health now updates after a win correctly"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Better-centered arenas"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Dialogs now close consistently"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Seeker’s Armguard no longer stacks on non-gameplay champion takedowns (e.g. Elderwood plants)"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Banked mana no longer persists between combats"
+      },
+      {
+       "subject": "Slightly Magic Roll",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Slightly Magic Roll’s Hugify effect works on ghost armies"
+      },
+      {
+       "subject": "Golden Gamble",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Golden Gamble now plays coin flip VFX"
+      },
+      {
+       "subject": "Magic Roll",
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Magic Roll’s golden egg now works"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Fixed another Nesting Anvils edge case"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Augment description text inconsistent bounding boxes"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Fixed an issue where the augment armory on 4-2 might not open if an anvil armory is timed out right as the augment round begins"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Fixed an issue where the coven cashout amount at 500 was incorrectly written as 450 in the cashout armory"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "fix",
+       "kind": "fixes",
+       "text": "Fixed various crashes"
+      }
+     ]
+    },
+    {
+     "title": "PERFORMANCE IMPROVEMENTS AND AUTO SETTINGS",
+     "kind": "other",
+     "mid": false,
+     "notes": [
+      "We’ve got some big performance improvements and optimizations with 18.7! Even with these improvements, we’re not done, and we’ll be polishing and rolling out more improvements in the future. For more on that future-focused front, be sure to check out our public facing bug hunting/performance boosting tracking site, TFT: Follow the Fix ."
+     ],
+     "changes": [
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "other",
+       "text": "AUTO SETTINGS: First up, we’ve introduced an Auto setting mode that lets TFT manage your settings. With Auto mode your settings may be switched from patch to patch to best match your device’s performance capabilities. You can swap out of “Auto” by switching to “Custom” settings. With 18.7 we've moved all players to \"Auto\" which will balance performance and visual quality for their devices. This impacts effects quality, resolution quality and frame rate caps, but not other settings like battery saver or performance mode on mobile"
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "other",
+       "text": "VISUAL QUALITY IMPROVEMENTS (MOBILE): Fixed lower than intended rendering resolution on select mobile devices. Default settings on some of these devices have been adjusted to 30FPS. Most devices should see visual quality upgrades. This will be most noticeable on Android, but does not cover 100% of devices. These visual quality improvement changes will be delivered to players on Auto mode, players on custom will not have their settings changed."
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "new",
+       "kind": "other",
+       "text": "NEW RESOLUTION SETTINGS (MOBILE): We’ve decoupled resolution quality from the general quality setting so players have more agency to make tradeoffs on visual quality vs performance. Note that 100% on resolution quality does NOT guarantee full native resolution."
+      },
+      {
+       "subject": null,
+       "stat": null,
+       "before": null,
+       "after": null,
+       "dir": "adjust",
+       "kind": "other",
+       "text": "VARIOUS PERFORMANCE OPTIMIZATIONS: We have made significant improvements across the game to make it run more smoothly for all devices, including significant hitching improvements for OpenGL devices in particular."
+      }
+     ]
+    }
+   ],
+   "source_hash": "d883ecdf15ed79e7"
+  },
   {
    "version": "18.6",
    "set": 18,
